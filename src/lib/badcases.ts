@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { BAD_CASE_THRESHOLD } from "./dimensions";
 import type { BadCase, EvaluationResult } from "./types";
 
@@ -19,18 +19,43 @@ import type { BadCase, EvaluationResult } from "./types";
 const STORAGE_KEY = "llm-output-eval:bad-cases:v1";
 const MAX_ITEMS = 500;
 
+const listeners = new Set<() => void>();
+let cache: { raw: string | null; value: BadCase[] } | null = null;
+const EMPTY: BadCase[] = [];
+
 function read(): BadCase[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY;
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as BadCase[]) : [];
+    raw = window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    return [];
+    return EMPTY;
   }
+  if (cache && cache.raw === raw) return cache.value;
+  let value: BadCase[] = EMPTY;
+  if (raw) {
+    try {
+      value = JSON.parse(raw) as BadCase[];
+    } catch {
+      value = EMPTY;
+    }
+  }
+  cache = { raw, value };
+  return value;
 }
 
 function write(items: BadCase[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
+  listeners.forEach((l) => l());
+}
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    listeners.delete(cb);
+    window.removeEventListener("storage", cb);
+  };
 }
 
 /** Extract low-scoring dimensions from a result and prepend them to the store. */
@@ -59,14 +84,9 @@ export function collectBadCases(result: EvaluationResult, source: string): BadCa
 }
 
 export function useBadCases() {
-  const [items, setItems] = useState<BadCase[]>([]);
-  useEffect(() => setItems(read()), []);
-  const clear = useCallback(() => {
-    write([]);
-    setItems([]);
-  }, []);
-  const refresh = useCallback(() => setItems(read()), []);
-  return { items, clear, refresh };
+  const items = useSyncExternalStore(subscribe, read, () => EMPTY);
+  const clear = useCallback(() => write([]), []);
+  return { items, clear };
 }
 
 /** CSV with a UTF-8 BOM so Excel opens Chinese text correctly. */
