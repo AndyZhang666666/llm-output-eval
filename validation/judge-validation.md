@@ -1,33 +1,33 @@
-# Judge validation report
+# 裁判校验报告
 
-**Judge:** `gemini-2.5-flash`, temperature 0, `response_format: json_object`, via an OpenAI-compatible relay
-**Prompt:** `src/lib/prompts.ts` at commit `eb8a113` — any change to the prompt invalidates these numbers
-**Goldset:** `goldset.jsonl`, 30 items, 6 edge cases (20%)
-**Run date:** 2026-09-12
-**Raw data:** `results/consistency.json`, `results/agreement.json`, `results/position-bias.json` — every number below is read from those files.
+**裁判：** `gemini-2.5-flash`，temperature 0，`response_format: json_object`，经一个兼容 OpenAI 协议的中转站
+**Prompt：** `src/lib/prompts.ts`，commit `ce38bfe` —— prompt 一改，下面所有数字作废
+**金标集：** `goldset.jsonl`，30 条，其中 6 条边界样本（20%）
+**运行日期：** 2026-09-12
+**原始数据：** `results/consistency.json`、`results/agreement.json`、`results/position-bias.json` —— 下面每个数字都从这三个文件里读出来
 
-> **Human scores are the author's own judgement, single annotator, not a team.**
-> "Agreement with humans" here means "agreement with one person who also wrote the rubric". That inflates agreement relative to an independent annotator. The numbers are useful for spotting *where* the judge diverges, less so as an absolute quality claim.
+> **人工分数是作者一个人标的，不是团队。**
+> 这里的「与人工一致率」意思是「与一个同时也写了 rubric 的人一致」。相对于独立标注者，这会高估一致率。这些数字适合用来找裁判*在哪里*跑偏，不适合当成绝对的质量声明。
 
 ---
 
-## Summary
+## 摘要
 
-| Check | Result |
+| 检查 | 结果 |
 |---|---|
-| Consistency | 8/30 items scored identically across 3 runs; pacing is the noisiest dimension (mean SD 0.25) |
-| Agreement | Overall MAE 0.26, Spearman ρ 0.93; exact-score match 57–73% per dimension |
-| Position bias | 0/10 pairs flipped, 0/24 identical-text controls broke tie; 4/10 pairs hedge when the better text is second |
+| 一致性 | 30 条里 8 条三次运行分数完全相同；pacing 是最噪的维度（平均 SD 0.25） |
+| 一致率 | 总体 MAE 0.26，Spearman ρ 0.93；各维完全一致率 57–73% |
+| 位置偏差 | 10 对里 0 对翻判，24 次同文本对照里 0 次打破 tie；但 10 对里有 4 对在好文本排第二时改口「不表态」 |
 
-Two defects were found and fixed during this run — a **response truncation** that silently dropped items, and **null scores poisoning the aggregates**. Both are described below, because the version of this report they affected looked plausible.
+这次运行里找到并修了两个缺陷 —— 一个是**响应截断**静默丢掉了样本，一个是**空值污染了统计聚合**。下面都写了，因为被它们影响的那版报告看起来完全合理。
 
 ---
 
-## Check 1 — Consistency (same text, 3 runs)
+## 检查 1 —— 一致性（同一段文本跑 3 次）
 
-Question: at temperature 0, how much do scores move between runs of the identical prompt?
+问题：temperature 0 下，完全相同的 prompt 跑几次，分数会动多少？
 
-| Dimension | Mean SD | Mean range | Items with any change | Items with range ≥ 2 | Max range |
+| 维度 | 平均 SD | 平均极差 | 有变动的样本 | 极差 ≥ 2 的样本 | 最大极差 |
 |---|---|---|---|---|---|
 | persona | 0.09 | 0.20 | 5 / 30 | 1 | 2 |
 | coherence | 0.22 | 0.47 | 12 / 30 | 1 | 3 |
@@ -35,178 +35,180 @@ Question: at temperature 0, how much do scores move between runs of the identica
 | dialogue | 0.13 | 0.27 | 7 / 30 | 1 | 2 |
 | structure | 0.15 | 0.33 | 9 / 30 | 1 | 2 |
 
-Fully stable items (all five dimensions identical across 3 runs): **8 / 30**.
+五维全部三次相同的样本：**8 / 30**。
 
-**`temperature: 0` is not deterministic.** 22 of 30 items moved on at least one dimension. Most movement is ±1; five item-dimension pairs moved by 2 or more.
+**`temperature: 0` 不是确定性。** 30 条里 22 条至少有一维动了。大部分是 ±1；有 5 个「样本 × 维度」动了 2 分或更多。
 
-**Pacing is the highest-variance dimension**, and by a clear margin (SD 0.25 vs persona's 0.09). The rubric asks "how much of the text earns its place" — a judgement about *proportion* with no hard anchor in the text, unlike a contradiction (coherence) or an out-of-character line (persona) which can be pointed at directly. The judge's pacing evidence is also the weakest in the run: it tends to quote the *good* sentences rather than the dead stretches.
+**pacing 是方差最大的维度**，而且差距明显（SD 0.25 vs persona 的 0.09）。rubric 问的是「文本里有多少是值得留下的」—— 这是对*比例*的判断，在文本里没有硬锚点；相比之下，一处矛盾（coherence）或一句出戏的台词（persona）都能直接指出来。裁判给 pacing 的证据也是这轮里最弱的：它倾向引用*好*句子，而不是那些死水般的段落。
 
-### The range-2 cases (5)
+### 极差为 2 的 5 个案例
 
-| Item | Dimension | Runs | What happened |
+| 样本 | 维度 | 三次分数 | 发生了什么 |
 |---|---|---|---|
-| `g18` | coherence | **4 / 1 / 4** | Run 2 applied the non-narrative rule; runs 1 and 3 did not — see below |
-| `g22` | structure | 3 / 2 / 4 | All three runs agreed the setup is abandoned; they differed on how much that costs |
-| `g13` | persona | 1 / 1 / 3 | A text with no characterisation; two runs said "absent = failed", one said "minimal" |
-| `g02` | pacing | 3 / 4 / 2 | Genuine mid-scale indecision — the text is competent but inert |
-| `g07` | dialogue | 2 / 4 / 4 | One run read the lines as expository, two as natural |
+| `g18` | coherence | **4 / 1 / 4** | 第 2 次套用了「非叙事」规则，第 1、3 次没有 —— 见下 |
+| `g22` | structure | 3 / 2 / 4 | 三次都认同铺垫被丢掉了，分歧在这要扣多少 |
+| `g13` | persona | 1 / 1 / 3 | 一段没有人物刻画的文本；两次说「没有 = 失败」，一次说「很少」 |
+| `g02` | pacing | 3 / 4 / 2 | 真正的中间档犹豫 —— 文本合格但没生气 |
+| `g07` | dialogue | 2 / 4 / 4 | 一次把台词读成解说，两次读成自然 |
 
-**`g18` is the interesting one, and it is a defect I introduced.** The text is a flat diary — "woke up, brushed teeth, went to the supermarket, bought milk, came home, watched the news". To fix a separate failure (`e03`, an air-purifier manual) I added this rule:
+**`g18` 是最值得看的一个，而且是我自己引入的缺陷。** 文本是一篇平铺直叙的日记 —— 「起床、刷牙、去超市、买牛奶、回家、看新闻」。为了修另一个失败案例（`e03`，一份空气净化器说明书），我在 prompt 里加了这条规则（原文英文）：
 
 > NON-NARRATIVE INPUT = ALL 1. If the input is not narrative fiction (an instruction manual, an essay, a product description, a list, a news article), score every dimension 1 and say in each comment that the input is not a story.
+>
+> 即：非叙事输入全部 1 分。说明书、议论文、产品描述、清单、新闻都算，每一维给 1，并在评语里说明输入不是故事。
 
-Run 2 read the diary as "a list of disconnected daily activities" and gave coherence 1. Runs 1 and 3 read it as a narrative and gave 4. **The rule fixed `e03` completely but made `g18` less stable**, because *"is this narrative fiction?"* is itself a judgement call, and the rule does not say what to do with something that half-qualifies. It also does not constrain *consistency of application* — a run that invokes the rule should apply it to all five dimensions, and run 2 only applied it to one.
+第 2 次运行把日记读成「一串互不相关的日常活动」，coherence 给了 1。第 1、3 次把它当叙事，给了 4。**这条规则把 `e03` 修得很干净，却让 `g18` 更不稳定了**，因为「这是不是叙事性虚构」本身就是一个判断，规则没说半符合的怎么办。它也没有约束*套用的一致性* —— 一次运行如果触发了规则，应该五维全套；第 2 次只套了一维。
 
-This is a real trade-off, not a bug to be papered over: making the judge stricter about off-topic input necessarily adds a decision boundary, and decision boundaries are where variance lives. The net effect is still an improvement (see *Effect of the prompt change*), but a future revision should say explicitly that the rule is all-or-nothing per item.
+这是真实的取舍，不是能糊过去的 bug：让裁判对跑题输入更严，必然多一条决策边界，而决策边界就是方差住的地方。净效果仍是改善（见「prompt 改动的效果」），但下一版应该明确写出：这条规则对单个样本是全有或全无。
 
-## Check 2 — Agreement with human labels
+## 检查 2 —— 与人工标注的一致率
 
-Model score = mean of the 3 consistency runs, so check 1's variance is already averaged in.
+模型分 = 检查 1 三次运行的均值，所以检查 1 的方差已经被平均进去了。
 
-| Dimension | Exact match | Within ±1 | MAE | Spearman ρ | Model mean | Human mean |
+| 维度 | 完全一致 | ±1 以内 | MAE | Spearman ρ | 模型均值 | 人工均值 |
 |---|---|---|---|---|---|---|
 | persona | 0.57 | 0.90 | 0.49 | 0.86 | 2.76 | 3.00 |
 | coherence | 0.60 | 0.97 | 0.47 | 0.90 | 3.05 | 3.33 |
 | pacing | 0.57 | 0.97 | 0.48 | 0.91 | 3.07 | 3.10 |
 | dialogue | 0.70 | 0.97 | 0.37 | 0.89 | 2.56 | 2.77 |
 | structure | 0.73 | 1.00 | 0.29 | 0.93 | 2.91 | 2.80 |
-| **overall (mean of 5)** | — | — | **0.26** | **0.93** | | |
+| **总体（五维均值）** | — | — | **0.26** | **0.93** | | |
 
-**Ranking agreement is high (ρ 0.86–0.93); exact-score agreement is not (57–73%).** The judge orders texts the way I do. It does not reliably land on the same integer — fine for "is V2 better than V1", not fine for "this text is a 4".
+**排序一致率高（ρ 0.86–0.93），精确到整数的一致率不高（57–73%）。** 裁判给文本排的顺序和我一样，但不能稳定落到同一个整数上。这对「V2 比 V1 好吗」够用，对「这段是 4 分」不够用。
 
-**A consistent slight harshness.** The model mean sits below the human mean on four of five dimensions (−0.24 persona, −0.28 coherence, −0.21 dialogue, −0.03 pacing), and above on structure (+0.11). The gap is small but it is in the same direction each time, which makes it systematic rather than noise.
+**系统性地略偏严。** 五维里四维模型均值低于人工（persona −0.24、coherence −0.28、dialogue −0.21、pacing −0.03），只有 structure 高（+0.11）。差距小，但方向每次都一样，所以是系统性的，不是噪声。
 
-### Where they disagree by 2+ points (3 cases)
+### 差 2 分以上的地方（3 处）
 
-All three are the judge saying **1** where I said **3** — the judge at its harshest. They are not equally defensible.
+三处全是裁判给 **1**、我给 **3** —— 裁判最严的时候。三处的站得住脚程度并不一样。
 
-**`g09` — dialogue: judge 1, me 3. The judge is right and my label is wrong.**
-The text is event-driven with indirect speech only ("物业说…", "老板说…") and no quoted lines. My own new rule says an absent dimension scores 1. The judge cited exactly that and gave 1 in all three runs. My 3 was written before the rule existed and contradicts it. **The label should be 1.**
+**`g09` —— dialogue：裁判 1，我 3。裁判对，我的标注错了。**
+文本是事件驱动的，只有间接引语（「物业说…」「老板说…」），没有一句直接台词。我自己新加的规则说：缺失的维度记 1 分。裁判三次都引用了这一点给了 1。我的 3 是在规则存在之前标的，和规则矛盾。**这条标注应该是 1。**
 
-**`g06` and `g20` — persona: judge 1, me 3. The score is arguable; the judge's stated reason is false.**
-`g06` has a named protagonist (苏婷) who enters, works, and fetches water. `g20` has a named protagonist (顾言) who investigates his father's death, then gives up. Yet the judge's comments say:
+**`g06` 和 `g20` —— persona：裁判 1，我 3。分数可辩，但裁判陈述的理由是假的。**
+`g06` 有一个有名字的主角（苏婷），她进门、干活、去接水。`g20` 有一个有名字的主角（顾言），他调查父亲的死，然后放弃。然而裁判的评语说（原文英文，照抄自 `results/consistency.json`）：
 
-> "The input is a descriptive scene without identifiable characters" (`g06`)
+> "The input is a descriptive scene without identifiable characters or dialogue"（`g06`，第 1 次运行）—— 输入是一个没有可识别角色、没有对白的描写性场景
 
-> "The text lacks identifiable characters with distinct traits" (`g20`)
+> "The text lacks identifiable characters with distinct traits or behaviors."（`g20`，第 2 次运行）—— 文本缺少具有鲜明特征或行为的可识别角色
 
-Both statements are factually wrong — a named character who acts is exactly an identifiable character. The score of 1 comes from the *absence of characterisation* (nothing distinguishes these people from anyone else), which is a reasonable reading of anchor 1 — but the judge reached it by asserting something untrue about the text rather than by saying "there is a character, and they have no traits". **A score can be right while its justification is wrong, and that distinction matters when you are reading the comment to decide what to fix.**
+两句话在事实上都是错的 —— 一个有名字、有动作的人物就是可识别角色。1 分的来源是*没有人物刻画*（没有任何东西把这两个人和别人区分开），这是对 1 分锚点的合理解读 —— 但裁判是靠断言一件关于文本的不实之事到达这个分数的，而不是说「有人物，但没有特征」。**分数可以对而理由是错的，当你要靠评语决定改什么的时候，这个区别很要紧。**
 
-`g06` and `g20` are also where my labels are softest: both texts have a protagonist with essentially *zero* distinguishing traits, and the rubric's anchors 1 and 2 both describe traits that exist and are then violated. Neither anchor covers "no traits at all". A generous 3 is defensible; so is 1. I am leaving both labels at 3 so the numbers stay reproducible, but I would not defend 3 against a reviewer.
+`g06` 和 `g20` 也是我自己标注最软的地方：两段文本的主角都基本*没有*任何区分性特征，而 rubric 的 1 分和 2 分锚点描述的都是「有特征然后被违背」。两个锚点都没覆盖「根本没有特征」。宽松给 3 说得通；给 1 也说得通。我把两条都留在 3，好让数字可复现，但如果有人审我不会替 3 辩护。
 
-### Sensitivity: if all three labels were made rule-consistent
+### 敏感性：如果三条标注都改成和规则一致
 
-Setting `g06.persona`, `g20.persona` and `g09.dialogue` to 1 — i.e. conceding all three to the judge:
+把 `g06.persona`、`g20.persona`、`g09.dialogue` 都设为 1 —— 也就是三处全向裁判让步：
 
-| Dimension | MAE | ρ | Exact |
+| 维度 | MAE | ρ | 完全一致 |
 |---|---|---|---|
 | persona | 0.49 → **0.36** | 0.86 → **0.92** | 0.57 → 0.63 |
 | dialogue | 0.37 → **0.30** | 0.89 → **0.92** | 0.70 → 0.73 |
-| overall | 0.26 → **0.24** | 0.93 → **0.96** | — |
+| 总体 | 0.26 → **0.24** | 0.93 → **0.96** | — |
 
-Three label decisions out of 150 cells move overall ρ by 0.03. That is the honest error bar on this table: with thirty items and one annotator, the top-line numbers are soft at roughly this scale. It is a reason to read the *per-case* findings rather than treating ρ as precise.
+150 格里三格的标注决定，让总体 ρ 移动 0.03。这就是这张表如实的误差棒：30 条样本、一个标注者，顶上那几个数字的软度差不多就是这个量级。所以要读*逐案*的发现，而不是把 ρ 当精确值。
 
-### Edge-case behaviour
+### 边界样本的表现
 
-| Case | What was tested | Result |
+| 样本 | 测什么 | 结果 |
 |---|---|---|
-| `e01` empty | Does it invent an evaluation? | All 1s, all 3 runs. Comments say the text is empty. ✅ |
-| `e02` garbled | Does it find meaning in noise? | All 1s, all 3 runs. ✅ |
-| `e03` off-topic (air-purifier manual) | Does it notice it's not a script? | All 1s, all 3 runs. ✅ **Fixed by the new rule** — previously 4.33 coherence / 3.33 pacing / 3.33 structure |
-| `e04` persona collapse | Does persona catch a mid-text personality break? | Persona **1** (all runs), coherence **1** (all runs). ✅ Isolated to the right dimensions |
-| `e05` overlong (2.5k chars, repeated filler) | Does a good opening bias the whole score? | Pacing **1** (all runs), coherence 2. ✅ Not fooled by the opening |
-| `e06` truncated mid-sentence | Does structure drop vs. the intact sibling? | Structure **2.0** vs `g07`'s **3.67**, identical across all runs. ✅ The largest drop of any dimension |
+| `e01` 空文本 | 会不会凭空编一份评价？ | 三次全 1。评语说文本为空。✅ |
+| `e02` 乱码 | 会不会在噪声里找出意义？ | 三次全 1。✅ |
+| `e03` 跑题（空气净化器说明书） | 能不能发现这不是剧本？ | 三次全 1。✅ **新规则修好的** —— 此前 coherence 4.33 / pacing 3.33 / structure 3.33 |
+| `e04` 人设崩塌 | persona 能不能抓到文本中途的性格断裂？ | persona **1**（三次）、coherence **1**（三次）。✅ 落在了正确的维度上 |
+| `e05` 超长（2.5k 字，重复填充） | 开头写得好会不会带高整体分？ | pacing **1**（三次）、coherence 2。✅ 没被开头骗到 |
+| `e06` 半句截断 | structure 相对完整的姊妹版会不会掉？ | structure **2.0** vs `g07` 的 **3.67**，三次完全相同。✅ 所有维度里掉得最多的 |
 
-`e06` is a strict prefix of `g07` — the same text with the last clause cut off mid-word. Dropping the ending moves structure by −1.67 (human expectation: −2) and pacing by −1.33, while persona, coherence and dialogue each move by less than −1. The dimension that should collapse is the one that does, and it does so with zero run-to-run variance. That is the tool doing precisely what it claims.
+`e06` 是 `g07` 的严格前缀 —— 同一段文本，最后一个从句在词中间切断。去掉结尾让 structure 掉了 −1.67（人工预期 −2）、pacing 掉了 −1.33，而 persona、coherence、dialogue 各掉不到 1。应该崩的维度崩了，而且三次运行零方差。这就是工具在做它声称要做的事。
 
-## Check 3 — Position bias (A/B order swap)
+## 检查 3 —— 位置偏差（A/B 顺序互换）
 
-Setup: 10 pairs of a clearly-better and a clearly-worse text (human overall gap 1.6–3.0). Each pair judged twice, once with the better text as A and once as B. Plus 4 controls where A and B are the identical text.
+设置：10 对明显一好一差的文本（人工总分差距 1.6–3.0）。每对判两次，好文本一次放 A、一次放 B。另加 4 组 A 和 B 是完全相同文本的对照。
 
-| | Result |
+| | 结果 |
 |---|---|
-| Identical-text controls | **0 / 24** non-tie judgements — the judge never invented a preference between a text and itself |
-| Pairs that *flipped* with order | **0 / 10** — it never said "A is better" then "B is better" for the same two texts |
-| Pairs consistent across both orders | **6 / 10** |
-| Pairs correct in both orders | **6 / 10** |
-| Slot picks across all 120 dimension-level judgements | **A = 60, B = 36**, tie = 24 |
+| 同文本对照 | **0 / 24** 次非 tie 判定 —— 裁判从未在一段文本和它自己之间编出偏好 |
+| 随顺序*翻判*的对数 | **0 / 10** —— 从未对同一对文本先说「A 好」再说「B 好」 |
+| 正反两序一致的对数 | **6 / 10** |
+| 正反两序都判对的对数 | **6 / 10** |
+| 120 次维度级判定里的选位 | **A = 60，B = 36**，tie = 24 |
 
-**There is no "second position wins" bias. What there is: when the better text is in slot B, the judge sometimes refuses to choose.** Every one of the four inconsistent pairs committed to "better" in the forward order and returned an unbroken all-dimension **tie** in the reversed order:
+**不存在「排第二的赢」这种偏差。存在的是：好文本放在 B 位时，裁判有时拒绝选。** 四对不一致的样本，全都在正向顺序里选了「更好」，在反向顺序里返回了**全维度 tie**：
 
-| Pair | Human gap | Forward | Reversed |
+| 对 | 人工差距 | 正向 | 反向 |
 |---|---|---|---|
-| `g05` vs `g04` | 2.6 | better | **tie (all dims)** |
-| `g19` vs `g08` | 2.4 | better | **tie (all dims)** |
-| `g21` vs `g02` | 2.2 | better | **tie (all dims)** |
-| `g22` vs `g06` | 1.6 | better | **tie (all dims)** |
+| `g05` vs `g04` | 2.6 | better | **tie（全维）** |
+| `g19` vs `g08` | 2.4 | better | **tie（全维）** |
+| `g21` vs `g02` | 2.2 | better | **tie（全维）** |
+| `g22` vs `g06` | 1.6 | better | **tie（全维）** |
 
-The asymmetry is about *confidence*, not *preference*: the judge commits when the good text comes first and hedges when it comes second. The ties are also suspiciously total — all six dimensions collapsing to tie at once looks more like the model declining the task than like six independent judgements landing on "equal".
+这个不对称关乎*信心*而非*偏好*：好文本在前时裁判敢表态，在后时就含糊。tie 的形态也可疑地整齐 —— 六个维度同时塌成 tie，更像模型在拒绝任务，而不是六个独立判断恰好都落在「相等」上。
 
-**Gap size does not explain it.** It is tempting to say "closer pairs hedge more", but the data does not support that cleanly: `g03`/`g20` (gap 1.8) committed in both orders, while `g21`/`g02` (gap 2.2) tied, and `g11`/`g23` (gap 2.4) committed while `g19`/`g08` (gap 2.4) tied. Ten pairs is too few to separate "gap size" from "which specific texts these are". What can be said is directional: **all four hedges are in the reversed order and none are in the forward order**, which is a real asymmetry and not something thirty judgements would produce by chance.
+**差距大小解释不了它。** 很容易想说「差距越小越含糊」，但数据不干净地支持这一点：`g03`/`g20`（差距 1.8）两序都表态了，而 `g21`/`g02`（差距 2.2）tie 了；`g11`/`g23`（差距 2.4）表态了，`g19`/`g08`（同样 2.4）tie 了。10 对太少，分不开「差距大小」和「具体是哪几段文本」。能说的是方向性的：**四次含糊全在反向顺序，正向顺序里一次都没有**，这是真实的不对称，不是 30 次判定靠运气能撞出来的。
 
-**What this means for the tool:** the compare page does **not** use pairwise prompting. Each version is scored independently, N times, and the aggregates are compared — which sidesteps this entirely. The pairwise prompt exists in `prompts.ts` only so this check can be re-run.
+**对工具的含义：** 对比页**不用** pairwise 提问。每一版独立打 N 次分，比的是聚合值 —— 完全绕开了这个问题。pairwise prompt 留在 `prompts.ts` 里只为了这项检查能重跑。
 
 ---
 
-## Defects found and fixed during this run
+## 这次运行里找到并修掉的缺陷
 
-These are the reason the report exists alongside the app. Both produced output that looked fine.
+它们是这份报告要和应用放在一起的原因。两个都产出了看起来没问题的结果。
 
-### 1. Response truncation silently dropped items
+### 1. 响应截断静默丢掉了样本
 
-`max_tokens` was **2048**. A verdict is five dimensions each carrying a comment plus up to three verbatim quotes, and quotes are copied in the source language — so a Chinese item costs far more tokens than its character count suggests. Per-item token usage landed at **1800–2200**, right on the ceiling.
+`max_tokens` 原来是 **2048**。一份判定是五个维度各带一句评语加最多三条逐字引用，引用照抄原文语言 —— 所以一条中文样本花的 token 远比它的字数暗示的多。每条样本的 token 用量落在 **1800–2200**，正好压在上限上。
 
-On goldset `g17` the provider hit the limit mid-JSON on *every* run (`finish_reason: "length"`, ~2040 completion tokens), returning a half-written object. Downstream, this surfaced as a generic parse error and was counted as a failed run — so `g17` contributed **null** scores to every aggregate while the report still looked plausible.
+金标集里的 `g17`，服务端*每一次*都在 JSON 中间撞上上限（`finish_reason: "length"`，约 2040 个 completion token），返回半截对象。到下游这表现成一个普通的解析错误，被算作失败运行 —— 于是 `g17` 给每个聚合值贡献的都是 **null**，而报告依旧看起来合理。
 
-Fixed in commit `47f16ca`:
-- `JUDGE_MAX_TOKENS = 8192`, defined once in `judge.ts` and shared by the app and `validation/` so they cannot drift apart.
-- `parseJudgeOutput` distinguishes **truncation** from **malformation**, using `finish_reason` plus a brace/string balance scan for relays that omit it. The route handler no longer retries truncation (deterministic for a given input and budget, so the retry only doubled the visitor's wait).
-- `validation/probe-raw.mjs` dumps `finish_reason`/usage/response tail for one item. `spot.mjs` only reports *that* parsing failed; this reports *why*, which is how the truncation was pinned down.
+在 commit `d4feb5e` 修掉：
+- `JUDGE_MAX_TOKENS = 8192`，在 `judge.ts` 里定义一次，应用和 `validation/` 共用，两边不可能漂开。
+- `parseJudgeOutput` 区分**截断**和**畸形**，依据 `finish_reason` 加一遍括号/字符串配平扫描（应付不回 `finish_reason` 的中转站）。路由处理器不再重试截断（对给定输入和预算是确定性的，重试只会让访客多等一倍）。
+- `validation/probe-raw.mjs` 打印单条样本的 `finish_reason`、usage、响应尾部。`spot.mjs` 只说*解析失败了*；这个说*为什么*，截断就是靠它定位的。
 
-### 2. Null scores poisoned the aggregates
+### 2. 空值污染了统计聚合
 
-Even after truncation was possible to detect, `consistency.mjs` and `agreement.mjs` would happily compute over `null`: `Math.abs(null - 5)` is `5`, so a missing score was being counted as a five-point disagreement, dragging MAE up and corrupting every SD. One item with three failed runs was enough to push `highest_variance_dimension` to the wrong answer.
+即便截断变得可检测了，`consistency.mjs` 和 `agreement.mjs` 仍会高高兴兴地在 `null` 上算：`Math.abs(null - 5)` 等于 `5`，所以一个缺失的分数被当成了 5 分的分歧，把 MAE 拉高、把每个 SD 弄坏。一条样本三次全失败，就足以把 `highest_variance_dimension` 推到错误答案上。
 
-Fixed in the same commit: both scripts now **fail fast** and name the offending item rather than producing a report that is quietly wrong. A partial result is never silently averaged.
+在同一个 commit 里修掉：两个脚本现在都**立即抛错**并点名出问题的样本，而不是产出一份悄悄错掉的报告。部分结果绝不会被静默平均。
 
-> **Note on the intermediate run.** While the truncation was still present, this report showed overall ρ 0.79 and MAE 0.45 — worse than the pre-prompt-change baseline. That comparison was an artefact: five of the eight recorded "disagreements" were `g17`'s nulls. With the pipeline fixed, the real figures are ρ 0.93 / MAE 0.26. **The lesson is the ordering: fix the measurement instrument before using it to judge a change.**
+> **关于中间那次运行。** 截断还在时，这份报告显示总体 ρ 0.79、MAE 0.45 —— 比改 prompt 之前的基线更差。那个对比是假象：8 处记录在案的「分歧」里 5 处是 `g17` 的 null。管道修好后，真实数字是 ρ 0.93 / MAE 0.26。**教训在顺序上：先把量具修好，再拿它去评判一次改动。**
 
-### Effect of the prompt change
+### prompt 改动的效果
 
-The prompt changed (commit `eb8a113`) to add the absent-dimension and non-narrative rules. Comparing like for like, clean against clean:
+prompt 变过一次（commit `ce38bfe`），加了「缺失维度记 1」和「非叙事全 1」两条规则。同类比同类，干净对干净：
 
-| | Before (`2a1a7b5`) | After (`eb8a113`) |
+| | 改前（`6544ef5`） | 改后（`ce38bfe`） |
 |---|---|---|
-| Overall MAE | 0.34 | **0.26** |
-| Overall ρ | 0.90 | **0.93** |
-| Fully stable items | 7 / 30 | **8 / 30** |
-| 2+ point disagreements | 4 | **3** |
-| `e03` (off-topic) coherence | 4.33 | **1.00** |
+| 总体 MAE | 0.34 | **0.26** |
+| 总体 ρ | 0.90 | **0.93** |
+| 五维全稳定的样本 | 7 / 30 | **8 / 30** |
+| 差 2 分以上 | 4 | **3** |
+| `e03`（跑题）coherence | 4.33 | **1.00** |
 
-The rules fixed the failure they targeted — `e03` went from 4.33 to 1.0 on coherence — and improved every top-line number, at the cost of the `g18` instability described above. Net positive, with a known price.
+规则修好了它们瞄准的失败 —— `e03` 的 coherence 从 4.33 到 1.0 —— 并且改善了每个顶层数字，代价是上面说的 `g18` 不稳定。净正向，代价已知。
 
-**Still open:** my own labels for `g09` (dialogue), `g06` and `g20` (persona) contradict the rule I wrote. I have not edited them, so the table above stays reproducible. Rectifying them would improve the numbers, which is exactly why I have not done it quietly.
+**仍未解决：** 我自己对 `g09`（dialogue）、`g06` 和 `g20`（persona）的标注，和我写的规则矛盾。我没有改它们，所以上表可复现。改了会让数字变好看，这正是我不悄悄改的原因。
 
-## What this does not tell you
+## 这份报告不能告诉你的
 
-- **One judge model.** Everything here is `gemini-2.5-flash`. A different model will have different variance and different blind spots. The scripts take `JUDGE_MODEL` from env; nothing else changes.
-- **One annotator who also wrote the rubric.** See the note at the top, and the sensitivity table above for how far three label decisions move the headline figures.
-- **30 items, short Chinese narrative, mostly under 300 chars** (except `e05`, at 2552). Longer texts and other genres are untested. Chinese-language items are the more demanding case for a token budget.
-- **Ties in check 3 may be a `json_object` artefact** — the relay ignores `json_schema`, and "tie" is the safest string for a model that is unsure. A free-text pairwise prompt might commit more often. Not tested.
-- **Single run of each check.** These are point estimates. Re-running would move them.
+- **只有一个裁判模型。** 这里全是 `gemini-2.5-flash`。换一个模型会有不同的方差和不同的盲区。脚本从环境变量读 `JUDGE_MODEL`，别的都不用动。
+- **一个标注者，而且是写 rubric 的那个人。** 见开头的说明，以及上面的敏感性表 —— 三格标注决定能把顶层数字挪多远。
+- **30 条、短篇中文叙事、大多不到 300 字**（`e05` 除外，2552 字）。长文本和其他体裁没测过。中文样本对 token 预算是更苛刻的情况。
+- **检查 3 的 tie 可能是 `json_object` 的副作用** —— 中转站忽略 `json_schema`，而「tie」对一个拿不准的模型来说是最安全的字符串。自由文本的 pairwise prompt 也许更敢表态。没测。
+- **每项检查只跑了一遍。** 都是点估计。重跑会动。
 
-## Reproduce
+## 复现
 
 ```bash
-cp .env.example .env     # fill in LLM_BASE_URL, LLM_API_KEY, JUDGE_MODEL
-npm run validate         # ~110 judge calls, 3–5 minutes on a fast relay
+cp .env.example .env     # 填 LLM_BASE_URL、LLM_API_KEY、JUDGE_MODEL
+npm run validate         # 约 110 次裁判调用，快的中转站 3–5 分钟
 ```
 
-Outputs overwrite `results/*.json`. Diff them against the committed versions to see how a different model or prompt compares.
+输出会覆盖 `results/*.json`。和提交的版本 diff 一下，就能看到换模型或换 prompt 的差别。
 
-While iterating on the prompt, do not re-run the full suite every time:
+迭代 prompt 时别每次跑全量：
 
 ```bash
-node validation/spot.mjs e03 g18      # 3 runs on specific items, scores only
-node validation/probe-raw.mjs g17 5   # raw finish_reason/usage, for parse failures
+node validation/spot.mjs e03 g18      # 指定样本各跑 3 次，只看分数
+node validation/probe-raw.mjs g17 5   # 看原始 finish_reason / usage，查解析失败
 ```

@@ -1,67 +1,50 @@
-# Deploying to Vercel
+# 部署到 Vercel
 
-The app has no server-side secrets. Visitors bring their own API key, which is
-stored in their browser and forwarded through `/api/evaluate`. So deployment is
-a plain Next.js deploy with **no environment variables required**.
+应用没有服务端密钥。访客自带 API key，存在自己浏览器里，通过 `/api/evaluate` 转发。所以部署就是一次普通的 Next.js 部署，**不需要任何环境变量**。
 
-> `.env` / `.env.local` are only used by the `validation/` scripts and are
-> gitignored. Do not add `LLM_API_KEY` to Vercel — the app never reads it, and
-> doing so would only create a key to leak.
+> `.env` / `.env.local` 只给 `validation/` 脚本用，已 gitignore。不要把 `LLM_API_KEY` 加到 Vercel —— 应用根本不读它，加了只是多一个能泄露的 key。
 
-## Option A — Vercel dashboard (no CLI)
+## 方式 A —— Vercel 控制台（不用 CLI）
 
-1. Push this repo to GitHub.
-2. Go to https://vercel.com/new, import the repo.
-3. Framework preset: **Next.js** (auto-detected). Leave build settings default.
-4. Environment variables: **none**.
-5. Deploy. The URL will be `https://<project>.vercel.app`.
+1. 把仓库推到 GitHub。
+2. 打开 https://vercel.com/new，导入仓库。
+3. Framework preset 选 **Next.js**（会自动识别），构建配置保持默认。
+4. 环境变量：**不填**。
+5. Deploy。地址是 `https://<project>.vercel.app`。
 
-## Option B — Vercel CLI
+## 方式 B —— Vercel CLI
 
 ```bash
 npm i -g vercel
-vercel login            # needs the account owner's browser
-vercel                  # first deploy, answers: link to new project, defaults
-vercel --prod           # production deploy
+vercel login            # 需要账号所有者在浏览器里登录
+vercel                  # 首次部署，一路默认：新建项目
+vercel --prod           # 生产部署
 ```
 
-## After deploying
+## 部署后
 
-- Open the URL, click **设置 API Key**, paste any OpenAI-compatible key, run one
-  evaluation. If it works there, it works.
-- Route handler timeout: the free tier caps serverless functions at 10 s by
-  default; `route.ts` declares `maxDuration = 120`, which the Hobby plan honours
-  up to 60 s and Pro up to 300 s. A 3-run compare with a slow provider can
-  exceed 10 s, so if you see 504s on Hobby, reduce runs to 1 or upgrade.
-- Add the URL to the README's "How to run it" section.
+- 打开地址，点 **设置 API Key**，粘任何兼容 OpenAI 协议的 key，跑一次评测。这一步通了就都通了。
+- 函数超时：免费层 serverless 函数默认 10 秒上限；`route.ts` 声明了 `maxDuration = 120`，Hobby 计划最多认 60 秒、Pro 最多 300 秒。3 连跑的对比配上慢服务商可能超过 10 秒，Hobby 上看到 504 就把连跑次数降到 1，或者升级。
+- 把地址补进 README 的「怎么用」一节。
 
-## If every evaluation returns 502 with an empty body
+## 如果每次评测都返回 502、body 为空
 
-Check whether `HTTP_PROXY` / `HTTPS_PROXY` are exported in the shell that
-started the server. Next.js's server-side `fetch` honours those variables, so
-behind a proxy that cannot reach the model endpoint the route handler's own
-call fails before it can return a JSON error, and you get a bare 502 with
-nothing in the log. Plain `node` `fetch` ignores the variables, which is why
-the `validation/` scripts can succeed while the app fails — a confusing split
-when you are debugging.
+检查启动服务的那个 shell 有没有导出 `HTTP_PROXY` / `HTTPS_PROXY`。Next.js 服务端的 `fetch` 会遵循这两个变量，代理连不到模型端点时，路由处理器自己的请求会在返回 JSON 错误之前就挂掉，你拿到的就是一个空 502，日志里什么都没有。而 Node 原生 `fetch` 不认这些变量 —— 所以 `validation/` 脚本能跑通、应用却挂着，排查时这个分裂很迷惑人。
 
-Confirm it by sending the same request straight through the proxy:
+用同一个请求直接过代理确认一下：
 
 ```bash
 curl -x "$HTTP_PROXY" "$LLM_BASE_URL/models" -o /dev/null -w '%{http_code}\n'
 ```
 
-Then start the server without them:
+然后不带这些变量启动：
 
 ```bash
 env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy npm run dev
 ```
 
-On Vercel there is nothing to configure — no proxy variables are set by default.
+Vercel 上不用管 —— 默认没有代理变量。
 
-## Status
+## 状态
 
-Not yet deployed — the Vercel account belongs to the repo owner and requires an
-interactive login. Local run is verified end to end: production build passes
-(`npx next build`), all three pages return 200, and a real evaluation through
-`/api/evaluate` returns 3 complete runs with evidence sentences.
+尚未部署 —— Vercel 账号属于仓库所有者，需要交互式登录。本地已端到端验证：生产构建通过（`npx next build`），三个页面全部返回 200，通过 `/api/evaluate` 跑一次真实评测能拿到 3 次完整运行和证据句。
