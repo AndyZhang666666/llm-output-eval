@@ -15,6 +15,9 @@
 
 # next.js
 /.next/
+# Build trees moved aside instead of deleted, when the local tooling refuses a
+# bulk delete: matches .next.stale-<timestamp>/.
+/.next.stale-*/
 /out/
 
 # production
