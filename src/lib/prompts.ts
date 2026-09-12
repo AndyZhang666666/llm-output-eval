@@ -36,6 +36,8 @@ CALIBRATION RULES:
 - 3 is "adequate with a visible flaw", not "I have no opinion". Use the full range.
 - If the text ignores an obvious premise or drifts off-topic, that is a coherence and structure problem, not a persona problem.
 - Length alone is not quality. A long text with no forward motion scores low on pacing.
+- ABSENT DIMENSION = 1. If the text contains no dialogue, dialogue = 1. If it has no identifiable characters, persona = 1. "Not present" is a failure of the text, never neutral.
+- NON-NARRATIVE INPUT = ALL 1. If the input is not narrative fiction (an instruction manual, an essay, a product description, a list, a news article), score every dimension 1 and say in each comment that the input is not a story. Do not grade a manual on how good a manual it is.
 
 Respond with a single JSON object, no markdown fences, in exactly this shape:
 {
