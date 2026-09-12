@@ -26,7 +26,7 @@ interface ChatCompletion {
   error?: { message?: string };
 }
 
-async function callJudge(
+async function callJudgeOnce(
   baseUrl: string,
   apiKey: string,
   model: string,
@@ -58,13 +58,40 @@ async function callJudge(
     });
     const data = (await r.json().catch(() => ({}))) as ChatCompletion;
     if (!r.ok) {
-      throw new Error(data.error?.message || `Provider returned HTTP ${r.status}`);
+      const err = new Error(data.error?.message || `Provider returned HTTP ${r.status}`);
+      (err as Error & { status?: number }).status = r.status;
+      throw err;
     }
     const content = data.choices?.[0]?.message?.content;
     if (!content) throw new Error("Provider returned an empty completion");
     return parseJudgeOutput(content, text, { model, latency_ms: Date.now() - started });
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/**
+ * One retry on transient failures only (5xx, timeout, empty completion,
+ * unparseable JSON). 4xx means the key/model/URL is wrong — retrying that
+ * just doubles the visitor's wait for the same error.
+ */
+async function callJudge(
+  baseUrl: string,
+  apiKey: string,
+  model: string,
+  text: string,
+): Promise<EvaluationResult> {
+  try {
+    return await callJudgeOnce(baseUrl, apiKey, model, text);
+  } catch (e) {
+    const status = (e as Error & { status?: number }).status;
+    const transient =
+      e instanceof JudgeParseError ||
+      (e instanceof Error && e.name === "AbortError") ||
+      status === undefined ||
+      status >= 500;
+    if (!transient) throw e;
+    return await callJudgeOnce(baseUrl, apiKey, model, text);
   }
 }
 
