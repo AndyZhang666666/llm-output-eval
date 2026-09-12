@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { JUDGE_MAX_TOKENS, JudgeParseError, parseJudgeOutput } from "@/lib/judge";
+import { JUDGE_MAX_TOKENS, JudgeParseError, JudgeTruncatedError, parseJudgeOutput } from "@/lib/judge";
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt } from "@/lib/prompts";
 import type { EvaluateRequest, EvaluationResult } from "@/lib/types";
 
