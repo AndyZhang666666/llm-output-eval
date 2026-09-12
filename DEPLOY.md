@@ -35,7 +35,33 @@ vercel --prod           # production deploy
   exceed 10 s, so if you see 504s on Hobby, reduce runs to 1 or upgrade.
 - Add the URL to the README's "How to run it" section.
 
+## If every evaluation returns 502 with an empty body
+
+Check whether `HTTP_PROXY` / `HTTPS_PROXY` are exported in the shell that
+started the server. Next.js's server-side `fetch` honours those variables, so
+behind a proxy that cannot reach the model endpoint the route handler's own
+call fails before it can return a JSON error, and you get a bare 502 with
+nothing in the log. Plain `node` `fetch` ignores the variables, which is why
+the `validation/` scripts can succeed while the app fails — a confusing split
+when you are debugging.
+
+Confirm it by sending the same request straight through the proxy:
+
+```bash
+curl -x "$HTTP_PROXY" "$LLM_BASE_URL/models" -o /dev/null -w '%{http_code}\n'
+```
+
+Then start the server without them:
+
+```bash
+env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy npm run dev
+```
+
+On Vercel there is nothing to configure — no proxy variables are set by default.
+
 ## Status
 
 Not yet deployed — the Vercel account belongs to the repo owner and requires an
-interactive login. Local run is verified (`npm run dev`, `npm run build`).
+interactive login. Local run is verified end to end: production build passes
+(`npx next build`), all three pages return 200, and a real evaluation through
+`/api/evaluate` returns 3 complete runs with evidence sentences.
