@@ -23,7 +23,10 @@ if (!existsSync(join(here, ".lib/prompts.js"))) {
 
 export const { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt, PAIRWISE_SYSTEM_PROMPT, buildPairwiseUserPrompt } =
   require("./.lib/prompts.js");
-export const { parseJudgeOutput } = require("./.lib/judge.js");
+// JUDGE_MAX_TOKENS lives in judge.ts so the app and these scripts share one
+// response budget — a mismatch would make validation describe a different
+// judge than the one visitors get.
+export const { parseJudgeOutput, JudgeParseError, JudgeTruncatedError, JUDGE_MAX_TOKENS } = require("./.lib/judge.js");
 export const { SCORED_DIMENSIONS } = require("./.lib/dimensions.js");
 
 // Minimal .env loader so scripts work with the project's .env without a dependency.
@@ -50,7 +53,7 @@ export function loadGoldset() {
     .map((l) => JSON.parse(l));
 }
 
-async function chat(system, user, { retries = 1 } = {}) {
+async function chat(system, user, { retries = 1, maxTokens = JUDGE_MAX_TOKENS } = {}) {
   for (let attempt = 0; ; attempt++) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 120_000);
@@ -62,7 +65,7 @@ async function chat(system, user, { retries = 1 } = {}) {
           model: MODEL,
           temperature: 0,
           response_format: { type: "json_object" },
-          max_tokens: 2048,
+          max_tokens: maxTokens,
           messages: [
             { role: "system", content: system },
             { role: "user", content: user },
@@ -72,9 +75,12 @@ async function chat(system, user, { retries = 1 } = {}) {
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
-      const content = data.choices?.[0]?.message?.content;
+      const choice = data.choices?.[0];
+      const content = choice?.message?.content;
       if (!content) throw new Error("empty completion");
-      return content;
+      // Returned rather than stashed on the function object: pool() runs
+      // several workers concurrently and a shared slot would race.
+      return { content, finishReason: choice?.finish_reason };
     } catch (e) {
       if (attempt >= retries) throw e;
       await new Promise((res) => setTimeout(res, 1500));
@@ -87,14 +93,18 @@ async function chat(system, user, { retries = 1 } = {}) {
 /** One judge run on one text, parsed with the app's parser. */
 export async function judge(text) {
   const started = Date.now();
-  const raw = await chat(JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt(text));
-  return parseJudgeOutput(raw, text, { model: MODEL, latency_ms: Date.now() - started });
+  const { content, finishReason } = await chat(JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt(text));
+  return parseJudgeOutput(content, text, {
+    model: MODEL,
+    latency_ms: Date.now() - started,
+    finish_reason: finishReason,
+  });
 }
 
 /** Pairwise A/B preference, used only by position-bias.mjs. */
 export async function pairwise(a, b) {
-  const raw = await chat(PAIRWISE_SYSTEM_PROMPT, buildPairwiseUserPrompt(a, b));
-  const cleaned = raw.replace(/```(?:json)?/gi, "").trim();
+  const { content } = await chat(PAIRWISE_SYSTEM_PROMPT, buildPairwiseUserPrompt(a, b), { maxTokens: 1024 });
+  const cleaned = content.replace(/```(?:json)?/gi, "").trim();
   return JSON.parse(cleaned);
 }
 

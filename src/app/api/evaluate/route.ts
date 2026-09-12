@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { JudgeParseError, parseJudgeOutput } from "@/lib/judge";
+import { JUDGE_MAX_TOKENS, JudgeParseError, parseJudgeOutput } from "@/lib/judge";
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt } from "@/lib/prompts";
 import type { EvaluateRequest, EvaluationResult } from "@/lib/types";
 
@@ -22,7 +22,7 @@ const MAX_CHARS = 20_000;
 const TIMEOUT_MS = 90_000;
 
 interface ChatCompletion {
-  choices?: { message?: { content?: string } }[];
+  choices?: { message?: { content?: string }; finish_reason?: string }[];
   error?: { message?: string };
 }
 
@@ -48,7 +48,7 @@ async function callJudgeOnce(
         // is the lowest-variance setting most relays honour.
         temperature: 0,
         response_format: { type: "json_object" },
-        max_tokens: 2048,
+        max_tokens: JUDGE_MAX_TOKENS,
         messages: [
           { role: "system", content: JUDGE_SYSTEM_PROMPT },
           { role: "user", content: buildJudgeUserPrompt(text) },
@@ -62,9 +62,14 @@ async function callJudgeOnce(
       (err as Error & { status?: number }).status = r.status;
       throw err;
     }
-    const content = data.choices?.[0]?.message?.content;
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content;
     if (!content) throw new Error("Provider returned an empty completion");
-    return parseJudgeOutput(content, text, { model, latency_ms: Date.now() - started });
+    return parseJudgeOutput(content, text, {
+      model,
+      latency_ms: Date.now() - started,
+      finish_reason: choice?.finish_reason,
+    });
   } finally {
     clearTimeout(timer);
   }
@@ -74,6 +79,10 @@ async function callJudgeOnce(
  * One retry on transient failures only (5xx, timeout, empty completion,
  * unparseable JSON). 4xx means the key/model/URL is wrong — retrying that
  * just doubles the visitor's wait for the same error.
+ *
+ * Truncation is excluded: it is deterministic for a given input and budget, so
+ * a second call returns the same half-written JSON. Reporting it immediately is
+ * more useful than making the visitor wait twice for it.
  */
 async function callJudge(
   baseUrl: string,
@@ -86,7 +95,7 @@ async function callJudge(
   } catch (e) {
     const status = (e as Error & { status?: number }).status;
     const transient =
-      e instanceof JudgeParseError ||
+      (e instanceof JudgeParseError && !(e instanceof JudgeTruncatedError)) ||
       (e instanceof Error && e.name === "AbortError") ||
       status === undefined ||
       status >= 500;
@@ -131,7 +140,7 @@ export async function POST(req: Request) {
   } catch (e) {
     if (e instanceof JudgeParseError) {
       return NextResponse.json(
-        { error: `${e.message}. Raw output (first 300 chars): ${e.raw.slice(0, 300)}` },
+        { error: `${e.message} Raw output (first 300 chars): ${e.raw.slice(0, 300)}` },
         { status: 502 },
       );
     }

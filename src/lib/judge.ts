@@ -36,6 +36,25 @@ export class JudgeParseError extends Error {
   }
 }
 
+/**
+ * The provider stopped mid-JSON because it hit max_tokens.
+ *
+ * Distinct from a generic parse failure because the cause is ours, not the
+ * model's: it means the response budget is too small for this input. Without
+ * this, a truncated response looks exactly like a malformed one and you end up
+ * debugging the prompt instead of the ceiling. See JUDGE_MAX_TOKENS.
+ */
+export class JudgeTruncatedError extends JudgeParseError {
+  constructor(raw: string) {
+    super(
+      `Judge response was truncated at max_tokens (${raw.length} chars received, JSON incomplete). ` +
+        `The input is too long for the current response budget.`,
+      raw,
+    );
+    this.name = "JudgeTruncatedError";
+  }
+}
+
 function stripFences(s: string): string {
   const m = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
   return (m ? m[1] : s).trim();
@@ -84,15 +103,61 @@ export function isVerbatim(quote: string, source: string): boolean {
   return normalizeForMatch(source).includes(q);
 }
 
+/**
+ * Response budget for one judge call.
+ *
+ * Was 2048, which is not enough. A verdict is five dimensions each carrying a
+ * comment plus up to three verbatim quotes, and quotes are copied in the
+ * source language — a Chinese goldset item produces far more tokens than its
+ * character count suggests. At 2048 the provider truncated mid-JSON on longer
+ * inputs (observed deterministically on goldset g17), which surfaced as an
+ * unparseable response and silently dropped the item from the validation
+ * aggregates. 8192 leaves headroom; the contract in the prompt is what caps
+ * the real length, this is only the safety net.
+ */
+export const JUDGE_MAX_TOKENS = 8192;
+
+/**
+ * Heuristic: does this JSON look like it was cut off mid-write?
+ *
+ * Tracks brace/bracket depth and string state in one pass. A response that
+ * ends inside a string or with depth > 0 was truncated; one that is balanced
+ * but still fails JSON.parse is genuinely malformed. Quoted escape handling is
+ * deliberately minimal — we only need to avoid miscounting `\"` as a
+ * terminator.
+ */
+function looksIncomplete(s: string): boolean {
+  let depth = 0;
+  let inString = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (inString) {
+      if (ch === "\\") i++;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}") depth--;
+  }
+  return inString || depth > 0;
+}
+
 export function parseJudgeOutput(
   raw: string,
   sourceText: string,
-  meta: { model: string; latency_ms?: number; sample?: boolean },
+  meta: { model: string; latency_ms?: number; sample?: boolean; finish_reason?: string },
 ): EvaluationResult {
+  const body = stripFences(raw);
   let obj: unknown;
   try {
-    obj = JSON.parse(stripFences(raw));
+    obj = JSON.parse(body);
   } catch {
+    // `finish_reason === "length"` is the provider telling us directly; the
+    // balance check catches relays that omit or misreport it.
+    if (meta.finish_reason === "length" || looksIncomplete(body)) {
+      throw new JudgeTruncatedError(raw);
+    }
     throw new JudgeParseError("Judge returned non-JSON output", raw);
   }
   if (!obj || typeof obj !== "object") {
