@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate:build": "tsc -p validation/tsconfig.json",
+    "validate:goldset": "node validation/build-goldset.mjs",
+    "validate:consistency": "node validation/consistency.mjs",
+    "validate:agreement": "node validation/agreement.mjs",
+    "validate:position": "node validation/position-bias.mjs",
+    "validate": "npm run validate:build && npm run validate:consistency && npm run validate:agreement && npm run validate:position"
   },
   "dependencies": {
     "next": "16.3.5",

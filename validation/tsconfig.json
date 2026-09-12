@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".lib",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
+    "jsx": "preserve",
+    "declaration": false,
+    "incremental": false,
+    "plugins": []
+  },
+  "include": ["../src/lib/dimensions.ts", "../src/lib/prompts.ts", "../src/lib/judge.ts", "../src/lib/stats.ts", "../src/lib/types.ts"]
+}
