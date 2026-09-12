@@ -15,12 +15,25 @@ console.log(`consistency: ${gold.length} items × ${RUNS} runs, model=${MODEL}`)
 
 const per = await pool(gold, 3, async (item) => {
   const runs = [];
+  const failures = [];
   for (let i = 0; i < RUNS; i++) {
     try {
       runs.push(await judge(item.text));
     } catch (e) {
-      console.error(`  ${item.id} run ${i + 1} failed: ${e.message}`);
+      failures.push(e);
+      const kind = e?.name === "JudgeTruncatedError" ? "TRUNCATED" : "failed";
+      console.error(`  ${item.id} run ${i + 1} ${kind}: ${e.message}`);
     }
+  }
+  // A partial item would silently poison every aggregate below (null means,
+  // NaN SDs) and the report would look plausible. Refuse to continue instead.
+  if (runs.length < RUNS) {
+    const truncated = failures.filter((e) => e?.name === "JudgeTruncatedError").length;
+    throw new Error(
+      `${item.id}: only ${runs.length}/${RUNS} runs succeeded ` +
+        `(${truncated} truncated by the response budget, ${failures.length - truncated} other). ` +
+        `Re-run once the cause is fixed.`,
+    );
   }
   const dims = {};
   for (const d of SCORED_DIMENSIONS) {

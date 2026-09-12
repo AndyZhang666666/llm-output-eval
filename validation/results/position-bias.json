@@ -1,42 +1,42 @@
 {
   "model": "gemini-2.5-flash",
-  "at": "2026-09-12T16:32:22.799Z",
+  "at": "2026-09-12T17:04:13.436Z",
   "pairs": 10,
   "summary": {
     "persona": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     },
     "coherence": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     },
     "pacing": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     },
     "dialogue": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     },
     "structure": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     },
     "overall": {
       "consistent_rate": 0.6,
       "flipped": 0,
-      "correct_both_rate": 0.5
+      "correct_both_rate": 0.6
     }
   },
   "slot_picks": {
-    "A": 54,
-    "B": 30
+    "A": 60,
+    "B": 36
   },
   "controls": {
     "count": 4,
@@ -572,73 +572,6 @@
       "human_gap": 2.2,
       "dims": {
         "persona": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        },
-        "coherence": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        },
-        "pacing": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        },
-        "dialogue": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        },
-        "structure": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        },
-        "overall": {
-          "forward": "tie",
-          "reversed": "tie",
-          "consistent": true,
-          "flipped": false,
-          "correct_both": false
-        }
-      },
-      "raw": {
-        "fwd": {
-          "persona": "tie",
-          "coherence": "tie",
-          "pacing": "tie",
-          "dialogue": "tie",
-          "structure": "tie",
-          "overall": "tie"
-        },
-        "rev": {
-          "persona": "tie",
-          "coherence": "tie",
-          "pacing": "tie",
-          "dialogue": "tie",
-          "structure": "tie",
-          "overall": "tie"
-        }
-      }
-    },
-    {
-      "better": "g03",
-      "worse": "g20",
-      "human_gap": 1.8,
-      "dims": {
-        "persona": {
           "forward": "better",
           "reversed": "tie",
           "consistent": false,
@@ -697,6 +630,73 @@
           "dialogue": "tie",
           "structure": "tie",
           "overall": "tie"
+        }
+      }
+    },
+    {
+      "better": "g03",
+      "worse": "g20",
+      "human_gap": 1.8,
+      "dims": {
+        "persona": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        },
+        "coherence": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        },
+        "pacing": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        },
+        "dialogue": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        },
+        "structure": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        },
+        "overall": {
+          "forward": "better",
+          "reversed": "better",
+          "consistent": true,
+          "flipped": false,
+          "correct_both": true
+        }
+      },
+      "raw": {
+        "fwd": {
+          "persona": "A",
+          "coherence": "A",
+          "pacing": "A",
+          "dialogue": "A",
+          "structure": "A",
+          "overall": "A"
+        },
+        "rev": {
+          "persona": "B",
+          "coherence": "B",
+          "pacing": "B",
+          "dialogue": "B",
+          "structure": "B",
+          "overall": "B"
         }
       }
     },

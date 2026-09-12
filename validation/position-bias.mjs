@@ -37,7 +37,9 @@ const pairResults = await pool(pairs, 3, async ({ better, worse }) => {
   const dims = {};
   for (const d of [...SCORED_DIMENSIONS, "overall"]) {
     const pickFwd = fwd[d] === "A" ? "better" : fwd[d] === "B" ? "worse" : "tie";
-    const pickRev = fwd[d] === undefined ? "tie" : rev[d] === "B" ? "better" : rev[d] === "A" ? "worse" : "tie";
+    // Guard the reversed read on `rev`, not `fwd` — a missing dimension in the
+    // reversed call would otherwise be scored off the forward call's answer.
+    const pickRev = rev[d] === undefined ? "tie" : rev[d] === "B" ? "better" : rev[d] === "A" ? "worse" : "tie";
     dims[d] = {
       forward: pickFwd,
       reversed: pickRev,

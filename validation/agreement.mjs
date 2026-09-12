@@ -40,6 +40,23 @@ function spearman(x, y) {
   return dx && dy ? num / Math.sqrt(dx * dy) : 0;
 }
 
+// Guard: an item whose runs all failed carries `mean: null`. Left alone it
+// would be counted as a real score — `Math.abs(null - 5)` is 5, so it would
+// land in the 2+ disagreement list and drag MAE up, and Spearman would rank
+// null as a value. The report would still look plausible. Stop instead.
+const missing = [];
+for (const it of cons.items) {
+  for (const d of SCORED_DIMENSIONS) {
+    if (typeof it.dims[d]?.mean !== "number") missing.push(`${it.id}.${d}`);
+  }
+}
+if (missing.length) {
+  throw new Error(
+    `consistency.json has no model score for: ${missing.join(", ")}. ` +
+      `Fix the failing items and re-run check 1 — agreement cannot be computed on partial data.`,
+  );
+}
+
 const perDim = {};
 const disagreements = [];
 for (const d of SCORED_DIMENSIONS) {

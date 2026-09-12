@@ -1,88 +1,79 @@
 {
   "model": "gemini-2.5-flash",
-  "at": "2026-09-12T16:31:59.571Z",
+  "at": "2026-09-12T17:03:48.686Z",
   "per_dimension": {
     "persona": {
-      "exact": 0.7,
-      "within_1": 1,
-      "mae": 0.36,
-      "spearman": 0.92,
-      "model_mean": 3.02,
+      "exact": 0.57,
+      "within_1": 0.9,
+      "mae": 0.49,
+      "spearman": 0.86,
+      "model_mean": 2.76,
       "human_mean": 3
     },
     "coherence": {
-      "exact": 0.7,
-      "within_1": 0.93,
-      "mae": 0.34,
-      "spearman": 0.83,
-      "model_mean": 3.41,
+      "exact": 0.6,
+      "within_1": 0.97,
+      "mae": 0.47,
+      "spearman": 0.9,
+      "model_mean": 3.05,
       "human_mean": 3.33
     },
     "pacing": {
-      "exact": 0.47,
-      "within_1": 0.9,
-      "mae": 0.58,
-      "spearman": 0.86,
-      "model_mean": 3.28,
+      "exact": 0.57,
+      "within_1": 0.97,
+      "mae": 0.48,
+      "spearman": 0.91,
+      "model_mean": 3.07,
       "human_mean": 3.1
     },
     "dialogue": {
-      "exact": 0.53,
-      "within_1": 1,
-      "mae": 0.42,
-      "spearman": 0.9,
-      "model_mean": 2.81,
+      "exact": 0.7,
+      "within_1": 0.97,
+      "mae": 0.37,
+      "spearman": 0.89,
+      "model_mean": 2.56,
       "human_mean": 2.77
     },
     "structure": {
-      "exact": 0.57,
-      "within_1": 0.93,
-      "mae": 0.49,
-      "spearman": 0.85,
-      "model_mean": 3.11,
+      "exact": 0.73,
+      "within_1": 1,
+      "mae": 0.29,
+      "spearman": 0.93,
+      "model_mean": 2.91,
       "human_mean": 2.8
     }
   },
   "overall": {
-    "mae": 0.34,
-    "spearman": 0.9
+    "mae": 0.26,
+    "spearman": 0.93
   },
   "disagreements": [
     {
-      "id": "e03",
-      "edge_case": "off_topic",
-      "model": 4.33,
-      "human": 2,
-      "dimension": "coherence",
-      "delta": 2.33,
-      "note": "跑题：说明书而非剧本。作为说明书它'连贯'，但作为剧本不成立——看裁判按哪个标准打。"
-    },
-    {
-      "id": "e03",
-      "edge_case": "off_topic",
-      "model": 3.33,
-      "human": 1,
-      "dimension": "pacing",
-      "delta": 2.33,
-      "note": "跑题：说明书而非剧本。作为说明书它'连贯'，但作为剧本不成立——看裁判按哪个标准打。"
-    },
-    {
-      "id": "e03",
-      "edge_case": "off_topic",
-      "model": 3.33,
-      "human": 1,
-      "dimension": "structure",
-      "delta": 2.33,
-      "note": "跑题：说明书而非剧本。作为说明书它'连贯'，但作为剧本不成立——看裁判按哪个标准打。"
-    },
-    {
-      "id": "g04",
+      "id": "g06",
       "edge_case": null,
       "model": 1,
       "human": 3,
-      "dimension": "pacing",
+      "dimension": "persona",
       "delta": -2,
-      "note": "无铺垫的转折，情节靠'宣布'推进；股份转让和去西藏都没有动机。"
+      "note": "纯环境描写与无意义动作，零推进。没有对白，对白维度按'剧本缺失对白'判 2。"
+    },
+    {
+      "id": "g20",
+      "edge_case": null,
+      "model": 1,
+      "human": 3,
+      "dimension": "persona",
+      "delta": -2,
+      "note": "所有铺垫都没有兑现，结尾是'放弃'但没有任何动机——烂尾样本。"
+    },
+    {
+      "id": "g09",
+      "edge_case": null,
+      "model": 1,
+      "human": 3,
+      "dimension": "dialogue",
+      "delta": -2,
+      "note": "以事件而非台词推进；结尾一句收得干净，但略显顺利。"
     }
   ],
   "edge_cases": [
@@ -127,10 +118,10 @@
       "edge_case": "off_topic",
       "model": {
         "persona": 1,
-        "coherence": 4.33,
-        "pacing": 3.33,
+        "coherence": 1,
+        "pacing": 1,
         "dialogue": 1,
-        "structure": 3.33
+        "structure": 1
       },
       "human": {
         "persona": 1,
@@ -145,8 +136,8 @@
       "edge_case": "persona_collapse",
       "model": {
         "persona": 1,
-        "coherence": 2,
-        "pacing": 3,
+        "coherence": 1,
+        "pacing": 2.67,
         "dialogue": 2,
         "structure": 2
       },
@@ -162,10 +153,10 @@
       "id": "e05",
       "edge_case": "overlong",
       "model": {
-        "persona": 3.33,
-        "coherence": 2.33,
+        "persona": 3,
+        "coherence": 2,
         "pacing": 1,
-        "dialogue": 1.67,
+        "dialogue": 1,
         "structure": 2
       },
       "human": {
@@ -181,10 +172,10 @@
       "edge_case": "truncated",
       "model": {
         "persona": 3,
-        "coherence": 3.33,
-        "pacing": 4,
-        "dialogue": 3.67,
-        "structure": 2.33
+        "coherence": 3,
+        "pacing": 3.33,
+        "dialogue": 3,
+        "structure": 2
       },
       "human": {
         "persona": 3,
