@@ -55,15 +55,33 @@ function toStringArray(v: unknown): string[] {
 }
 
 /**
- * Evidence should be a verbatim quote. If the model paraphrased, we keep the
- * quote but the UI marks it. Whitespace-insensitive substring check is enough;
- * exact matching fails on trivial punctuation differences.
+ * Evidence should be a verbatim quote. If the model paraphrased, we drop it.
+ *
+ * Matching is whitespace-insensitive and punctuation-normalised: judges
+ * routinely rewrite "straight" quotes as “curly” ones and swap full-width
+ * for half-width punctuation. Those are not paraphrases, and treating them
+ * as such threw away real evidence in early runs (see git history).
  */
+const PUNCT_MAP: Record<string, string> = {
+  "“": '"', "”": '"', "„": '"', "‟": '"',
+  "‘": "'", "’": "'", "‚": "'", "‛": "'",
+  "，": ",", "。": ".", "！": "!", "？": "?", "：": ":", "；": ";",
+  "（": "(", "）": ")", "【": "[", "】": "]", "《": "<", "》": ">",
+  "—": "-", "–": "-", "…": "...",
+};
+const PUNCT_RE = new RegExp(`[${Object.keys(PUNCT_MAP).join("")}]`, "g");
+
+function normalizeForMatch(s: string): string {
+  return s
+    .replace(PUNCT_RE, (ch) => PUNCT_MAP[ch] ?? ch)
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
 export function isVerbatim(quote: string, source: string): boolean {
-  const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
-  const q = norm(quote);
+  const q = normalizeForMatch(quote);
   if (q.length < 4) return false;
-  return norm(source).includes(q);
+  return normalizeForMatch(source).includes(q);
 }
 
 export function parseJudgeOutput(
