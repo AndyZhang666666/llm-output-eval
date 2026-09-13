@@ -10,7 +10,7 @@ import type { BadCase, EvaluationResult } from "./types";
  * Why not a database: the spec is explicit that there is no user system and
  * no persistence layer. A visitor's bad cases are theirs, on their machine,
  * and disappear with site data. That is the right scope for a demo tool and
- * keeps the deploy story to "vercel deploy" with zero infra.
+ * keeps the deploy story to "a static site on GitHub Pages" with zero infra.
  *
  * Sample-data results are never collected — the list must only contain
  * things a model actually said about text the visitor actually pasted.

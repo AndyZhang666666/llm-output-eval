@@ -1,50 +1,48 @@
-# 部署到 Vercel
+# 部署：GitHub Pages（静态导出）
 
-应用没有服务端密钥。访客自带 API key，存在自己浏览器里，通过 `/api/evaluate` 转发。所以部署就是一次普通的 Next.js 部署，**不需要任何环境变量**。
+线上地址：https://andyzhang666666.github.io/llm-output-eval/
 
-> `.env` / `.env.local` 只给 `validation/` 脚本用，已 gitignore。不要把 `LLM_API_KEY` 加到 Vercel —— 应用根本不读它，加了只是多一个能泄露的 key。
+应用没有服务端。访客自带 API key，存在自己浏览器的 `localStorage` 里，请求从浏览器直接发给访客选的服务商（`src/lib/api.ts`）。所以部署就是把 `next build` 导出的 `out/` 目录放到 GitHub Pages 上，**不需要任何环境变量，也没有任何 Secret**。
 
-## 方式 A —— Vercel 控制台（不用 CLI）
+> `.env` / `.env.local` 只给 `validation/` 校准脚本用，已 gitignore。不要把 `LLM_API_KEY` 加到仓库 Secrets —— 应用根本不读它，加了只是多一个能泄露的 key。
 
-1. 把仓库推到 GitHub。
-2. 打开 https://vercel.com/new，导入仓库。
-3. Framework preset 选 **Next.js**（会自动识别），构建配置保持默认。
-4. 环境变量：**不填**。
-5. Deploy。地址是 `https://<project>.vercel.app`。
+## 自动发布
 
-## 方式 B —— Vercel CLI
+推到 `main` 触发 `.github/workflows/pages.yml`：
+
+1. `npm ci`
+2. `npm run validate:build` —— 校准脚本和应用共用同一份 prompt/parser，先确认它们类型一致
+3. `npm run lint`
+4. `npm run build` —— `next build` 静态导出到 `out/`，再由 `scripts/postbuild.mjs` 写入 `out/.nojekyll`
+5. 上传 `out/` 并部署到 Pages
+
+仓库 Settings → Pages 的 Source 必须是 **GitHub Actions**（不是 Deploy from a branch）。用 API 一次设好：
 
 ```bash
-npm i -g vercel
-vercel login            # 需要账号所有者在浏览器里登录
-vercel                  # 首次部署，一路默认：新建项目
-vercel --prod           # 生产部署
+curl -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
+  https://api.github.com/repos/AndyZhang666666/llm-output-eval/pages \
+  -d '{"build_type":"workflow"}'
 ```
+
+## 本地看一眼再推
+
+```bash
+npm run build
+npm run preview        # npx serve out，打开 http://localhost:3000/llm-output-eval/
+```
+
+注意路径带 `/llm-output-eval/` 前缀 —— `next.config.ts` 里 `basePath` 和 `assetPrefix` 都指向仓库名，根路径 `/` 是 404，这是正常的。
+
+## 静态导出的三个硬约束
+
+- **`.nojekyll` 不能少。** Pages 默认走 Jekyll，会忽略所有下划线开头的目录；Next 的产物全在 `out/_next/`。缺这个文件的症状是页面能打开但样式脚本全 404，一片白。`postbuild.mjs` 就是干这个的，别删。
+- **`trailingSlash: true`。** Pages 的静态托管对 `/compare` 这种无扩展名路径不会自动补 `index.html`，导出成 `/compare/index.html` 才稳。
+- **服务商必须允许浏览器跨域（CORS）。** OpenAI / DeepSeek / Moonshot / 智谱 / Gemini 的官方端点都允许；自建或某些中转站不允许时，浏览器会拦下请求，应用会提示「Could not reach …（CORS）」。这种情况换服务商，或者在本机 `npm run dev` 用。
 
 ## 部署后
 
-- 打开地址，点 **设置 API Key**，粘任何兼容 OpenAI 协议的 key，跑一次评测。这一步通了就都通了。
-- 函数超时：免费层 serverless 函数默认 10 秒上限；`route.ts` 声明了 `maxDuration = 120`，Hobby 计划最多认 60 秒、Pro 最多 300 秒。3 连跑的对比配上慢服务商可能超过 10 秒，Hobby 上看到 504 就把连跑次数降到 1，或者升级。
-- 把地址补进 README 的「怎么用」一节。
-
-## 如果每次评测都返回 502、body 为空
-
-检查启动服务的那个 shell 有没有导出 `HTTP_PROXY` / `HTTPS_PROXY`。Next.js 服务端的 `fetch` 会遵循这两个变量，代理连不到模型端点时，路由处理器自己的请求会在返回 JSON 错误之前就挂掉，你拿到的就是一个空 502，日志里什么都没有。而 Node 原生 `fetch` 不认这些变量 —— 所以 `validation/` 脚本能跑通、应用却挂着，排查时这个分裂很迷惑人。
-
-用同一个请求直接过代理确认一下：
-
-```bash
-curl -x "$HTTP_PROXY" "$LLM_BASE_URL/models" -o /dev/null -w '%{http_code}\n'
-```
-
-然后不带这些变量启动：
-
-```bash
-env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy npm run dev
-```
-
-Vercel 上不用管 —— 默认没有代理变量。
+打开线上地址，点 **设置 API Key**，粘一个 key，跑一次评测。这一步通了就都通了。
 
 ## 状态
 
-尚未部署 —— Vercel 账号属于仓库所有者，需要交互式登录。本地已端到端验证：生产构建通过（`npx next build`），三个页面全部返回 200，通过 `/api/evaluate` 跑一次真实评测能拿到 3 次完整运行和证据句。
+已部署。工作流每次推送 `main` 自动重发；三个页面（单篇 / 对比 / Bad Case）均可访问。

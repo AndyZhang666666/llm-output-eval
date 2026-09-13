@@ -99,13 +99,6 @@ export interface BadCase {
   at: string;
 }
 
-/** Request body for POST /api/evaluate. */
-export interface EvaluateRequest {
-  text: string;
-  /** Defaults to 1. Capped server-side. */
-  runs?: number;
-}
-
 /** Client-side connection settings, persisted in localStorage. */
 export interface JudgeSettings {
   baseUrl: string;

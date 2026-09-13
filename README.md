@@ -2,9 +2,10 @@
 
 给长文本生成结果打分，并证明打分器本身可信。
 
-- **姊妹项目**：[creative-eval](https://github.com/AndyZhang666666/creative-eval)（短剧剧本评分裁判）· [filing-eval](https://github.com/AndyZhang666666/filing-eval)（公告摘要事实核查）
+- **在线 Demo**：https://andyzhang666666.github.io/llm-output-eval/ —— 纯静态站，自带 key 即可跑真实评测（key 只在你的浏览器里）
+- **和 creative-eval 是什么关系**：[creative-eval](https://github.com/AndyZhang666666/creative-eval) 是第一版 —— 固定 5 维 rubric、40 条金标集、校验集更完整，回答「裁判自己可信吗」。本仓库是第二版，把同一个裁判做成可日常使用的工具：**两版 prompt 各连跑 N 次做对比、≤2 分维度自动收进 Bad Case 导出 CSV、每个分数附从原文逐字抽出的证据句**。想看校验方法先看 creative-eval，想看工具形态看这里。
+- **另一条线**：[filing-eval](https://github.com/AndyZhang666666/filing-eval)（公告摘要事实核查）—— 客观事实核查的范式，与这两个主观评分项目刻意对照
 - **校验报告全文**：[`validation/judge-validation.md`](validation/judge-validation.md) —— 所有数字都能在 `validation/results/` 里找到出处
-- **部署状态**：本地可运行、生产构建通过；尚未部署到 Vercel（需要账号所有者登录），步骤见 [`DEPLOY.md`](DEPLOY.md)
 
 ## 1. 它做什么
 
@@ -99,9 +100,9 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-不需要任何环境变量。点页头的 **设置 API Key**，粘任何兼容 OpenAI 协议的 key —— 存在浏览器 `localStorage`，通过 `/api/evaluate` 转发，服务端没有兜底 key，部署出去也烧不到作者的额度。内置 OpenAI、DeepSeek、Moonshot、智谱、Gemini 五个预设。没有 key 时进入「示例数据」模式，页面上会明确标注。
+不需要任何环境变量。点页头的 **设置 API Key**，粘任何兼容 OpenAI 协议的 key —— 存在浏览器 `localStorage`，请求**从你的浏览器直接发给你选的服务商**。这是一个没有服务端的静态站，中间没有任何东西能存下这个 key，部署出去也烧不到作者的额度。内置 OpenAI、DeepSeek、Moonshot、智谱、Gemini 五个预设（服务商必须允许浏览器跨域请求；主流的都允许，自建中转站不允许时会明确报错）。没有 key 时进入「示例数据」模式，页面上会明确标注。
 
-生产构建：`npm run build && npm start`。部署见 [`DEPLOY.md`](DEPLOY.md)。
+生产构建：`npm run build` 输出到 `out/`，`npm run preview` 本地看。推到 `main` 会自动发布到 GitHub Pages，细节见 [`DEPLOY.md`](DEPLOY.md)。
 
 ### 跑校准
 
@@ -147,8 +148,8 @@ src/
     page.tsx               单篇评测
     compare/page.tsx       版本对比 —— 两版各连跑 N 次
     bad-cases/page.tsx     Bad Case —— 筛选 + CSV 导出
-    api/evaluate/route.ts  代理；访客的 key 只在这一次请求里存在
   lib/
+    api.ts                 浏览器直连服务商；访客的 key 只在自己浏览器里
     dimensions.ts          5 个维度 + 安全分类，含 1-5 档锚点
     prompts.ts             裁判 prompt —— 应用和校准脚本的唯一来源
     judge.ts               容错解析；逐字校验；截断检测

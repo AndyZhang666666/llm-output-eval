@@ -58,8 +58,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
       <footer className="mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-zinc-500">
-        Your API key stays in this browser&apos;s localStorage and is forwarded once per request through
-        this app&apos;s own <code>/api/evaluate</code> route. Nothing is stored server-side.
+        Your API key stays in this browser&apos;s localStorage and goes directly from your browser to the
+        provider you chose. This is a static site with no server — there is nothing in between that could
+        store it.
       </footer>
       {open && <SettingsDialog settings={settings} onSave={update} onClose={() => setOpen(false)} />}
     </div>
