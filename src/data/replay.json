@@ -1,0 +1,1140 @@
+{
+  "source": "validation/results/consistency.json",
+  "goldSource": "validation/goldset.jsonl",
+  "model": "gemini-2.5-flash",
+  "recordedAt": "2026-09-12T17:03:48.159Z",
+  "items": [
+    {
+      "id": "e06",
+      "label": "病历悬念 · 截断稿",
+      "text": "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。\n赵成接过来，翻到第三页，停住了。\n手术签字栏上的名字不是他妻子的。\n是他自己的。\n日期是三年前。\n他从来没有做过手术。\n护士已经走了。走廊尽头，一个穿白大褂的男人正在看他，见他抬头，转身进了电梯。\n赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的",
+      "note": "g07 在句中截断。与 g07 对照：结构维度应明显掉分，其余维度应接近。",
+      "human": {
+        "persona": 3,
+        "coherence": 3,
+        "pacing": 4,
+        "dialogue": 3,
+        "structure": 1
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "The main character behaves appropriately with confusion and urgency, though character traits are thinly sketched due to brevity.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "The events sequence logically as a thriller setup, though it cuts off abruptly without resolving the premise.",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 3,
+              "comment": "The text builds suspense efficiently line by line, but it is too short to be considered a complete narrative body.",
+              "evidence": [
+                "日期是三年前。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 3,
+              "comment": "The single spoken line feels natural and appropriately guarded for a medical setting.",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The piece functions purely as an opening hook and cuts off mid-sentence, lacking a true beginning-middle-end arc.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains a standard suspense/mystery setup with no harmful content.",
+            "evidence": []
+          },
+          "overall": 2.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:03:42.249Z",
+            "sample": true,
+            "latency_ms": 2473
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "The main character behaves appropriately with confusion and urgency, though the text is too short to fully develop distinct traits.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "The sequence of events flows logically as a setup, but relies on a classic thriller convenience.",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 4,
+              "comment": "Fast and effective hook-driven pacing that quickly builds mystery within a few lines.",
+              "evidence": [
+                "日期是三年前。",
+                "他从来没有做过手术。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 3,
+              "comment": "Only one brief line of dialogue is present, which functions adequately to set up the scene.",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text cuts off abruptly mid-sentence, leaving the narrative structure incomplete.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains standard thriller/mystery tropes with no harmful content.",
+            "evidence": []
+          },
+          "overall": 3,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:03:45.513Z",
+            "sample": true,
+            "latency_ms": 3264
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "Characters have basic reactions to the situation, but the text is too short to fully develop distinct traits.",
+              "evidence": [
+                "赵成接过来，翻到第三页，停住了。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "Events follow a logical sequence for a thriller setup, though it cuts off abruptly.",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 3,
+              "comment": "Builds tension effectively with a hook at the end, but it is just a fragment.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 3,
+              "comment": "The single line of dialogue is natural and establishes immediate suspense.",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text is an incomplete fragment that stops mid-sentence without a resolution.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains standard suspense/thriller elements with no harmful content.",
+            "evidence": []
+          },
+          "overall": 2.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:03:48.157Z",
+            "sample": true,
+            "latency_ms": 2644
+          }
+        }
+      ]
+    },
+    {
+      "id": "g07",
+      "label": "病历悬念 · 完整稿",
+      "text": "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。\n赵成接过来，翻到第三页，停住了。\n手术签字栏上的名字不是他妻子的。\n是他自己的。\n日期是三年前。\n他从来没有做过手术。\n护士已经走了。走廊尽头，一个穿白大褂的男人正在看他，见他抬头，转身进了电梯。\n赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的名字。\n赵成。",
+      "note": "单集钩子结构：结尾是刻意不收的悬念，不按烂尾判 1。人设信息太少只能给 3。",
+      "human": {
+        "persona": 3,
+        "coherence": 4,
+        "pacing": 5,
+        "dialogue": 3,
+        "structure": 3
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "Character reactions are minimal due to extreme brevity, but赵成 behaves consistently as a shocked and curious protagonist.",
+              "evidence": [
+                "赵成接过来，翻到第三页，停住了。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "The narrative presents a mysterious premise, but relies entirely on a surreal twist without explaining the immediate logic or fallout.",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 4,
+              "comment": "Extremely concise with strong narrative hooks and rapid forward movement, though it acts more like a setup snippet than a full story.",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的名字。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 2,
+              "comment": "Contains only a single line of dialogue, leaning heavily on narration to drive the mystery.",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 3,
+              "comment": "Functions as an effective micro-fiction hook or opening scene, but lacks a complete developmental arc and resolution.",
+              "evidence": []
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains no objectionable or unsafe content.",
+            "evidence": []
+          },
+          "overall": 3,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:43.486Z",
+            "sample": true,
+            "latency_ms": 6898
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 4,
+              "comment": "赵成的反应符合一个突然发现诡异真相的普通人的震惊与本能追击。",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的名字。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 4,
+              "comment": "情节层层递进，从病历签名到日期再到另一个自己，逻辑链条紧密且充满悬念。",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。",
+                "是他自己的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 5,
+              "comment": "节奏极快，每一句话都在推进悬疑感，没有废话。",
+              "evidence": [
+                "赵成接过来，翻到第三页，停住了。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "开篇对话简练自然，迅速交代了情境。",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 4,
+              "comment": "短小精悍的微型悬疑结构，起承转合俱全，结尾反转有力。",
+              "evidence": []
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "文本内容为纯粹的悬疑短篇小说，不涉及任何违规内容。",
+            "evidence": []
+          },
+          "overall": 4.2,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:46.102Z",
+            "sample": true,
+            "latency_ms": 2616
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 4,
+              "comment": "赵成的反应符合一个突然发现诡异现实的普通人的震惊与本能追击。",
+              "evidence": [
+                "赵成追过去，电梯门合上的一瞬间，他看清了那人胸牌上的名字。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 4,
+              "comment": "情节层层递进，从病历签名到日期，再到神秘白大褂和同名胸牌，逻辑链条紧密。",
+              "evidence": [
+                "手术签字栏上的名字不是他妻子的。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 5,
+              "comment": "短小精悍，每句话都带有强烈的悬念和信息推进，结尾钩子极强。",
+              "evidence": []
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "仅有一句简短的开场对话，自然且成功烘托出紧张诡异的气氛。",
+              "evidence": [
+                "“你确定要看？”护士把病历递过来的时候，眼神有点躲闪。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 4,
+              "comment": "短剧微小说结构完整，起承转合清晰，以极具冲击力的反转结尾收束。",
+              "evidence": [
+                "赵成接过来，翻到第三页，停住了。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "文本为悬疑短篇，不包含任何违规内容。",
+            "evidence": []
+          },
+          "overall": 4.2,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:48.831Z",
+            "sample": true,
+            "latency_ms": 2729
+          }
+        }
+      ]
+    },
+    {
+      "id": "g02",
+      "label": "对白太像说明书",
+      "text": "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”\n“什么？他为什么不告诉我们？”\n“因为他不想让我们担心，他一直都是这样的人，从小到大都是。”\n“那我们现在怎么办？”\n“我想到了一个办法，我们可以去找王叔叔，他是爸爸最好的朋友，也是一个很有钱的商人。”\n“好，那我们现在就去。”",
+      "note": "功能性台词的典型样本：人物为了向观众交代信息而说话。",
+      "human": {
+        "persona": 2,
+        "coherence": 3,
+        "pacing": 3,
+        "dialogue": 1,
+        "structure": 2
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "The characters exhibit basic sisterly concern, but their traits are thinly sketched and lack distinctive voices.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”",
+                "“那我们现在怎么办？”"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "The causal chain is logical in terms of plot progression, but the sudden revelation of a major financial crisis followed by an immediate simplistic solution feels slightly convenient.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”",
+                "“我想到了一个办法，我们可以去找王叔叔，他是爸爸最好的朋友，也是一个很有钱的商人。”"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 3,
+              "comment": "The text moves quickly to deliver exposition and a hook, though it reads more like a summary of events than a developed scene.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”",
+                "“我想到了一个办法，我们可以去找王叔叔，他是爸爸最好的朋友，也是一个很有钱的商人。”"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 2,
+              "comment": "The lines are highly expository, functioning primarily to dump plot information rather than sounding like natural human speech.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”",
+                "“因为他不想让我们担心，他一直都是这样的人，从小到大都是。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The piece functions as an opening hook or setup, but it stops abruptly before any actual narrative development occurs.",
+              "evidence": [
+                "“好，那我们现在就去。”"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains standard dramatic family financial trouble with no safety violations.",
+            "evidence": []
+          },
+          "overall": 2.6,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:03.189Z",
+            "sample": true,
+            "latency_ms": 4054
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "Characters maintain basic roles of sister and sibling, but their dialogue lacks distinct individual voices.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "The causal sequence from crisis to solution is clear, though seeking a rich friend instantly is a bit convenient.",
+              "evidence": [
+                "“我想到了一个办法，我们可以去找王叔叔，他是爸爸最好的朋友，也是一个很有钱的商人。”"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 4,
+              "comment": "Pacing is brisk, quickly moving from the initial hook of the crisis to the next plot action.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 2,
+              "comment": "Lines are heavily expository, functioning primarily to dump plot information rather than sound like natural speech.",
+              "evidence": [
+                "“因为他不想让我们担心，他一直都是这样的人，从小到大都是。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text functions as an opening setup or hook but stops abruptly before developing or resolving anything.",
+              "evidence": [
+                "“好，那我们现在就去。”"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains standard dramatic dialogue about financial trouble and contains no harmful or sensitive content.",
+            "evidence": []
+          },
+          "overall": 2.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:06.377Z",
+            "sample": true,
+            "latency_ms": 3186
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 3,
+              "comment": "The characters exhibit basic family roles and concern under stress, but their dialogue lacks distinct individual voices.",
+              "evidence": [
+                "“姐，你知道吗，爸爸去年把公司抵押给银行了，现在银行要收房子了，我们只有三天时间。”"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 2,
+              "comment": "The progression relies on sudden exposition dumps with an overly simplistic and unmotivated solution immediately proposed.",
+              "evidence": [
+                "“我想到了一个办法，我们可以去找王叔叔，他是爸爸最好的朋友，也是一个很有钱的商人。”"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 2,
+              "comment": "The text moves extremely fast through a major crisis purely to deliver information, leaving no room for atmospheric development.",
+              "evidence": [
+                "“什么？他为什么不告诉我们？”"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "The lines function entirely as exposition delivery disguised as conversation between siblings who would already know these facts.",
+              "evidence": [
+                "“因为他不想让我们担心，他一直都是这样的人，从小到大都是。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "It establishes a hook and a premise, but stops abruptly before any actual narrative development or climax occurs.",
+              "evidence": [
+                "“好，那我们现在就去。”"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The content is safe and contains no harmful or sensitive material.",
+            "evidence": []
+          },
+          "overall": 2,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:09.346Z",
+            "sample": true,
+            "latency_ms": 2968
+          }
+        }
+      ]
+    },
+    {
+      "id": "g04",
+      "label": "转折缺少铺垫",
+      "text": "李强和王芳是大学同学，毕业后一起创业。公司做得很成功，两人也顺利结婚。\n某天，李强回家发现王芳在收拾行李。\n“你要去哪？”\n“我要离开你。”\n“为什么？”\n“因为我早就不爱你了。”\n李强跪在地上痛哭。王芳拉着箱子走了。\n第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。",
+      "note": "无铺垫的转折，情节靠'宣布'推进；股份转让和去西藏都没有动机。",
+      "human": {
+        "persona": 2,
+        "coherence": 1,
+        "pacing": 3,
+        "dialogue": 2,
+        "structure": 2
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 2,
+              "comment": "Characters lack distinct voices and change emotional states with extreme abruptness.",
+              "evidence": [
+                "李强跪在地上痛哭。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 2,
+              "comment": "Major life-altering decisions happen instantaneously without logical setup or deep motivation.",
+              "evidence": [
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 2,
+              "comment": "The narrative rushes through years of relationship dynamics and dramatic conflict in a few disconnected sentences.",
+              "evidence": [
+                "公司做得很成功，两人也顺利结婚。",
+                "某天，李强回家发现王芳在收拾行李。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "The dialogue is purely functional and reads like an outline rather than natural human conversation.",
+              "evidence": [
+                "“你要去哪？”",
+                "“我要离开你。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "It has a beginning and an ending, but the middle development is severely compressed and the resolution feels unearned.",
+              "evidence": [
+                "李强和王芳是大学同学，毕业后一起创业。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains standard relationship drama with no dangerous or harmful content.",
+            "evidence": []
+          },
+          "overall": 1.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:13.162Z",
+            "sample": true,
+            "latency_ms": 3815
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 2,
+              "comment": "李强转让股份和去西藏的决定过于突然，缺乏性格铺垫。",
+              "evidence": [
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 2,
+              "comment": "从妻子突然提出离婚到李强直接转让全部股份并离家，因果关系跳跃且缺乏合理解释。",
+              "evidence": [
+                "“我要离开你。”",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 1,
+              "comment": "剧情推进过快，信息量极度压缩，像是一个故事的大纲而非完整的叙事。",
+              "evidence": [
+                "公司做得很成功，两人也顺利结婚。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 2,
+              "comment": "对话过于生硬直白，纯粹为了推进情节而缺乏真实感。",
+              "evidence": [
+                "“你要去哪？”",
+                "“我要离开你。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "虽然有起因、发展和结局，但中间缺乏实质性的情节发展，收尾过于仓促。",
+              "evidence": [
+                "某天，李强回家发现王芳在收拾行李。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "文本内容正常，不涉及任何违规风险。",
+            "evidence": []
+          },
+          "overall": 1.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:16.363Z",
+            "sample": true,
+            "latency_ms": 3201
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 2,
+              "comment": "The characters act in extremes without adequate emotional setup, leading to a sudden and unconvincing personality flip.",
+              "evidence": [
+                "李强跪在地上痛哭。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 2,
+              "comment": "Major life decisions and relationship breakdowns happen abruptly without any prior context or logical buildup.",
+              "evidence": [
+                "某天，李强回家发现王芳在收拾行李。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 2,
+              "comment": "The narrative rushes through years of history and a major breakup in just a few sentences, leaving massive gaps in the story.",
+              "evidence": [
+                "公司做得很成功，两人也顺利结婚。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "The dialogue is extremely functional and mechanical, serving only to deliver exposition rather than sounding like real speech.",
+              "evidence": [
+                "“你要去哪？”",
+                "“我要离开你。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "It has a beginning and an end, but the plot progression is so rushed that it feels like a summary rather than a complete narrative arc.",
+              "evidence": [
+                "李强和王芳是大学同学，毕业后一起创业。",
+                "第二天，李强在公司宣布把所有股份转给王芳，然后去了西藏。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains no objectionable or sensitive content.",
+            "evidence": []
+          },
+          "overall": 1.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:19.243Z",
+            "sample": true,
+            "latency_ms": 2880
+          }
+        }
+      ]
+    },
+    {
+      "id": "g06",
+      "label": "动作很多，剧情没前进",
+      "text": "清晨的阳光透过百叶窗洒进办公室，在地板上投下一道道金色的条纹。空气中飘着咖啡的香气，混合着打印机散发出的淡淡热气。办公室很大，摆着二十几张桌子，每张桌子上都放着显示器、键盘和各种文件。墙上挂着公司的标语，字体是蓝色的。窗外是繁忙的街道，车流不息，行人匆匆。远处的高楼在晨光中显得格外挺拔。苏婷走进办公室，脱下外套，挂在椅背上。她打开电脑，输入密码，等待系统启动。屏幕亮了，她点开邮箱，开始看邮件。第一封是广告，第二封是会议通知，第三封是同事的问候。她回复了同事，然后起身去接水。饮水机在走廊尽头，她走过去，接了一杯温水，又走回来。",
+      "note": "纯环境描写与无意义动作，零推进。没有对白，对白维度按'剧本缺失对白'判 2。",
+      "human": {
+        "persona": 3,
+        "coherence": 4,
+        "pacing": 1,
+        "dialogue": 2,
+        "structure": 2
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 1,
+              "comment": "The input is a descriptive scene without identifiable characters or dialogue, meaning no personality or persona is present.",
+              "evidence": []
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "Events follow a chronological morning routine, but the text lacks a narrative plot or meaningful causal chain.",
+              "evidence": [
+                "苏婷走进办公室，脱下外套，挂在椅背上。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 2,
+              "comment": "The text consists largely of static description and mundane actions that do not advance a story or create hooks.",
+              "evidence": [
+                "空气中飘着咖啡的香气，混合着打印机散发出的淡淡热气。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "There is no dialogue present in the text whatsoever.",
+              "evidence": []
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text depicts a slice of an ordinary morning, but lacks a narrative arc with a beginning, middle, and resolution.",
+              "evidence": [
+                "她回复了同事，然后起身去接水。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains completely benign daily office descriptions with no safety concerns.",
+            "evidence": []
+          },
+          "overall": 1.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:30.908Z",
+            "sample": true,
+            "latency_ms": 2893
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 1,
+              "comment": "The input is a descriptive scene setting with no identifiable characters having distinct traits or speaking lines.",
+              "evidence": []
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "Events follow a chronological morning routine, but the text lacks a causal plot or narrative conflict.",
+              "evidence": [
+                "苏婷走进办公室，脱下外套，挂在椅背上。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 1,
+              "comment": "The text consists largely of mundane environmental and procedural descriptions that do not advance a story or create hooks.",
+              "evidence": [
+                "她打开电脑，输入密码，等待系统启动。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "There is no dialogue present in the text.",
+              "evidence": []
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text depicts the beginning of a morning routine but lacks development, conflict, or a meaningful resolution.",
+              "evidence": [
+                "清晨的阳光透过百叶窗洒进办公室，在地板上投下一道道金色的条纹。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains completely safe, mundane descriptive content.",
+            "evidence": []
+          },
+          "overall": 1.6,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:33.471Z",
+            "sample": true,
+            "latency_ms": 2563
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 1,
+              "comment": "The text contains no meaningful character interactions or distinct traits to evaluate persona.",
+              "evidence": []
+            },
+            {
+              "id": "coherence",
+              "score": 3,
+              "comment": "Events follow a chronological morning routine, though it lacks any significant narrative conflict or causal plot progression.",
+              "evidence": [
+                "苏婷走进办公室，脱下外套，挂在椅背上。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 2,
+              "comment": "The text drags significantly through mundane descriptive details and repetitive everyday actions without driving a story forward.",
+              "evidence": [
+                "第一封是广告，第二封是会议通知，第三封是同事的问候。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 1,
+              "comment": "There is no dialogue present in the text whatsoever.",
+              "evidence": []
+            },
+            {
+              "id": "structure",
+              "score": 2,
+              "comment": "The text describes a sequence of events to start a day, but it lacks a beginning, development, and resolution necessary for a complete narrative arc.",
+              "evidence": [
+                "她回复了同事，然后起身去接水。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains completely benign daily office descriptions with no safety concerns.",
+            "evidence": []
+          },
+          "overall": 1.8,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:36.588Z",
+            "sample": true,
+            "latency_ms": 3117
+          }
+        }
+      ]
+    },
+    {
+      "id": "g01",
+      "label": "押金争执 · 完整闭环",
+      "text": "陈默把最后一箱书搬上车，回头看了一眼住了六年的出租屋。\n房东站在门口，手里捏着押金。“钥匙。”\n陈默递过去。房东数了数钱，抽出两张。“墙上有钉子眼。”\n“那是你上一任租客留的。”\n“我不管谁留的。”\n陈默看着他，忽然笑了。他从口袋里掏出一张照片，是六年前搬进来那天拍的——墙上，钉子眼清清楚楚。\n房东的脸僵了一下，把两张钱塞回他手里。\n“走吧走吧。”\n陈默上车，发动引擎。后视镜里，房东还站在门口，低头看着那面墙。",
+      "note": "完整小闭环；照片是提前埋好的伏笔并在结尾兑现。",
+      "human": {
+        "persona": 4,
+        "coherence": 5,
+        "pacing": 5,
+        "dialogue": 5,
+        "structure": 5
+      },
+      "runs": [
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 4,
+              "comment": "陈默的克制与机敏、房东的斤斤计较都保持一致，人物行为虽简洁但鲜明。",
+              "evidence": [
+                "房东站在门口，手里捏着押金。",
+                "陈默看着他，忽然笑了。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 5,
+              "comment": "退房、扣押金、照片反证和房东退钱之间因果清晰，没有明显跳跃或矛盾。",
+              "evidence": [
+                "房东的脸僵了一下，把两张钱塞回他手里。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 5,
+              "comment": "篇幅紧凑，几乎每个动作和对白都推动冲突，并以照片形成有效钩子和回收。",
+              "evidence": [
+                "房东数了数钱，抽出两张。",
+                "陈默上车，发动引擎。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "对白简短自然且符合人物关系，少量台词承担了直接交代冲突的功能，但没有明显书面腔。",
+              "evidence": [
+                "“墙上有钉子眼。”",
+                "“那是你上一任租客留的。”",
+                "“走吧走吧。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 5,
+              "comment": "故事从搬离和扣押金开始，经由照片反转冲突，最后用后视镜中的房东收束并强化余味。",
+              "evidence": [
+                "陈默把最后一箱书搬上车，回头看了一眼住了六年的出租屋。",
+                "后视镜里，房东还站在门口，低头看着那面墙。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "文本描写日常退租纠纷，不包含需要特别审查的安全风险。",
+            "evidence": []
+          },
+          "overall": 4.6,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:39.021Z",
+            "sample": true,
+            "latency_ms": 39960
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 4,
+              "comment": "Characters maintain consistent behavior throughout, showing realistic reactions such as the landlord trying to keep the deposit and backing down when caught.",
+              "evidence": [
+                "房东站在门口，手里捏着押金。",
+                "陈默看着他，忽然笑了。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 4,
+              "comment": "The causal chain is tight and logical, with the protagonist's preparation directly answering and resolving the landlord's petty deduction.",
+              "evidence": [
+                "他从口袋里掏出一张照片，是六年前搬进来那天拍的——墙上，钉子眼清清楚楚。",
+                "房东的脸僵了一下，把两张钱塞回他手里。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 4,
+              "comment": "The narrative moves efficiently from the setup of moving out to the confrontation and resolution without unnecessary filler.",
+              "evidence": [
+                "陈默把最后一箱书搬上车，回头看了一眼住了六年的出租屋。",
+                "陈默上车，发动引擎。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "The lines are sparse, natural, and fit the curt interaction between a departing tenant and a difficult landlord.",
+              "evidence": [
+                "“墙上有钉子眼。”",
+                "“我不管谁留的。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 4,
+              "comment": "The short piece has a clear beginning, middle conflict, and satisfying closure that resolves the central tension.",
+              "evidence": [
+                "陈默把最后一箱书搬上车，回头看了一眼住了六年的出租屋。",
+                "后视镜里，房东还站在门口，低头看着那面墙。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "The text contains no sensitive or harmful content.",
+            "evidence": []
+          },
+          "overall": 4,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:01:41.369Z",
+            "sample": true,
+            "latency_ms": 2348
+          }
+        },
+        {
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 4,
+              "comment": "陈默克制而机敏，房东斤斤计较的性格也前后一致，人物行为没有明显失真。",
+              "evidence": [
+                "陈默看着他，忽然笑了。",
+                "“我不管谁留的。”"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 5,
+              "comment": "事件因果清晰，照片作为证据自然化解了房东扣押金的冲突，前后没有明显矛盾。",
+              "evidence": [
+                "他从口袋里掏出一张照片，是六年前搬进来那天拍的——墙上，钉子眼清清楚楚。",
+                "房东的脸僵了一下，把两张钱塞回他手里。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 5,
+              "comment": "篇幅短而推进紧凑，几乎每个动作都推动冲突升级或完成反转，没有明显冗余。",
+              "evidence": [
+                "房东站在门口，手里捏着押金。“钥匙。”",
+                "陈默上车，发动引擎。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "对白简短自然并具有明确的权力关系，少量对白承担了直接交代冲突的功能，但整体不显生硬。",
+              "evidence": [
+                "“墙上有钉子眼。”",
+                "“那是你上一任租客留的。”"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 5,
+              "comment": "故事建立搬离场景，展开押金争执，并以照片反转和房东沉默收束，主线完整且结尾带有余味。",
+              "evidence": [
+                "陈默把最后一箱书搬上车，回头看了一眼住了六年的出租屋。",
+                "后视镜里，房东还站在门口，低头看着那面墙。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "文本描写日常租房纠纷，不包含需要人工复核的明显危险内容。",
+            "evidence": []
+          },
+          "overall": 4.6,
+          "meta": {
+            "model": "gemini-2.5-flash",
+            "at": "2026-09-12T17:02:04.911Z",
+            "sample": true,
+            "latency_ms": 23537
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { toCsv, useBadCases } from "@/lib/badcases";
 import { BAD_CASE_THRESHOLD, DIMENSIONS, SCORED_DIMENSIONS } from "@/lib/dimensions";
 import type { ScoredDimensionId } from "@/lib/types";
+import { REPLAY_BAD_CASES } from '@/lib/replay';
+import Link from 'next/link';
 
 /**
  * Bad Case list: every dimension that scored <= BAD_CASE_THRESHOLD on any
@@ -12,7 +14,9 @@ import type { ScoredDimensionId } from "@/lib/types";
  * is more actionable than "coherence: 2".
  */
 export default function BadCasesPage() {
-  const { items, clear } = useBadCases();
+  const { items: realItems, clear } = useBadCases();
+  const [showReplay, setShowReplay] = useState(true);
+  const items = showReplay ? REPLAY_BAD_CASES : realItems;
   const [dim, setDim] = useState<ScoredDimensionId | "all">("all");
   const [source, setSource] = useState<string>("all");
 
@@ -44,10 +48,9 @@ export default function BadCasesPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Bad Cases</h1>
+            <h1 className="text-2xl font-semibold">低分之后，具体改什么？</h1>
           <p className="text-sm text-zinc-600">
-            Every dimension scored ≤ {BAD_CASE_THRESHOLD} on a real run, with the judge&apos;s evidence sentence.
-            Stored in this browser only; sample-mode results are never collected.
+            ≤ {BAD_CASE_THRESHOLD} 分的维度与历史原文证据。回放案例只读，与你的真实运行记录完全分开。
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -56,19 +59,26 @@ export default function BadCasesPage() {
             disabled={filtered.length === 0}
             className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100 disabled:opacity-40"
           >
-            Export CSV ({filtered.length})
+            导出{showReplay ? '回放示例' : '我的记录'} CSV ({filtered.length})
           </button>
           <button
             onClick={() => {
-              if (items.length && window.confirm("Clear all bad cases stored in this browser?")) clear();
+              if (realItems.length && window.confirm("清空保存在此浏览器的真实评测记录？")) clear();
             }}
-            disabled={items.length === 0}
+            disabled={showReplay || realItems.length === 0}
             className="rounded-md px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-40"
           >
-            Clear
+            清空我的记录
           </button>
         </div>
       </div>
+
+      <div className="replay-toolbar">
+        <button aria-pressed={showReplay} onClick={() => {setShowReplay(true);setSource('all');}}>历史回放示例</button>
+        <button aria-pressed={!showReplay} onClick={() => {setShowReplay(false);setSource('all');}}>我的运行记录（{realItems.length}）</button>
+        <Link href="/compare/">对照完整稿看结构是否改善 →</Link>
+      </div>
+      {showReplay && <p className="replay-note">来源：公开校验集中 6 个样本各自第 1 次记录。分数不是本次生成；原文可在单篇评测中切换查看。证据需要人工复核，低分本身不等于评语正确。</p>}
 
       <div className="flex flex-wrap gap-2">
         <button
@@ -77,7 +87,7 @@ export default function BadCasesPage() {
             dim === "all" ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-300 hover:bg-zinc-100"
           }`}
         >
-          All ({items.length})
+          全部 ({items.length})
         </button>
         {SCORED_DIMENSIONS.map((id) => (
           <button
@@ -107,19 +117,19 @@ export default function BadCasesPage() {
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
           {items.length === 0
-            ? "Nothing yet. Run a real evaluation (with a key) on the Evaluate or Compare page; low-scoring dimensions land here."
-            : "No bad cases match this filter."}
+              ? "还没有真实评测记录。可以先切回历史回放示例，无需接口。"
+            : "当前筛选没有低分记录，可以切换维度或来源。"}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white" role="region" aria-label="低分案例表，可横向滚动" tabIndex={0}>
+          <table className="w-full min-w-[700px] text-sm">
             <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
               <tr>
-                <th className="px-3 py-2">Dimension</th>
-                <th className="px-3 py-2">Score</th>
-                <th className="px-3 py-2">Evidence</th>
-                <th className="px-3 py-2">Judge comment</th>
-                <th className="px-3 py-2">Source</th>
+                <th className="px-3 py-2">维度</th>
+                <th className="px-3 py-2">分数</th>
+                <th className="px-3 py-2">原文证据</th>
+                <th className="px-3 py-2">原始评语</th>
+                <th className="px-3 py-2">来源</th>
               </tr>
             </thead>
             <tbody>

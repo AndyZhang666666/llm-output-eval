@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 
 export function SampleBanner({ show }: { show: boolean }) {
   if (!show) return null;
   return (
     <div className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      <strong>示例数据 / Sample data.</strong> No API key is set, so this is a frozen judge output captured
-      while building the app — not a live result for the text you see. Add a key in Settings to run for real.
+      <strong>历史评测回放。</strong> 来自仓库已保存的模型输出，不调用接口，不重新评分。
+      输入、分数与记录一一对应；编辑自己的文本需另行配置接口。
     </div>
   );
 }
@@ -26,19 +26,23 @@ export function TextInput({
   value,
   onChange,
   rows = 16,
+  readOnly = false,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
+  readOnly?: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <label className="text-sm font-medium">{label}</label>
+        <label htmlFor={inputId} className="text-sm font-medium">{label}</label>
         <div className="flex items-center gap-3 text-xs text-zinc-500">
-          <span>{value.length} chars</span>
+          <span>{value.length} 字符{readOnly ? ' · 回放原文' : ''}</span>
+          {!readOnly && <>
           <button type="button" className="hover:underline" onClick={() => fileRef.current?.click()}>
             Upload .txt
           </button>
@@ -53,10 +57,13 @@ export function TextInput({
               e.target.value = "";
             }}
           />
+          </>}
         </div>
       </div>
       <textarea
-        className="w-full resize-y rounded-md border border-zinc-300 bg-white p-3 font-mono text-sm leading-relaxed focus:border-zinc-500 focus:outline-none"
+        id={inputId}
+        readOnly={readOnly}
+        className="w-full resize-y rounded-md border border-zinc-300 bg-white p-4 text-sm leading-relaxed focus:border-zinc-500 focus:outline-none"
         rows={rows}
         value={value}
         onChange={(e) => onChange(e.target.value)}

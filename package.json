@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/build-replay.mjs",
+    "check:replay": "node scripts/build-replay.mjs",
     "dev": "next dev",
     "build": "next build && node scripts/postbuild.mjs",
     "lint": "eslint",

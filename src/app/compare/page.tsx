@@ -10,6 +10,7 @@ import { SAMPLE_RESULT, SAMPLE_TEXT, SAMPLE_TEXT_V2 } from "@/lib/sample";
 import { useSettings } from "@/lib/settings";
 import { aggregateRuns, formatRange } from "@/lib/stats";
 import type { MultiRunResult } from "@/lib/types";
+import { ReplayCompare } from '@/components/ReplayCompare';
 
 /**
  * Version comparison.
@@ -79,6 +80,8 @@ export default function ComparePage() {
   }
 
   const isSample = r1?.runs[0]?.meta.sample ?? false;
+
+  if (!hasKey) return <ReplayCompare />;
 
   return (
     <div className="space-y-6">

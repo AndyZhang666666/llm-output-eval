@@ -23,7 +23,7 @@ export function DimensionCard({ d }: { d: DimensionScore }) {
         </span>
       </div>
       <div className="mt-2">
-        <div className="text-xs uppercase tracking-wide text-zinc-500">Evidence</div>
+        <div className="text-xs text-zinc-600">原文证据</div>
         {d.evidence.length === 0 ? (
           <p className="mt-1 text-xs text-amber-700">
             No verbatim evidence returned — treat this score with caution.
@@ -39,7 +39,7 @@ export function DimensionCard({ d }: { d: DimensionScore }) {
         )}
       </div>
       <details className="mt-2 text-xs text-zinc-500">
-        <summary className="cursor-pointer select-none">Rubric anchor for {d.score}</summary>
+        <summary className="cursor-pointer select-none">为什么是 {d.score} 分：查看评分锚点</summary>
         <p className="mt-1">{def.anchors[d.score - 1]}</p>
       </details>
     </div>

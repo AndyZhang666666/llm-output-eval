@@ -2,7 +2,13 @@
 
 给长文本生成结果打分，并证明打分器本身可信。
 
-- **在线 Demo**：https://andyzhang666666.github.io/llm-output-eval/ —— 纯静态站，自带 key 即可跑真实评测（key 只在你的浏览器里）
+**无需 Key 的体验：** 打开 Demo 即可浏览历史评测，沿「单篇证据 → 截断稿/完整稿对照 → 低分案例 → 裁判校验」走完一条完整路径。默认不调用接口、不产生模型费用。
+
+回放由 `scripts/build-replay.mjs` 从本仓库公开的 `validation/goldset.jsonl` 与 `validation/results/consistency.json` 提取。6 个样本共 18 次历史输出，保留模型、日期和样本 ID；不将其称为本轮新评测。比较中的两篇为同一故事的截断与完整样本，不是线上改稿实验。回放不会进入访客的真实运行记录。
+
+更新详见 [CHANGELOG.md](CHANGELOG.md)。本轮仅验证构建、界面和历史数据投影，没有重新调用模型或重跑一致性指标。
+
+- **在线 Demo**：https://andyzhang666666.github.io/llm-output-eval/ ，默认无需 Key 浏览历史回放；自行配置接口后可运行真实评测。
 - **和 creative-eval 是什么关系**：[creative-eval](https://github.com/AndyZhang666666/creative-eval) 是第一版 —— 固定 5 维 rubric、40 条金标集、校验集更完整，回答「裁判自己可信吗」。本仓库是第二版，把同一个裁判做成可日常使用的工具：**两版 prompt 各连跑 N 次做对比、≤2 分维度自动收进 Bad Case 导出 CSV、每个分数附从原文逐字抽出的证据句**。想看校验方法先看 creative-eval，想看工具形态看这里。
 - **另一条线**：[filing-eval](https://github.com/AndyZhang666666/filing-eval)（公告摘要事实核查）—— 客观事实核查的范式，与这两个主观评分项目刻意对照
 - **校验报告全文**：[`validation/judge-validation.md`](validation/judge-validation.md) —— 所有数字都能在 `validation/results/` 里找到出处
@@ -34,13 +40,14 @@ flowchart LR
 
 **证据必须逐字。** 引用会拿回原文比对，不是逐字就静默丢掉（`src/lib/judge.ts`）。比对前先把弯引号和全角标点归一 —— 裁判换标点是常态，一开始把这当成「改写」误杀了不少真证据。
 
-### 三个页面
+### 四个页面
 
 | 页面 | 你拿到什么 |
 |---|---|
 | **单篇评测** | 一段文本 → 5 维分数、每维一句评语、支撑分数的原文句子、安全分类 |
 | **版本对比** | 两个版本 → 各自独立连跑 N 次（默认 3），每维给均值 ± 极差；只有极差不重叠才敢说「更好 / 更差」 |
 | **Bad Case** | 所有真实运行里 ≤2 分的维度，按维度和来源筛选，可导出 CSV |
+| **裁判校验** | 浏览原 30 条作者标注集的历史一致性与波动结果，查看样本和标注边界 |
 
 ## 4. 五个维度加一个分类
 
