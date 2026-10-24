@@ -2,6 +2,8 @@
 
 给长文本生成结果打分，并证明打分器本身可信。
 
+**一个项目、两轮迭代：** 作品集统一为「文本评测工作台」，V1 `creative-eval` 保留原仓库与历史；[迭代记录](https://andyzhang666666.github.io/llm-output-eval/iteration/) 说明 V1 的规则校准与 V2 的评审流程。两版使用不同样本与口径，不合并成绩、不宣称已证明代际提升。
+
 **无需 Key 的体验：** 打开 Demo 即可浏览历史评测，沿「单篇证据 → 截断稿/完整稿对照 → 低分案例 → 裁判校验」走完一条完整路径。默认不调用接口、不产生模型费用。
 
 回放由 `scripts/build-replay.mjs` 从本仓库公开的 `validation/goldset.jsonl` 与 `validation/results/consistency.json` 提取。6 个样本共 18 次历史输出，保留模型、日期和样本 ID；不将其称为本轮新评测。比较中的两篇为同一故事的截断与完整样本，不是线上改稿实验。回放不会进入访客的真实运行记录。

@@ -11,6 +11,7 @@ const NAV = [
   { href: "/compare", label: "版本对比", en: "Compare" },
   { href: "/bad-cases", label: "Bad Cases", en: "" },
   { href: "/validation", label: "裁判校验", en: "" },
+  { href: "/iteration", label: "迭代记录", en: "" },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
