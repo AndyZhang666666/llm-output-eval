@@ -46,3 +46,5 @@ next-env.d.ts
 # validation: compiled copy of src/lib for the node scripts
 validation/.lib/
 !.env.example
+.taste-skill/
+scripts/.core-test/

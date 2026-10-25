@@ -1,20 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { JudgeSettings } from "@/lib/types";
-
-const PRESETS: { label: string; baseUrl: string; model: string }[] = [
-  { label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4o-mini" },
-  { label: "DeepSeek", baseUrl: "https://api.deepseek.com/v1", model: "deepseek-chat" },
-  { label: "Moonshot", baseUrl: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k" },
-  { label: "Zhipu", baseUrl: "https://open.bigmodel.cn/api/paas/v4", model: "glm-4-flash" },
-  {
-    label: "Gemini",
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
-    model: "gemini-2.5-flash",
-  },
-];
-
 export function SettingsDialog({
   settings,
   onSave,
@@ -24,89 +10,87 @@ export function SettingsDialog({
   onSave: (s: JudgeSettings) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState<JudgeSettings>(settings);
-
+  const [draft, setDraft] = useState(settings),
+    [error, setError] = useState("");
+  const ref = useRef<HTMLDialogElement>(null),
+    title = useId();
+  useEffect(() => {
+    const dialog = ref.current;
+    dialog?.showModal();
+    return () => dialog?.close();
+  }, []);
+  function save(value: JudgeSettings) {
+    try {
+      onSave(value);
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "设置未保存，请检查字段。");
+    }
+  }
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
-      <div
-        className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+    <dialog
+      ref={ref}
+      aria-labelledby={title}
+      className="settings-dialog"
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          save(draft);
+        }}
       >
-        <h2 className="text-lg font-semibold">Judge settings</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Any OpenAI-compatible <code>/chat/completions</code> endpoint works. The key is saved only in
-          this browser.
+        <h2 id={title}>可选接口设置</h2>
+        <p>
+          默认回放不需要接口。仅手动评测时，文本和Key会发给你填写的服务商；接口还需允许浏览器跨域请求。
         </p>
-
-        <div className="mt-4 flex gap-2">
-          {PRESETS.map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => setDraft({ ...draft, baseUrl: p.baseUrl, model: p.model })}
-              className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100"
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        <label className="mt-4 block text-sm">
-          <span className="text-zinc-700">Base URL</span>
+        <label>
+          HTTPS Base URL
           <input
-            className="mt-1 w-full rounded border border-zinc-300 px-2 py-1.5 font-mono text-sm"
+            autoFocus
             value={draft.baseUrl}
             onChange={(e) => setDraft({ ...draft, baseUrl: e.target.value })}
+            type="url"
           />
         </label>
-        <label className="mt-3 block text-sm">
-          <span className="text-zinc-700">Model</span>
+        <label>
+          模型名
           <input
-            className="mt-1 w-full rounded border border-zinc-300 px-2 py-1.5 font-mono text-sm"
             value={draft.model}
             onChange={(e) => setDraft({ ...draft, model: e.target.value })}
           />
         </label>
-        <label className="mt-3 block text-sm">
-          <span className="text-zinc-700">API key</span>
+        <label>
+          API Key
           <input
-            type="password"
             autoComplete="off"
-            className="mt-1 w-full rounded border border-zinc-300 px-2 py-1.5 font-mono text-sm"
+            type="password"
             value={draft.apiKey}
-            placeholder="sk-..."
             onChange={(e) => setDraft({ ...draft, apiKey: e.target.value })}
           />
         </label>
-
-        <div className="mt-5 flex justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              onSave({ ...draft, apiKey: "" });
-              onClose();
-            }}
-            className="text-sm text-red-600 hover:underline"
-          >
-            Clear key
+        <p>
+          Key仅保留当前页面内存，刷新即清除。地址与模型名可以保存在本机，不保证所填模型或接口可用。
+        </p>
+        {error && <p role="alert">{error}</p>}
+        <div className="review-actions">
+          <button type="button" onClick={() => save({ ...draft, apiKey: "" })}>
+            清除Key并使用回放
           </button>
-          <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="rounded px-3 py-1.5 text-sm hover:bg-zinc-100">
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onSave({ ...draft, baseUrl: draft.baseUrl.trim(), model: draft.model.trim(), apiKey: draft.apiKey.trim() });
-                onClose();
-              }}
-              className="rounded bg-zinc-900 px-3 py-1.5 text-sm text-white hover:bg-zinc-700"
-            >
-              Save
-            </button>
-          </div>
+          <button type="button" onClick={onClose}>
+            取消
+          </button>
+          <button type="submit" className="primary">
+            应用设置
+          </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </dialog>
   );
 }

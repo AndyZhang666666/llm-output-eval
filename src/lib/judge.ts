@@ -1,4 +1,5 @@
 import { SCORED_DIMENSIONS } from "./dimensions";
+import { locateEvidence } from "./evidence";
 import type {
   DimensionScore,
   EvaluationResult,
@@ -30,7 +31,10 @@ const SAFETY_CATEGORIES: SafetyCategory[] = [
 ];
 
 export class JudgeParseError extends Error {
-  constructor(message: string, public readonly raw: string) {
+  constructor(
+    message: string,
+    public readonly raw: string,
+  ) {
     super(message);
     this.name = "JudgeParseError";
   }
@@ -60,15 +64,24 @@ function stripFences(s: string): string {
   return (m ? m[1] : s).trim();
 }
 
-function toScore(v: unknown): Score {
-  const n = typeof v === "string" ? parseInt(v, 10) : Number(v);
-  if (!Number.isFinite(n)) return 1;
-  const clamped = Math.min(5, Math.max(1, Math.round(n)));
-  return clamped as Score;
+function toScore(v: unknown, raw: string): Score {
+  const n =
+    typeof v === "number" || (typeof v === "string" && v.trim() !== "")
+      ? Number(v)
+      : NaN;
+  if (!Number.isInteger(n) || n < 1 || n > 5)
+    throw new JudgeParseError(
+      "Judge score must be an integer from 1 to 5; it was not converted into a low score.",
+      raw,
+    );
+  return n as Score;
 }
 
 function toStringArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim());
+  if (Array.isArray(v))
+    return v
+      .filter((x) => typeof x === "string" && x.trim())
+      .map((x) => x.trim());
   if (typeof v === "string" && v.trim()) return [v.trim()];
   return [];
 }
@@ -81,26 +94,8 @@ function toStringArray(v: unknown): string[] {
  * for half-width punctuation. Those are not paraphrases, and treating them
  * as such threw away real evidence in early runs (see git history).
  */
-const PUNCT_MAP: Record<string, string> = {
-  "“": '"', "”": '"', "„": '"', "‟": '"',
-  "‘": "'", "’": "'", "‚": "'", "‛": "'",
-  "，": ",", "。": ".", "！": "!", "？": "?", "：": ":", "；": ";",
-  "（": "(", "）": ")", "【": "[", "】": "]", "《": "<", "》": ">",
-  "—": "-", "–": "-", "…": "...",
-};
-const PUNCT_RE = new RegExp(`[${Object.keys(PUNCT_MAP).join("")}]`, "g");
-
-function normalizeForMatch(s: string): string {
-  return s
-    .replace(PUNCT_RE, (ch) => PUNCT_MAP[ch] ?? ch)
-    .replace(/\s+/g, "")
-    .toLowerCase();
-}
-
 export function isVerbatim(quote: string, source: string): boolean {
-  const q = normalizeForMatch(quote);
-  if (q.length < 4) return false;
-  return normalizeForMatch(source).includes(q);
+  return locateEvidence(source, quote) !== null;
 }
 
 /**
@@ -146,7 +141,12 @@ function looksIncomplete(s: string): boolean {
 export function parseJudgeOutput(
   raw: string,
   sourceText: string,
-  meta: { model: string; latency_ms?: number; sample?: boolean; finish_reason?: string },
+  meta: {
+    model: string;
+    latency_ms?: number;
+    sample?: boolean;
+    finish_reason?: string;
+  },
 ): EvaluationResult {
   const body = stripFences(raw);
   let obj: unknown;
@@ -165,11 +165,23 @@ export function parseJudgeOutput(
   }
   const o = obj as Record<string, unknown>;
 
-  const dimsRaw = Array.isArray(o.dimensions) ? (o.dimensions as unknown[]) : [];
+  const dimsRaw = Array.isArray(o.dimensions)
+    ? (o.dimensions as unknown[])
+    : [];
   const byId = new Map<string, Record<string, unknown>>();
   for (const d of dimsRaw) {
-    if (d && typeof d === "object" && typeof (d as Record<string, unknown>).id === "string") {
-      byId.set((d as Record<string, unknown>).id as string, d as Record<string, unknown>);
+    if (
+      d &&
+      typeof d === "object" &&
+      typeof (d as Record<string, unknown>).id === "string"
+    ) {
+      const id = (d as Record<string, unknown>).id as string;
+      if (byId.has(id))
+        throw new JudgeParseError(
+          "Judge returned duplicate dimensions: " + id,
+          raw,
+        );
+      byId.set(id, d as Record<string, unknown>);
     }
   }
   // Also accept the flat shape { persona: {...}, coherence: {...} } some models emit.
@@ -181,33 +193,53 @@ export function parseJudgeOutput(
 
   const missing = SCORED_DIMENSIONS.filter((id) => !byId.has(id));
   if (missing.length > 0) {
-    throw new JudgeParseError(`Judge output missing dimensions: ${missing.join(", ")}`, raw);
+    throw new JudgeParseError(
+      `Judge output missing dimensions: ${missing.join(", ")}`,
+      raw,
+    );
   }
 
-  const dimensions: DimensionScore[] = SCORED_DIMENSIONS.map((id: ScoredDimensionId) => {
-    const d = byId.get(id)!;
-    const evidence = toStringArray(d.evidence).filter((e) => isVerbatim(e, sourceText));
-    return {
-      id,
-      score: toScore(d.score),
-      comment: typeof d.comment === "string" ? d.comment.trim() : "",
-      evidence,
-    };
-  });
+  const dimensions: DimensionScore[] = SCORED_DIMENSIONS.map(
+    (id: ScoredDimensionId) => {
+      const d = byId.get(id)!;
+      const evidence = toStringArray(d.evidence).filter((e) =>
+        isVerbatim(e, sourceText),
+      );
+      return {
+        id,
+        score: toScore(d.score, raw),
+        comment: typeof d.comment === "string" ? d.comment.trim() : "",
+        evidence,
+      };
+    },
+  );
 
-  const s = (o.safety && typeof o.safety === "object" ? o.safety : {}) as Record<string, unknown>;
-  const category = SAFETY_CATEGORIES.includes(s.category as SafetyCategory)
-    ? (s.category as SafetyCategory)
-    : "none";
+  const s = (
+    o.safety && typeof o.safety === "object" ? o.safety : {}
+  ) as Record<string, unknown>;
+  if (
+    !SAFETY_CATEGORIES.includes(s.category as SafetyCategory) ||
+    typeof s.needs_review !== "boolean"
+  )
+    throw new JudgeParseError(
+      "Judge safety category or review flag is missing or invalid; no safe classification was inferred.",
+      raw,
+    );
+  const category = s.category as SafetyCategory;
   const safety: SafetyFlag = {
     category,
     needs_review: Boolean(s.needs_review) || category !== "none",
     comment: typeof s.comment === "string" ? s.comment.trim() : "",
-    evidence: toStringArray(s.evidence).filter((e) => isVerbatim(e, sourceText)),
+    evidence: toStringArray(s.evidence).filter((e) =>
+      isVerbatim(e, sourceText),
+    ),
   };
 
   const overall =
-    Math.round((dimensions.reduce((acc, d) => acc + d.score, 0) / dimensions.length) * 100) / 100;
+    Math.round(
+      (dimensions.reduce((acc, d) => acc + d.score, 0) / dimensions.length) *
+        100,
+    ) / 100;
 
   return {
     dimensions,

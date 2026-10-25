@@ -5,8 +5,9 @@ import { useId, useRef } from "react";
 export function SampleBanner({ show }: { show: boolean }) {
   if (!show) return null;
   return (
-    <div className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      <strong>历史评测回放。</strong> 来自仓库已保存的模型输出，不调用接口，不重新评分。
+    <div className="eval-notice">
+      <strong>历史评测回放。</strong>{" "}
+      来自仓库已保存的模型输出，不调用接口，不重新评分。
       输入、分数与记录一一对应；编辑自己的文本需另行配置接口。
     </div>
   );
@@ -16,7 +17,7 @@ export function ErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
   return (
     <div className="mb-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
-      <strong>Judge call failed.</strong> {message}
+      <strong>本次未形成完整结果。</strong> {message}
     </div>
   );
 }
@@ -39,25 +40,35 @@ export function TextInput({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <label htmlFor={inputId} className="text-sm font-medium">{label}</label>
+        <label htmlFor={inputId} className="text-sm font-medium">
+          {label}
+        </label>
         <div className="flex items-center gap-3 text-xs text-zinc-500">
-          <span>{value.length} 字符{readOnly ? ' · 回放原文' : ''}</span>
-          {!readOnly && <>
-          <button type="button" className="hover:underline" onClick={() => fileRef.current?.click()}>
-            Upload .txt
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".txt,.md,text/plain"
-            className="hidden"
-            onChange={async (e) => {
-              const f = e.target.files?.[0];
-              if (f) onChange(await f.text());
-              e.target.value = "";
-            }}
-          />
-          </>}
+          <span>
+            {value.length} 字符{readOnly ? " · 回放原文" : ""}
+          </span>
+          {!readOnly && (
+            <>
+              <button
+                type="button"
+                className="hover:underline"
+                onClick={() => fileRef.current?.click()}
+              >
+                Upload .txt
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".txt,.md,text/plain"
+                className="hidden"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (f) onChange(await f.text());
+                  e.target.value = "";
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
       <textarea

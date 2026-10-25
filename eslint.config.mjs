@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     // Compiled copy of the app's prompt/parser used by validation/. Generated,
     // and gitignored — but eslint does not read .gitignore.
     "validation/.lib/**",
+    "scripts/.core-test/**",
+    ".taste-skill/**",
   ]),
 ]);
 

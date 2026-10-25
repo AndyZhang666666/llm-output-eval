@@ -2,23 +2,35 @@ import { BAD_CASE_THRESHOLD, DIMENSIONS } from "@/lib/dimensions";
 import type { DimensionScore, SafetyFlag } from "@/lib/types";
 
 function scoreColor(score: number): string {
-  if (score <= BAD_CASE_THRESHOLD) return "bg-red-100 text-red-800 border-red-200";
+  if (score <= BAD_CASE_THRESHOLD)
+    return "bg-red-100 text-red-800 border-red-200";
   if (score === 3) return "bg-amber-100 text-amber-800 border-amber-200";
   return "bg-emerald-100 text-emerald-800 border-emerald-200";
 }
 
-export function DimensionCard({ d }: { d: DimensionScore }) {
+export function DimensionCard({
+  d,
+  onEvidence,
+}: {
+  d: DimensionScore;
+  onEvidence?: (quote: string) => void;
+}) {
   const def = DIMENSIONS[d.id];
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-3">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="font-medium">
-            {def.labelZh} <span className="text-xs text-zinc-500">{def.label}</span>
+            {def.labelZh}{" "}
+            <span className="text-xs text-zinc-500">{def.label}</span>
           </div>
-          <p className="mt-1 text-sm text-zinc-700">{d.comment || <em className="text-zinc-400">no comment</em>}</p>
+          <p className="mt-1 text-sm text-zinc-700">
+            {d.comment || <em className="text-zinc-400">no comment</em>}
+          </p>
         </div>
-        <span className={`shrink-0 rounded border px-2 py-0.5 font-mono text-sm font-semibold ${scoreColor(d.score)}`}>
+        <span
+          className={`shrink-0 rounded border px-2 py-0.5 font-mono text-sm font-semibold ${scoreColor(d.score)}`}
+        >
           {d.score}/5
         </span>
       </div>
@@ -31,15 +43,36 @@ export function DimensionCard({ d }: { d: DimensionScore }) {
         ) : (
           <ul className="mt-1 space-y-1">
             {d.evidence.map((e, i) => (
-              <li key={i} className="border-l-2 border-zinc-300 pl-2 text-sm text-zinc-800">
-                {e}
+              <li
+                key={i}
+                className="border-l-2 border-zinc-300 pl-2 text-sm text-zinc-800"
+              >
+                {onEvidence ? (
+                  <button
+                    className="evidence-link"
+                    onClick={() => onEvidence(e)}
+                    aria-label={"定位" + def.labelZh + "证据" + (i + 1)}
+                  >
+                    {e}
+                    <span>定位原文 →</span>
+                  </button>
+                ) : (
+                  e
+                )}
               </li>
             ))}
           </ul>
         )}
       </div>
+      {onEvidence && d.evidence.length === 0 && (
+        <button className="evidence-link" onClick={() => onEvidence("")}>
+          复核此维度 →
+        </button>
+      )}
       <details className="mt-2 text-xs text-zinc-500">
-        <summary className="cursor-pointer select-none">为什么是 {d.score} 分：查看评分锚点</summary>
+        <summary className="cursor-pointer select-none">
+          为什么是 {d.score} 分：查看评分锚点
+        </summary>
         <p className="mt-1">{def.anchors[d.score - 1]}</p>
       </details>
     </div>
@@ -55,7 +88,8 @@ export function SafetyCard({ s }: { s: SafetyFlag }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="font-medium">
-            {DIMENSIONS.safety.labelZh} <span className="text-xs text-zinc-500">Safety</span>
+            {DIMENSIONS.safety.labelZh}{" "}
+            <span className="text-xs text-zinc-500">Safety</span>
           </div>
           <p className="mt-1 text-sm text-zinc-700">{s.comment}</p>
         </div>
@@ -66,7 +100,9 @@ export function SafetyCard({ s }: { s: SafetyFlag }) {
       {s.evidence.length > 0 && (
         <ul className="mt-2 space-y-1">
           {s.evidence.map((e, i) => (
-            <li key={i} className="border-l-2 border-red-300 pl-2 text-sm">{e}</li>
+            <li key={i} className="border-l-2 border-red-300 pl-2 text-sm">
+              {e}
+            </li>
           ))}
         </ul>
       )}

@@ -39,6 +39,9 @@ jobs:
 
       - run: npm run lint
 
+      # Pure deterministic checks with mocked fetch; no paid model calls.
+      - run: npm run test:core
+
       # `npm run build` writes out/.nojekyll via scripts/postbuild.mjs so local
       # and CI builds go through the same path.
       - run: npm run build

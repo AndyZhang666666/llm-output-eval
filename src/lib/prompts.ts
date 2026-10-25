@@ -12,9 +12,7 @@ import { DIMENSIONS, SCORED_DIMENSIONS } from "./dimensions";
 function anchorBlock(): string {
   return SCORED_DIMENSIONS.map((id) => {
     const d = DIMENSIONS[id];
-    const anchors = d.anchors
-      .map((a, i) => `    ${i + 1}: ${a}`)
-      .join("\n");
+    const anchors = d.anchors.map((a, i) => `    ${i + 1}: ${a}`).join("\n");
     return `- ${id} (${d.label} / ${d.labelZh}): ${d.definition}\n  What to look at: ${d.lens}\n  Anchors:\n${anchors}`;
   }).join("\n\n");
 }

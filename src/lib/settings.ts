@@ -1,77 +1,129 @@
 "use client";
-
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import type { JudgeSettings } from "./types";
-
-/**
- * Judge connection settings live in localStorage only.
- *
- * The key never touches our server except as a pass-through header on each
- * request. There is no account, no sync, no cookie. Clearing site data wipes
- * it. This is the whole "BYO key" story.
- *
- * Read through useSyncExternalStore rather than useEffect+setState: the server
- * snapshot is "not loaded" so SSR and the first client render agree, and the
- * real value swaps in without a cascading re-render.
- */
-
 const STORAGE_KEY = "llm-output-eval:settings:v1";
-
 export const DEFAULT_SETTINGS: JudgeSettings = {
   baseUrl: "https://api.openai.com/v1",
   apiKey: "",
   model: "gpt-4o-mini",
 };
-
 const listeners = new Set<() => void>();
-let cache: { raw: string | null; value: JudgeSettings } | null = null;
-
-function readRaw(): string | null {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
+let memory: JudgeSettings | null = null,
+  cache: { raw: string | null; value: JudgeSettings } | null = null;
+let notice = "";
 function getSnapshot(): JudgeSettings {
-  const raw = readRaw();
-  // Return a stable object when storage has not changed; uSES compares by identity.
+  if (memory) return memory;
+  let raw: string | null = null;
+  try {
+    raw = window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    notice = "本地存储不可用，接口配置仅留当前页面。";
+  }
   if (cache && cache.raw === raw) return cache.value;
   let value = DEFAULT_SETTINGS;
   if (raw) {
     try {
-      value = { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<JudgeSettings>) };
+      const d = JSON.parse(raw);
+      value = {
+        baseUrl:
+          typeof d.baseUrl === "string" ? d.baseUrl : DEFAULT_SETTINGS.baseUrl,
+        model: typeof d.model === "string" ? d.model : DEFAULT_SETTINGS.model,
+        apiKey: "",
+      };
     } catch {
-      value = DEFAULT_SETTINGS;
+      notice = "旧接口配置无法恢复，已使用默认值。";
     }
   }
   cache = { raw, value };
   return value;
 }
-
-function getServerSnapshot(): JudgeSettings | null {
-  return null;
-}
-
 function subscribe(cb: () => void) {
   listeners.add(cb);
-  window.addEventListener("storage", cb);
+  const changed = () => {
+    memory = null;
+    cache = null;
+    cb();
+  };
+  window.addEventListener("storage", changed);
   return () => {
     listeners.delete(cb);
-    window.removeEventListener("storage", cb);
+    window.removeEventListener("storage", changed);
   };
 }
-
 export function saveSettings(s: JudgeSettings): void {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  listeners.forEach((l) => l());
+  if (
+    typeof s.baseUrl !== "string" ||
+    typeof s.model !== "string" ||
+    typeof s.apiKey !== "string"
+  )
+    throw Error("接口配置格式不正确。");
+  const baseUrl = s.baseUrl.trim(),
+    model = s.model.trim(),
+    apiKey = s.apiKey.trim();
+  if (apiKey) {
+    let u: URL;
+    try {
+      u = new URL(baseUrl);
+    } catch {
+      throw Error("请填写有效HTTPS接口地址。");
+    }
+    if (
+      u.protocol !== "https:" ||
+      u.username ||
+      u.password ||
+      u.search ||
+      u.hash ||
+      !model
+    )
+      throw Error(
+        "请使用HTTPS接口并填写模型名，地址不应包含密钥、查询或片段。",
+      );
+  }
+  memory = { baseUrl, model, apiKey };
+  cache = null;
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ baseUrl, model }),
+    );
+    notice = "Key仅保留当前页面内存，刷新即清除。";
+  } catch {
+    notice = "配置仅留当前页面，Key不保存；回放仍可使用。";
+  }
+  listeners.forEach((cb) => cb());
 }
-
 export function useSettings() {
-  const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const loaded = snap !== null;
-  const settings = snap ?? DEFAULT_SETTINGS;
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d && Object.hasOwn(d, "apiKey")) {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            baseUrl:
+              typeof d.baseUrl === "string"
+                ? d.baseUrl
+                : DEFAULT_SETTINGS.baseUrl,
+            model:
+              typeof d.model === "string" ? d.model : DEFAULT_SETTINGS.model,
+          }),
+        );
+        cache = null;
+        notice = "旧版持久化Key已清除，按需重新输入即可。";
+        listeners.forEach((cb) => cb());
+      }
+    } catch {}
+  }, []);
+  const snap = useSyncExternalStore(subscribe, getSnapshot, () => null),
+    settings = snap ?? DEFAULT_SETTINGS;
   const update = useCallback((next: JudgeSettings) => saveSettings(next), []);
-  return { settings, update, loaded, hasKey: settings.apiKey.trim().length > 0 };
+  return {
+    settings,
+    update,
+    loaded: snap !== null,
+    hasKey: Boolean(settings.apiKey.trim()),
+    notice,
+  };
 }

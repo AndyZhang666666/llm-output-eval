@@ -1,0 +1,24 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".core-test",
+    "rootDir": "../src/lib",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "incremental": false,
+    "plugins": []
+  },
+  "include": [
+    "../src/lib/types.ts",
+    "../src/lib/dimensions.ts",
+    "../src/lib/prompts.ts",
+    "../src/lib/judge.ts",
+    "../src/lib/stats.ts",
+    "../src/lib/evidence.ts",
+    "../src/lib/review.ts",
+    "../src/lib/records.ts",
+    "../src/lib/api.ts"
+  ],
+  "exclude": ["../node_modules"]
+}

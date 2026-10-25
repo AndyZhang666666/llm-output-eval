@@ -16,9 +16,10 @@ const NAV = [
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const currentPath = pathname.replace(/^\/llm-output-eval/, '').replace(/\/$/, '') || '/';
+  const currentPath =
+    pathname.replace(/^\/llm-output-eval/, "").replace(/\/$/, "") || "/";
   const [open, setOpen] = useState(false);
-  const { settings, update, hasKey, loaded } = useSettings();
+  const { settings, update, hasKey, loaded, notice } = useSettings();
 
   return (
     <div className="eval-shell min-h-screen text-zinc-900">
@@ -26,22 +27,31 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="eval-header mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="eval-header-left flex items-center gap-6">
             <Link href="/" className="font-semibold tracking-tight">
-              <span className="eval-wordmark">文本评测台<span>llm-output-eval</span></span>
+              <span className="eval-wordmark">
+                文本评测台<span>llm-output-eval</span>
+              </span>
             </Link>
-            <nav className="eval-nav flex gap-1 text-sm" aria-label="评测工具导航">
+            <nav
+              className="eval-nav flex gap-1 text-sm"
+              aria-label="评测工具导航"
+            >
               {NAV.map((n) => {
                 const active = currentPath === n.href;
                 return (
                   <Link
                     key={n.href}
                     href={n.href}
-                    aria-current={active ? 'page' : undefined}
+                    aria-current={active ? "page" : undefined}
                     className={`rounded-md px-3 py-1.5 ${
-                      active ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"
+                      active
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600 hover:bg-zinc-100"
                     }`}
                   >
                     {n.label}
-                    {n.en && <span className="ml-1 text-xs opacity-60">{n.en}</span>}
+                    {n.en && (
+                      <span className="ml-1 text-xs opacity-60">{n.en}</span>
+                    )}
                   </Link>
                 );
               })}
@@ -53,7 +63,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
           >
             <span
               className={`inline-block h-2 w-2 rounded-full ${
-                !loaded ? "bg-zinc-300" : hasKey ? "bg-emerald-500" : "bg-amber-500"
+                !loaded
+                  ? "bg-zinc-300"
+                  : hasKey
+                    ? "bg-emerald-500"
+                    : "bg-zinc-400"
               }`}
             />
             {loaded && hasKey ? settings.model : "接口设置（可选）"}
@@ -62,10 +76,20 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="eval-main mx-auto max-w-6xl px-4 py-6">{children}</main>
       <footer className="eval-footer mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-zinc-600">
-        默认体验为历史评测回放，不调用模型、不产生 API 费用。可选接口由你自行提供，Key 存在本机浏览器并直接发送给所选服务商。
-        <a href="https://github.com/AndyZhang666666/llm-output-eval">源码与更新记录</a>
+        默认体验为历史评测回放，不调用模型、不产生 API
+        费用。可选接口自行提供；Key 仅在当前页面内存，手动请求才发给所选服务商。
+        {notice}
+        <a href="https://github.com/AndyZhang666666/llm-output-eval">
+          源码与更新记录
+        </a>
       </footer>
-      {open && <SettingsDialog settings={settings} onSave={update} onClose={() => setOpen(false)} />}
+      {open && (
+        <SettingsDialog
+          settings={settings}
+          onSave={update}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </div>
   );
 }

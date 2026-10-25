@@ -1,10 +1,5 @@
 import { SCORED_DIMENSIONS } from "./dimensions";
-import type {
-  DimensionStats,
-  EvaluationResult,
-  MultiRunResult,
-  Score,
-} from "./types";
+import type { DimensionStats, EvaluationResult, MultiRunResult } from "./types";
 
 /**
  * Aggregate N judge runs of the same text.
@@ -31,10 +26,35 @@ function describe(values: number[]) {
 }
 
 export function aggregateRuns(runs: EvaluationResult[]): MultiRunResult {
-  if (runs.length === 0) throw new Error("aggregateRuns needs at least one run");
+  if (runs.length === 0)
+    throw new Error("aggregateRuns needs at least one run");
+  for (const r of runs) {
+    if (
+      r.dimensions.length !== SCORED_DIMENSIONS.length ||
+      new Set(r.dimensions.map((d) => d.id)).size !==
+        SCORED_DIMENSIONS.length ||
+      SCORED_DIMENSIONS.some(
+        (id) =>
+          !r.dimensions.some(
+            (d) =>
+              d.id === id &&
+              Number.isInteger(d.score) &&
+              d.score >= 1 &&
+              d.score <= 5,
+          ),
+      )
+    )
+      throw Error("Invalid run dimensions; missing scores were not imputed.");
+    const expected = round2(
+      r.dimensions.reduce((sum, d) => sum + d.score, 0) /
+        SCORED_DIMENSIONS.length,
+    );
+    if (!Number.isFinite(r.overall) || Math.abs(expected - r.overall) > 1e-9)
+      throw Error("Run overall disagrees with dimension scores.");
+  }
   const stats: DimensionStats[] = SCORED_DIMENSIONS.map((id) => {
     const scores = runs.map(
-      (r) => r.dimensions.find((d) => d.id === id)?.score ?? (1 as Score),
+      (r) => r.dimensions.find((d) => d.id === id)!.score,
     );
     return { id, runs: scores, ...describe(scores) };
   });
@@ -46,7 +66,33 @@ export function aggregateRuns(runs: EvaluationResult[]): MultiRunResult {
 }
 
 /** "3.67 (3–4)" style label; collapses to "4" when there is no spread. */
-export function formatRange(s: { mean: number; min: number; max: number }): string {
+export function formatRange(s: {
+  mean: number;
+  min: number;
+  max: number;
+}): string {
   if (s.min === s.max) return String(s.mean);
   return `${s.mean} (${s.min}–${s.max})`;
+}
+
+/** Saved extrema are descriptions, not confidence bounds or a significance test. */
+export function comparisonReading(
+  a: { mean: number; min: number; max: number },
+  b: { mean: number; min: number; max: number },
+  nA: number,
+  nB: number,
+) {
+  const delta = round2(b.mean - a.mean),
+    overlap = !(b.min > a.max || b.max < a.min);
+  if (nA < 2 || nB < 2)
+    return { delta, label: "仅单次，无法观察重复波动", tone: "text-zinc-700" };
+  if (delta === 0)
+    return { delta, label: "本组均值相同", tone: "text-zinc-700" };
+  return {
+    delta,
+    label:
+      (delta > 0 ? "本组均值较高" : "本组均值较低") +
+      (overlap ? "；极差重叠" : "；极差未重叠"),
+    tone: "text-zinc-700",
+  };
 }

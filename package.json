@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build && node scripts/postbuild.mjs",
     "lint": "eslint",
+    "test:core": "tsc -p scripts/core-tsconfig.json && node --test scripts/test-core.mjs",
     "validate:build": "tsc -p validation/tsconfig.json",
     "validate:goldset": "node validation/build-goldset.mjs",
     "validate:consistency": "node validation/consistency.mjs",
