@@ -1,5 +1,7 @@
 # 裁判校验报告
 
+> 历史实验归档：以下为2026-09-12保存的模型运行。2026-10-25的证据定位、人工复核及严格解析升级未重跑模型；原始标签、分数、指标均保留。当前纯逻辑与模拟接口验证见[本轮验证记录](../docs/VALIDATION.md)，不能用本报告推定新版模型效果。
+
 **裁判：** `gemini-2.5-flash`，temperature 0，`response_format: json_object`，经一个兼容 OpenAI 协议的中转站
 **Prompt：** `src/lib/prompts.ts`，commit `ce38bfe` —— prompt 一改，下面所有数字作废
 **金标集：** `goldset.jsonl`，30 条，其中 6 条边界样本（20%）
