@@ -28,7 +28,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="eval-header-left flex items-center gap-6">
             <Link href="/" className="font-semibold tracking-tight">
               <span className="eval-wordmark">
-                文本评测台<span>llm-output-eval</span>
+                Eval Lab<span>文本评测与人工复核</span>
               </span>
             </Link>
             <nav

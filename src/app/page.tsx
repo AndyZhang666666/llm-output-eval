@@ -3,13 +3,12 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DimensionCard, SafetyCard } from "@/components/DimensionCard";
 import { EvidenceReview } from "@/components/EvidenceReview";
-import { ScoreRadar } from "@/components/ScoreRadar";
 import { ErrorBanner, SampleBanner, TextInput } from "@/components/ui";
 import { evaluateText } from "@/lib/api";
 import { collectBadCases } from "@/lib/badcases";
 import { REPLAY_ITEMS, replayItem } from "@/lib/replay";
 import { recordKey } from "@/lib/review";
-import { SCORED_DIMENSIONS } from "@/lib/dimensions";
+import { DIMENSIONS, SCORED_DIMENSIONS } from "@/lib/dimensions";
 import { useSettings } from "@/lib/settings";
 import type { EvaluationResult, ScoredDimensionId } from "@/lib/types";
 function subscribeURL(cb: () => void) {
@@ -105,10 +104,12 @@ function EvaluateWorkspace({ initialQuery }: { initialQuery: string }) {
   const key = result
     ? recordKey(result.meta.sample ? sampleId : "own", runIndex, text, result)
     : "";
+  const resultPanel = useRef<HTMLElement>(null);
+  useEffect(()=>{const node=resultPanel.current;if(!node||!key||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const animation=node.animate([{opacity:.72,transform:'translateY(5px)'},{opacity:1,transform:'none'}],{duration:220,easing:'cubic-bezier(.16,1,.3,1)'});return()=>animation.cancel()},[key]);
   return (
     <>
       <div className="eval-intro">
-        <h1>找到该改的那一句。</h1>
+        <h1>文本评测与复核</h1>
         <p>
           先定位引用，再判断评语能否成立。复核意见留在本机，不改变历史分数；无需Key即可完成整条审阅流程。
         </p>
@@ -203,7 +204,7 @@ function EvaluateWorkspace({ initialQuery }: { initialQuery: string }) {
             )}
           </div>
         </section>
-        <section className="eval-results" aria-label="评分与证据">
+        <section ref={resultPanel} className="eval-results" aria-label="评分与证据">
           <ErrorBanner message={error} />
           {result ? (
             <>
@@ -221,19 +222,9 @@ function EvaluateWorkspace({ initialQuery }: { initialQuery: string }) {
                       : "本次运行"}
                   </p>
                 </div>
-                <ScoreRadar
-                  series={[
-                    {
-                      name: "评分",
-                      values: SCORED_DIMENSIONS.map(
-                        (id) =>
-                          result.dimensions.find((d) => d.id === id)!.score,
-                      ),
-                      color: "#24624d",
-                    },
-                  ]}
-                  height={190}
-                />
+                <dl className="score-profile" aria-label="五个维度的评分，满分 5 分">
+                  {SCORED_DIMENSIONS.map(id=>{const value=result.dimensions.find(d=>d.id===id)!.score;return <div key={id}><dt>{DIMENSIONS[id].labelZh}</dt><dd><span aria-hidden="true" className="score-track"><i style={{width:`${value/5*100}%`}} /></span><span>{value}/5</span></dd></div>})}
+                </dl>
               </div>
               <p className="replay-note">
                 维度按低分优先排列。点击引用可以定位原文并记录你的判断。
