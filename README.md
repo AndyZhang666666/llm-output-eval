@@ -1,4 +1,27 @@
-# llm-output-eval
+# Eval Lab · 文本评测工作台
+
+[在线体验](https://andyzhang666666.github.io/llm-output-eval/) · [English](README.en.md) · [作品索引](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
+
+模型给了低分，评审者能不能找到依据，再留下自己的判断？
+
+![Eval Lab · 文本评测工作台的实际产品界面](https://andyzhang666666.github.io/assets/work/showcase/eval-crop.jpg)
+
+## 值得看的设计
+
+- 分数按维度拆开，每条理由要能回到原文。
+- 引用定位与人工复核分开，复核不覆盖裁判原分。
+- 保留运行、样本、Prompt 版本与导出记录，方便复盘。
+
+## 建议体验路径
+
+1. 打开单篇评测中的历史样本，选一条低分维度。
+2. 点击引句，核对原文，再选支持、存疑或需要上下文。
+3. 比较同一故事的截断稿与完整稿，导出原始结果与人工复核。
+
+**运行方式：** 默认回放 6 条样本的 18 次历史输出，无需 Key。真实接口为可选配置；历史校准记录不等于本轮重跑成绩。
+
+<details>
+<summary>展开实现、模型与验证记录</summary>
 
 2026-10-27 前端更新：按瑞士现代主义整理评审、引用与复核界面。设计取舍见 [docs/DESIGN.md](docs/DESIGN.md)；默认历史输出和模型成绩未改变。
 
@@ -109,7 +132,7 @@ flowchart LR
 git clone https://github.com/AndyZhang666666/llm-output-eval.git
 cd llm-output-eval
 npm install
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:3000/llm-output-eval/
 ```
 
 不需要环境变量。默认展示历史回放。可在 **接口设置（可选）** 填写自己信任的HTTPS兼容接口和模型，服务商须允许浏览器跨域请求。Key只保留当前页面内存，刷新即清除；地址和模型名可保存本机，旧版持久化Key会清理。请求从浏览器直达所选服务商，原文会发送给它。每次明确点击才调用，单篇N次、两稿2N次，无隐式重试；90秒超时，可取消整个批次。非法分数、缺失安全字段或截断响应会报错，不补造结果、不回退成历史分数。此次接口路径仅以模拟响应验证，未验证任一真实服务商的兼容性。
@@ -176,3 +199,5 @@ validation/
   results/                 三份原始 JSON
   judge-validation.md      报告
 ```
+
+</details>
