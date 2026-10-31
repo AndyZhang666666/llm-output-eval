@@ -17,6 +17,7 @@ export function EvidenceReview({
   dimension,
   quote,
   sourceLabel,
+  showContext = true,
 }: {
   recordKey: string;
   sourceText: string;
@@ -24,6 +25,7 @@ export function EvidenceReview({
   dimension: ScoredDimensionId;
   quote: string;
   sourceLabel?: string;
+  showContext?: boolean;
 }) {
   const { items, ready, notice } = useReviews();
   const current = items.find(
@@ -65,7 +67,7 @@ export function EvidenceReview({
         当前维度：{DIMENSIONS[dimension].labelZh} · 原评分 {selected.score}
         /5。可点击右侧引用切换定位。
       </p>
-      {located ? (
+      {located && showContext ? (
         <>
           <p className="evidence-context">
             {sourceText.slice(Math.max(0, located.start - 60), located.start)}
@@ -85,13 +87,13 @@ export function EvidenceReview({
             。找到引用不等于评语成立。
           </p>
         </>
-      ) : (
+      ) : !located ? (
         <p className="review-empty">
           {quote
             ? "这条原始引用无法在当前原文中定位，请核查原始记录。"
             : "此维度没有可定位引用，仍可记录“证据不足”或需要上下文。"}
         </p>
-      )}
+      ) : <p className="replay-note">引用已在左侧原文标出，仍需判断它是否支持原评语。</p>}
       <blockquote>{selected.comment || "原记录没有评语。"}</blockquote>
       <label className="review-field">
         你的复核判断
