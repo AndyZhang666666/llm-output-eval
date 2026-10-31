@@ -4,9 +4,13 @@
 
 Can a reviewer inspect the evidence behind a low score and disagree with the judge?
 
-![Actual Eval Lab interface](https://andyzhang666666.github.io/assets/work/showcase/eval-crop.jpg)
+![Actual Eval Lab interface](docs/assets/eval-preview.jpg)
 
-## Product decisions
+<!-- github-evidence-20261031 -->
+
+[Design decisions](docs/DESIGN.md) · [Validation records](docs/VALIDATION.md) · [PR core checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+
+## Follow the score back to the source
 
 - Separate dimensions and require a source passage for each judgement.
 - Keep citation location distinct from human review; never overwrite the saved score.
@@ -33,7 +37,7 @@ npm run dev
 
 Open `http://localhost:3000/llm-output-eval/`. The repository base path is part of the URL.
 
-## Lightweight checks
+## Reproduce the core checks
 
 ```sh
 npm run test:core
@@ -52,3 +56,5 @@ These commands are provided for reproduction; this documentation update did not 
 - [Implementation details and original records, Chinese](README.md)
 
 Use the repository’s existing licence and notices. This update does not change usage rights.
+
+[PR core checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml) reuse the deterministic checks and static build. Only the main-branch Pages workflow deploys.

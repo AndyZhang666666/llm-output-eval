@@ -4,9 +4,13 @@
 
 模型给了低分，评审者能不能找到依据，再留下自己的判断？
 
-![Eval Lab · 文本评测工作台的实际产品界面](https://andyzhang666666.github.io/assets/work/showcase/eval-crop.jpg)
+![Eval Lab · 文本评测工作台的实际产品界面](docs/assets/eval-preview.jpg)
 
-## 值得看的设计
+<!-- github-evidence-20261031 -->
+
+[设计取舍](docs/DESIGN.md) · [验证说明](docs/VALIDATION.md) · [PR 核心检查](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+
+## 从评分回到原文
 
 - 分数按维度拆开，每条理由要能回到原文。
 - 引用定位与人工复核分开，复核不覆盖裁判原分。
@@ -19,6 +23,25 @@
 3. 比较同一故事的截断稿与完整稿，导出原始结果与人工复核。
 
 **运行方式：** 默认回放 6 条样本的 18 次历史输出，无需 Key。真实接口为可选配置；历史校准记录不等于本轮重跑成绩。
+
+## 本地启动与检查
+
+在完整仓库根目录运行，按 CI 使用 Node.js 20：
+
+```sh
+npm ci
+npm run dev
+```
+
+打开 `http://localhost:3000/llm-output-eval/`，保留仓库路径。默认打开历史样本，点击评语引用可以定位原文；人工复核不会覆盖原始分数。 默认体验无需模型密钥。
+
+已有的确定性检查可以单独运行：
+
+```sh
+npm run test:core
+```
+
+PR 工作流复用这些检查并完成静态构建；部署仍只由 `main` 的 Pages 工作流执行。上述检查不调用付费模型，也不代表模型效果评测。
 
 <details>
 <summary>展开实现、模型与验证记录</summary>
