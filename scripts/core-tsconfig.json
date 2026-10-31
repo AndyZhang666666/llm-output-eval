@@ -18,6 +18,7 @@
     "../src/lib/evidence.ts",
     "../src/lib/review.ts",
     "../src/lib/records.ts",
+    "../src/lib/import-report.ts",
     "../src/lib/api.ts"
   ],
   "exclude": ["../node_modules"]

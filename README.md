@@ -4,6 +4,8 @@
 
 模型给了低分，评审者能不能找到依据，再留下自己的判断？
 
+开发分支更新（2026-10-31，尚未发布）：支持导入自己的单份五维 JSON（最大1MB），严格核对格式、原分与均分；保留无法定位的原始引用。桌面原文和当前维度并排，手机切换面板仍保留维度。复核另存，新增可读 Markdown 报告，保留 JSON 往返与18条历史记录。[改动与验证](docs/IMPORTED-REVIEW.md)。
+
 ![Eval Lab · 文本评测工作台的实际产品界面](https://andyzhang666666.github.io/assets/work/showcase/eval-crop.jpg)
 
 ## 值得看的设计

@@ -16,12 +16,14 @@ export function EvidenceReview({
   result,
   dimension,
   quote,
+  sourceLabel,
 }: {
   recordKey: string;
   sourceText: string;
   result: EvaluationResult;
   dimension: ScoredDimensionId;
   quote: string;
+  sourceLabel?: string;
 }) {
   const { items, ready, notice } = useReviews();
   const current = items.find(
@@ -86,7 +88,7 @@ export function EvidenceReview({
       ) : (
         <p className="review-empty">
           {quote
-            ? "这条历史引用无法在当前原文中定位，请核查原始记录。"
+            ? "这条原始引用无法在当前原文中定位，请核查原始记录。"
             : "此维度没有可定位引用，仍可记录“证据不足”或需要上下文。"}
         </p>
       )}
@@ -125,7 +127,7 @@ export function EvidenceReview({
           disabled={!ready}
           onClick={() =>
             downloadJson(
-              reviewReport(recordKey, sourceText, result, items),
+              {...reviewReport(recordKey, sourceText, result, items),source:sourceLabel||"见原记录的来源声明"},
               "eval-review.json",
             )
           }
