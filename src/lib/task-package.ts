@@ -22,7 +22,7 @@ export function buildTaskPackage(sourceText: string) {
     '不要输出原文、模型名或运行时间，不要编造元数据。回到Eval Lab后由用户声明这些信息。',
   ].join('\n\n');
 }
-export async function importTaskResponse(sourceText: string, raw: string, model: string, at: string, usedPackage: boolean): Promise<ImportRecord> {
+export async function importTaskResponse(sourceText: string, raw: string, model: string, at: string, usedPackage: boolean, timeBasis: 'declared-run'|'import-time'='declared-run'): Promise<ImportRecord> {
   if (!sourceText.trim() || sourceText.length > 20000) throw Error('原文须为1到20000字符');
   let value: unknown;
   try { value = JSON.parse(raw); } catch { throw Error('返回结果不是JSON，请只粘贴JSON对象，不含代码围栏'); }
@@ -30,7 +30,7 @@ export async function importTaskResponse(sourceText: string, raw: string, model:
   if (!model.trim()) throw Error('请声明外部模型名称；不知道时可填“未提供”');
   const record = await importedRecord(JSON.stringify({
     version: 1, sourceText,
-    originalResult: { ...value, meta: { model: model.trim(), at, sample: false } },
+    originalResult: { ...value, meta: { model: model.trim(), at, time_basis:timeBasis, sample: false } },
     reviews: [],
     conditions: usedPackage ? { rubricId: CURRENT_RUBRIC, promptId: CURRENT_PROMPT } : {},
   }), '外部AI返回结果');

@@ -17,8 +17,8 @@ export function decodeActions(value: unknown): ReviewAction[] {
   if (!Array.isArray(value) || value.length > 500) throw Error('处理清单格式不支持，最多500项');
   const ids = new Set<string>();
   return value.map((a: ReviewAction) => {
-    if (!a || typeof a.id !== 'string' || a.id.length > 200 || ids.has(a.id) || typeof a.key !== 'string' || a.key.length > 800 || !SCORED_DIMENSIONS.includes(a.dimension) || !Object.hasOwn(ACTION_KINDS, a.kind) || typeof a.text !== 'string' || !a.text.trim() || a.text.length > 500 || !['open', 'done'].includes(a.status) || !Number.isFinite(Date.parse(a.updatedAt))) throw Error('处理清单字段无效');
-    ids.add(a.id);
+    if (!a || typeof a.id !== 'string' || !a.id || a.id.length > 200 || ids.has(a.key+'|'+a.id) || typeof a.key !== 'string' || a.key.length > 800 || !SCORED_DIMENSIONS.includes(a.dimension) || !Object.hasOwn(ACTION_KINDS, a.kind) || typeof a.text !== 'string' || !a.text.trim() || a.text.length > 500 || !['open', 'done'].includes(a.status) || typeof a.updatedAt!=='string' || a.updatedAt.length>80 || !Number.isFinite(Date.parse(a.updatedAt))) throw Error('处理清单字段无效');
+    ids.add(a.key+'|'+a.id);
     return { id: a.id, key: a.key, dimension: a.dimension, kind: a.kind, text: a.text, status: a.status, updatedAt: a.updatedAt };
   });
 }

@@ -45,3 +45,15 @@ test('review actions roundtrip independently, unfinished work leads the readable
  const done=reportMarkdown(r.key,r.sourceText,r.originalResult,[],'测试材料',[{...a,status:'done'}]);assert.match(done,/完成处理不代表重新评测/);
  await assert.rejects(()=>importedRecord(JSON.stringify({version:1,recordKey:r.key,sourceText:r.sourceText,originalResult:r.originalResult,actions:[{...a,key:'错误材料'}]})));
 });
+test('legacy migration saves human state separately, repeated initialization reads latest library, and blocked storage keeps volatile work',async()=>{
+ const r=await record(),review={key:r.key,dimension:'persona',state:'unsupported',note:'迁移保留的人工意见',updatedAt:'2026-11-01T00:00:00Z'},values=new Map();
+ values.set('llm-output-eval:external:v1',JSON.stringify({version:1,recordKey:r.key,sourceText:r.sourceText,originalResult:r.originalResult,reviews:[review]}));
+ globalThis.localStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
+ const store=require('./.core-test/library-store.js'),reviews=require('./.core-test/review-store.js');
+ const migrated=await store.initializeLibrary();assert.equal(migrated.records.length,1);assert.equal(values.has('llm-output-eval:external:v1'),false);assert.equal(reviews.currentReviews()[0].note,review.note);assert.equal(migrated.records[0].reviews.length,0);
+ const next=await record({sourceText:'第二份自己的材料'});store.saveLibraryRecord(next,'第二份');assert.equal((await store.initializeLibrary()).records.length,2);
+ reviews.storeReviews([]);await store.initializeLibrary();assert.equal(reviews.currentReviews().length,0,'reopening must not resurrect deliberately cleared human state');
+ globalThis.localStorage={getItem:()=>{throw Error('blocked');},setItem:()=>{throw Error('blocked');},removeItem:()=>{throw Error('blocked');}};
+ store.saveLibraryRecord(await record({sourceText:'只留本页的材料'}),'临时材料');assert.equal(store.currentLibrary().records.length,3);
+ delete globalThis.localStorage;
+});

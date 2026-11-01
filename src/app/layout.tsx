@@ -3,6 +3,7 @@ import { Shell } from "@/components/Shell";
 import "./globals.css";
 import "./swiss.css";
 import "./workspace.css";
+import "./product-depth.css";
 
 export const metadata: Metadata = {
   title: "文本评测台 · llm-output-eval",

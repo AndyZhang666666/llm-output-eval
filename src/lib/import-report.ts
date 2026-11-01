@@ -5,7 +5,7 @@ import { ACTION_KINDS, decodeActions, type ReviewAction } from './actions';
 import type { ComparisonConditions } from './task-package';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
-export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions };
+export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string };
 const object = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 function string(x: unknown, name: string, max: number) { if(typeof x!=='string'||x.length>max)throw Error(`${name}须为不超过${max}字的文本`);return x; }
 function evidence(x: unknown, name: string) { if(!Array.isArray(x)||x.length>100)throw Error(`${name}须为最多100条的引用数组`);x.forEach(q=>string(q,name,10000)); }
@@ -32,6 +32,7 @@ export function parseReviewImport(raw: string) {
   string(r.meta.model,'模型名称',300);string(r.meta.at,'记录时间',80);
   if(!r.meta.model||!Number.isFinite(Date.parse(r.meta.at as string)))throw Error('模型名称或记录时间无效');
   if(r.meta.latency_ms!==undefined&&(typeof r.meta.latency_ms!=='number'||!Number.isFinite(r.meta.latency_ms)||r.meta.latency_ms<0))throw Error('latency_ms 须为非负数');
+  if(r.meta.time_basis!==undefined&&!['declared-run','import-time'].includes(r.meta.time_basis as string))throw Error('时间来源声明无效');
   const reviews=p.reviews===undefined?[]:decodeReviews(JSON.stringify({version:1,items:p.reviews}));
   if(reviews.length>5||new Set(reviews.map(x=>x.dimension)).size!==reviews.length)throw Error('单篇复核每个维度最多一条');
   if(reviews.some(x=>p.recordKey&&x.key!==p.recordKey))throw Error('复核记录不属于本篇 recordKey');
@@ -44,7 +45,8 @@ export function parseReviewImport(raw: string) {
     for(const key of ['rubricId','promptId'] as const)if(p.conditions[key]!==undefined)conditions[key]=string(p.conditions[key],key,200);
     if(p.conditions.temperature!==undefined){if(typeof p.conditions.temperature!=='number'||!Number.isFinite(p.conditions.temperature)||p.conditions.temperature<0||p.conditions.temperature>2)throw Error('温度须为0到2的数值');conditions.temperature=p.conditions.temperature;}
   }
-  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews,actions,conditions};
+  const name=p.name===undefined?undefined:string(p.name,'材料名称',100);
+  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews,actions,conditions,name};
 }
 const canonical=(x: unknown): string => Array.isArray(x)?'['+x.map(canonical).join(',')+']':object(x)?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}':JSON.stringify(x);
 export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Promise<ImportRecord> {
@@ -61,7 +63,7 @@ export function mergeImportedReviews(current: Review[], record: ImportRecord) {
 export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string, actions: ReviewAction[]=[]) {
   const r=reviewReport(key,text,result,items),reviews=r.reviews;
   const ownActions=actions.filter(a=>a.key===key),open=ownActions.filter(a=>a.status==='open');
-  return ['# 文本评测复核报告','',`来源：${source}`,`原记录声明的模型：${result.meta.model}；时间：${result.meta.at}`,
+  return ['# 文本评测复核报告','',`来源：${source}`,`原记录声明的模型：${result.meta.model}；${result.meta.time_basis==='import-time'?'导入时间（未声明外部运行时间）':'原记录时间声明'}：${result.meta.at}`,
     '', '## 未解决事项', ...(open.length?open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh} · ${ACTION_KINDS[a.kind]}：${a.text}`):['暂无未完成处理项；这不代表内容通过或评语正确。']),
     ...reviews.filter(v=>v.state==='unsupported'||v.state==='needs_context').map(v=>`- ${DIMENSIONS[v.dimension].labelZh}：${REVIEW_STATES[v.state]}${v.note?'；'+v.note:''}`),
     '', '## 复核概况',

@@ -10,6 +10,9 @@ import {
 } from "@/lib/review";
 import { useReviews, storeReviews, currentReviews } from "@/lib/review-store";
 import type { EvaluationResult, ScoredDimensionId } from "@/lib/types";
+import { ActionList } from './ActionList';
+import { currentActions } from '@/lib/action-store';
+import type { ComparisonConditions } from '@/lib/task-package';
 export function EvidenceReview({
   recordKey,
   sourceText,
@@ -17,6 +20,7 @@ export function EvidenceReview({
   dimension,
   quote,
   sourceLabel,
+  conditions,
   showContext = true,
   compact = false,
 }: {
@@ -26,6 +30,7 @@ export function EvidenceReview({
   dimension: ScoredDimensionId;
   quote: string;
   sourceLabel?: string;
+  conditions?: ComparisonConditions;
   showContext?: boolean;
   compact?: boolean;
 }) {
@@ -98,20 +103,12 @@ export function EvidenceReview({
         </p>
       ) : <p className="replay-note">引用已在原文中标出，仍需判断它是否支持原评语。</p>}
       {!compact && <blockquote>{selected.comment || "原记录没有评语。"}</blockquote>}
-      <label className="review-field">
-        你的复核判断
-        <select
-          value={state}
-          disabled={!ready}
-          onChange={(e) => update(e.target.value as ReviewState, note)}
-        >
+      <fieldset className="review-decisions" disabled={!ready}>
+        <legend>你的复核判断</legend>
           {Object.entries(REVIEW_STATES).map(([key, label]) => (
-            <option key={key} value={key}>
-              {label}
-            </option>
+            <label key={key} data-selected={state===key}><input type="radio" name={'review-state-'+recordKey+'-'+dimension} checked={state===key} onChange={()=>update(key as ReviewState,note)}/><span>{label}</span></label>
           ))}
-        </select>
-      </label>
+      </fieldset>
       <label className="review-field">
         修改建议或复核备注
         <textarea
@@ -123,6 +120,7 @@ export function EvidenceReview({
           placeholder="例如：引用存在，但不能支撑‘没有可识别角色’这一判断。"
         />
       </label>
+      <ActionList key={recordKey+dimension} recordKey={recordKey} dimension={dimension} canAdd={state==='unsupported'||state==='needs_context'}/>
       <p className="replay-note" role="status">
         {notice}
       </p>
@@ -132,7 +130,7 @@ export function EvidenceReview({
           disabled={!ready}
           onClick={() =>
             downloadJson(
-              {...reviewReport(recordKey, sourceText, result, items),source:sourceLabel||"见原记录的来源声明"},
+              {...reviewReport(recordKey, sourceText, result, items),source:sourceLabel||"见原记录的来源声明",conditions,actions:currentActions().filter(a=>a.key===recordKey)},
               "eval-review.json",
             )
           }

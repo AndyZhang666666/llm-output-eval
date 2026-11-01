@@ -1,7 +1,9 @@
 "use client";
 import {useSyncExternalStore} from 'react';
-import {EXTERNAL_STORAGE, importedRecord, type ImportRecord} from './import-report';
+import {EXTERNAL_STORAGE, importedRecord,mergeImportedReviews, type ImportRecord} from './import-report';
 import {addToLibrary,decodeLibrary,EMPTY_LIBRARY,LIBRARY_STORAGE,type LibraryData} from './library';
+import {currentReviews,storeReviews} from './review-store';
+import {mergeActions} from './action-store';
 type Snapshot = {data:LibraryData;notice:string;ready:boolean};
 const empty:Snapshot={data:EMPTY_LIBRARY,notice:'',ready:false};
 let memory:Snapshot|null=null,initialized:Promise<LibraryData>|null=null,preserveUnreadable=false;
@@ -23,13 +25,18 @@ export function renameLibraryRecord(key:string,name:string){if(!name.trim())retu
 export function deleteLibraryRecord(key:string){const data=read().data;publish({...data,activeKey:data.activeKey===key?'':data.activeKey,records:data.records.filter(r=>r.key!==key)});}
 export function currentLibrary(){return read().data;}
 export function initializeLibrary():Promise<LibraryData>{
- if(initialized)return initialized;
+ if(initialized)return initialized.then(()=>read().data);
  initialized=(async()=>{
-  const data=read().data;
+  let data=read().data;
+  if(data.records.some(r=>r.reviews.length||r.actions?.length)){
+   for(const record of data.records){storeReviews(mergeImportedReviews(currentReviews(),record));mergeActions(record.actions??[]);}
+   data=publish({...data,records:data.records.map(r=>({...r,reviews:[],actions:[]}))});
+  }
   try{
    const old=localStorage.getItem(EXTERNAL_STORAGE);
    if(old){
     const record=await importedRecord(old,'迁移的上次导入材料');
+    storeReviews(mergeImportedReviews(currentReviews(),record));mergeActions(record.actions??[]);
     const next=saveLibraryRecord(record,'上次导入材料');
     // Remove the legacy slot only after a successful persistent save.
     if(localStorage.getItem(LIBRARY_STORAGE)===JSON.stringify(next))localStorage.removeItem(EXTERNAL_STORAGE);
@@ -37,7 +44,7 @@ export function initializeLibrary():Promise<LibraryData>{
    }
   }catch(e){memory={...read(),notice:(e as Error).message+'；旧草稿未被删除。'};listeners.forEach(cb=>cb());}
   return data;
- })();return initialized;
+ })();return initialized.then(()=>read().data);
 }
 function subscribe(cb:()=>void){listeners.add(cb);const change=()=>{memory=null;cb();};window.addEventListener('storage',change);return()=>{listeners.delete(cb);window.removeEventListener('storage',change);};}
 export function useLibrary(){return useSyncExternalStore(subscribe,read,()=>empty);}

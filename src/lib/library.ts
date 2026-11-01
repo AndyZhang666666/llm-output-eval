@@ -22,5 +22,7 @@ export function addToLibrary(data: LibraryData, record: ImportRecord, name: stri
   if (present) return { ...data, activeKey: record.key }; // A repeat never overwrites saved declarations.
   if (data.records.length >= MAX_LIBRARY) throw Error('资料库已满20份；当前材料仍可复核和导出。请先导出并删除一份，再保存；不会自动淘汰旧资料');
   const title = name.trim().slice(0, 100) || '未命名材料';
-  return { version: 1, activeKey: record.key, records: [{ ...record, name: title, savedAt: now }, ...data.records] };
+  // Human state lives in its own stores. Keeping stale imported copies here
+  // would resurrect a deliberately cleared review when a material is reopened.
+  return { version: 1, activeKey: record.key, records: [{ ...record, reviews:[], actions:[], name: title, savedAt: now }, ...data.records] };
 }

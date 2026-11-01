@@ -7,9 +7,9 @@ import { SettingsDialog } from "./SettingsDialog";
 import { useSettings } from "@/lib/settings";
 
 const NAV = [
-  { href: "/", label: "单篇评测", en: "Evaluate" },
-  { href: "/compare", label: "版本对比", en: "Compare" },
-  { href: "/bad-cases", label: "Bad Cases", en: "" },
+  { href: "/", label: "文本复核", en: "" },
+  { href: "/compare", label: "版本对照", en: "" },
+  { href: "/bad-cases", label: "低分记录", en: "" },
   { href: "/validation", label: "裁判校验", en: "" },
   { href: "/iteration", label: "迭代记录", en: "" },
 ];
@@ -76,8 +76,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="eval-main mx-auto max-w-6xl px-4 py-6">{children}</main>
       <footer className="eval-footer mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-zinc-600">
-        默认体验为历史评测回放，不调用模型、不产生 API
-        费用。可选接口自行提供；Key 仅在当前页面内存，手动请求才发给所选服务商。
+        默认是历史回放。自有文本可交给已有AI评测，再带回结果复核；本站不观察外部执行。可选接口仅在明确请求时调用，Key只留当前页面内存。
         {notice}
         <a href="https://github.com/AndyZhang666666/llm-output-eval">
           源码与更新记录
