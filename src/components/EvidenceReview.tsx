@@ -18,6 +18,7 @@ export function EvidenceReview({
   quote,
   sourceLabel,
   showContext = true,
+  compact = false,
 }: {
   recordKey: string;
   sourceText: string;
@@ -26,6 +27,7 @@ export function EvidenceReview({
   quote: string;
   sourceLabel?: string;
   showContext?: boolean;
+  compact?: boolean;
 }) {
   const { items, ready, notice } = useReviews();
   const current = items.find(
@@ -59,14 +61,15 @@ export function EvidenceReview({
   }
   return (
     <section className="evidence-review" aria-label="原文证据复核">
-      <div className="review-heading">
+      {!compact && <><div className="review-heading">
         <h2>核对原文与评语</h2>
         <span>已复核 {count}/5 维</span>
       </div>
       <p className="replay-note">
         当前维度：{DIMENSIONS[dimension].labelZh} · 原评分 {selected.score}
         /5。可点击右侧引用切换定位。
-      </p>
+      </p></>}
+      {compact && <h3>你的复核</h3>}
       {located && showContext ? (
         <>
           <p className="evidence-context">
@@ -93,8 +96,8 @@ export function EvidenceReview({
             ? "这条原始引用无法在当前原文中定位，请核查原始记录。"
             : "此维度没有可定位引用，仍可记录“证据不足”或需要上下文。"}
         </p>
-      ) : <p className="replay-note">引用已在左侧原文标出，仍需判断它是否支持原评语。</p>}
-      <blockquote>{selected.comment || "原记录没有评语。"}</blockquote>
+      ) : <p className="replay-note">引用已在原文中标出，仍需判断它是否支持原评语。</p>}
+      {!compact && <blockquote>{selected.comment || "原记录没有评语。"}</blockquote>}
       <label className="review-field">
         你的复核判断
         <select

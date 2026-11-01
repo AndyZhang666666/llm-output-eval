@@ -58,9 +58,11 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  function editText(value:string){textSet(value);resultSet(null);quoteSet('');externalSet('');originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。输入仍保留，不会自动切回历史样本。');}
  return <>
  <div className="eval-intro"><h1>文本评测与复核</h1><p>导入自己的原文与评分，逐条核对证据，带走一份可追溯的复核报告。</p></div>
- <ImportPanel disabled={busy} onImport={r=>importRecord(r)}/>
+ <div className="record-tools"><ImportPanel disabled={busy} onImport={r=>importRecord(r)}/>
+ <details className="history-source"><summary>更换历史记录 <span>{origin==='history'?replayItem(sampleId).label:'浏览内置对照样本'}</span></summary>
  <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`} title={origin==='history'?undefined:'历史示例不包含当前材料，不会比较当前导入结果。'}>{origin==='history'?'查看版本比较 →':'查看历史对照示例 →'}</Link></div>
- <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
+ </details></div>
+ <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {notice&&<p className="replay-note" role="status">{notice}</p>}<ErrorBanner message={error}/>
  {result&&<div className="dimension-nav" role="group" aria-label="当前复核维度">{SCORED_DIMENSIONS.map(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=mine.find(r=>r.dimension===id);return <button key={id} aria-pressed={dimension===id} onClick={()=>chooseDimension(id)}><span>{DIMENSIONS[id].labelZh}</span><b>{d.score}/5</b><small>{REVIEW_STATES[v?.state??'unreviewed']}</small></button>;})}</div>}
  <div className="review-mobile-tabs" role="group" aria-label="工作区面板"><button aria-pressed={mobile==='source'} onClick={()=>mobileSet('source')}>原文</button><button aria-pressed={mobile==='review'} onClick={()=>mobileSet('review')}>当前评语与复核</button></div>
@@ -71,9 +73,10 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <details className="record-meta"><summary>原始记录声明</summary>{result&&<p>{result.meta.model} · {result.meta.at}{origin==='external'?' · 仅为文件声明，未经认证':''}</p>}</details><div className="review-actions"><button onClick={run} disabled={busy||!text.trim()}>{busy?'正在评测…':hasKey?'使用已配置接口评测':'评测我的原文'}</button>{busy&&<button onClick={()=>request.current?.abort()}>取消</button>}{loaded&&!hasKey&&<button onClick={()=>document.getElementById("interface-settings")?.click()}>配置接口（可选）</button>}</div>
  </section>
  <section ref={resultPanel} className="eval-results review-column" aria-label="当前维度评语与复核">{result&&selected?<>
- <div className="current-dimension"><div><p>当前维度</p><h2>{DIMENSIONS[dimension].labelZh}</h2></div><strong>{selected.score}<small>/5</small></strong></div>
+ <div className="current-dimension"><div><p>当前维度 · 原始评分</p><h2>{DIMENSIONS[dimension].labelZh}</h2></div><strong>{selected.score}<small>/5</small></strong></div>
+ <p className="judge-comment">{selected.comment||'原记录没有评语。'}</p>
  <div className="quote-list"><p className="replay-note">原始引用 · 点击定位；定位成功不等于论证成立。</p>{selected.evidence.map((q,i)=>{const found=locateEvidence(text,q);return <button key={i} aria-pressed={q===quote} onClick={()=>{quoteSet(q);if(innerWidth<700)mobileSet('source');requestAnimationFrame(()=>sourceDoc.current?.querySelector('mark')?.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));}}><span>“{q}”</span><small>{found?'可定位':'无法定位 · 保留原引用'}</small></button>;})}</div>
- <div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} showContext={false}/></div>
+ <div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} showContext={false} compact/></div>
  <button className="next-review" disabled={!next} onClick={()=>next&&chooseDimension(next)}>{next?'下一项待复核 →':'五维已复核，可导出报告'}</button>
  <details className="safety-detail"><summary>原始安全分类（不作为发布许可）</summary><SafetyCard s={result.safety}/></details>
  <button className="primary markdown-export" onClick={()=>{const value=reportMarkdown(key,text,result,reviews.items,sourceLabel),url=URL.createObjectURL(new Blob([value],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='eval-review.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}>导出可读 Markdown 报告</button>
