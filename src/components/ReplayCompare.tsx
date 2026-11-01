@@ -134,7 +134,7 @@ export function ReplayCompare() {
           <p>
             {b.runs[0].dimensions.find((d) => d.id === "structure")!.comment}
           </p>
-          <Link href="/bad-cases/" className="replay-link">
+          <Link href={`/?sample=${a.id}&dimension=structure`} className="replay-link">
             回到低分原文，查看修改依据 →
           </Link>
         </aside>
@@ -145,7 +145,7 @@ export function ReplayCompare() {
             <h2>
               V{index + 1} · {item.label}
             </h2>
-            <p className="replay-story">{item.text}</p>
+            <p className="replay-story">{item.text}</p><Link href={`/?sample=${item.id}&dimension=structure`}>复核此版本的结构评语 →</Link>
             <details className="replay-records">
               <summary>查看 {item.runs.length} 次原始分数及来源</summary>
               <ul>

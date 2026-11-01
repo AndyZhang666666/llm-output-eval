@@ -57,7 +57,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
           </div>
-          <button
+          <button id="interface-settings"
             onClick={() => setOpen(true)}
             className="flex items-center gap-2 rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-100"
           >

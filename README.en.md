@@ -58,3 +58,7 @@ These commands are provided for reproduction; this documentation update did not 
 Use the repository’s existing licence and notices. This update does not change usage rights.
 
 [PR core checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml) reuse the deterministic checks and static build. Only the main-branch Pages workflow deploys.
+
+## Personal inputs and portable results · 2026-11-01
+
+This update adds personal inputs and a portable result, with the reviewed implementation integrated through a release branch. The main review flow works in the browser without a model key. Imports are unverified; original scores and 18 historical runs stay intact. Human review is exported separately and does not grant publication approval.
