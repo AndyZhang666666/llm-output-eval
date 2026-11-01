@@ -2,27 +2,31 @@
   {
     "file": "eval-preview.jpg",
     "copiedAt": "2026-11-01",
-    "sourceCommit": "6940fa0055c0f6003f7d4ebf147a53c1cd432a88",
-    "sourceRepository": "AndyZhang666666/AndyZhang666666.github.io",
+    "sourceCommit": "cbe6b64dc998311656e992ff222c34a24cc9fe72",
+    "sourceRepository": "AndyZhang666666/llm-output-eval",
     "sourceCapture": {
       "id": "eval",
-      "route": "/llm-output-eval/",
+      "route": "/llm-output-eval/?sample=e06&dimension=structure",
       "full": "assets/work/showcase/eval.jpg",
       "crop": "assets/work/showcase/eval-crop.jpg",
       "viewport": {
-        "width": 1280,
-        "height": 1000
+        "width": 1440,
+        "height": 900
       },
-      "capturedAt": "2026-10-31T02:12:01.185Z",
-      "state": "Historical structure score and source evidence in the focused workspace; independent needs-context review in a disposable browser context, no new model call.",
-      "fullPage": true,
+      "capturedAt": "2026-11-01T10:20:29.057Z",
+      "state": "Historical e06 structure review in the compact Swiss workspace. Original 2/5 retained; quote shown in source. No model call and no review written.",
+      "fullPage": false,
       "cropSize": {
-        "width": 1200,
-        "height": 820
+        "width": 1440,
+        "height": 900
       },
-      "fullSha256": "8236efe7fe8d72a860da8f4b5bae49b5b7e9356bd09807b441101b0568dd2c83",
-      "cropSha256": "b4528fe4ec1cb3e57e7da20b4b7f4b468878a23f822db6d7a8864713f5d18937"
+      "fullSha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066",
+      "cropSha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066",
+      "source": "http://127.0.0.1:8822",
+      "sourceCommit": "cbe6b64dc998311656e992ff222c34a24cc9fe72",
+      "sourceRepository": "AndyZhang666666/llm-output-eval",
+      "captureMethod": "Unedited current viewport screenshot, identical full and library-preview files; no compositing or model-generated mockup."
     },
-    "sha256": "b4528fe4ec1cb3e57e7da20b4b7f4b468878a23f822db6d7a8864713f5d18937"
+    "sha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066"
   }
 ]
