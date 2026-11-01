@@ -1,9 +1,11 @@
 import { SCORED_DIMENSIONS, DIMENSIONS } from './dimensions';
 import { decodeReviews, reviewReport, REVIEW_STATES, type Review } from './review';
 import type { EvaluationResult } from './types';
+import { ACTION_KINDS, decodeActions, type ReviewAction } from './actions';
+import type { ComparisonConditions } from './task-package';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
-export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string };
+export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions };
 const object = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 function string(x: unknown, name: string, max: number) { if(typeof x!=='string'||x.length>max)throw Error(`${name}须为不超过${max}字的文本`);return x; }
 function evidence(x: unknown, name: string) { if(!Array.isArray(x)||x.length>100)throw Error(`${name}须为最多100条的引用数组`);x.forEach(q=>string(q,name,10000)); }
@@ -33,7 +35,16 @@ export function parseReviewImport(raw: string) {
   const reviews=p.reviews===undefined?[]:decodeReviews(JSON.stringify({version:1,items:p.reviews}));
   if(reviews.length>5||new Set(reviews.map(x=>x.dimension)).size!==reviews.length)throw Error('单篇复核每个维度最多一条');
   if(reviews.some(x=>p.recordKey&&x.key!==p.recordKey))throw Error('复核记录不属于本篇 recordKey');
-  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews};
+  const actions=decodeActions(p.actions);
+  if(actions.some(x=>p.recordKey&&x.key!==p.recordKey))throw Error('处理项不属于本篇 recordKey');
+  let conditions: ComparisonConditions | undefined;
+  if(p.conditions!==undefined){
+    if(!object(p.conditions))throw Error('比较条件声明格式无效');
+    conditions={};
+    for(const key of ['rubricId','promptId'] as const)if(p.conditions[key]!==undefined)conditions[key]=string(p.conditions[key],key,200);
+    if(p.conditions.temperature!==undefined){if(typeof p.conditions.temperature!=='number'||!Number.isFinite(p.conditions.temperature)||p.conditions.temperature<0||p.conditions.temperature>2)throw Error('温度须为0到2的数值');conditions.temperature=p.conditions.temperature;}
+  }
+  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews,actions,conditions};
 }
 const canonical=(x: unknown): string => Array.isArray(x)?'['+x.map(canonical).join(',')+']':object(x)?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}':JSON.stringify(x);
 export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Promise<ImportRecord> {
@@ -42,17 +53,22 @@ export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Pro
   const bytes=new TextEncoder().encode(canonical({sourceText:parsed.sourceText,originalResult:parsed.originalResult}));
   const digest=await crypto.subtle.digest('SHA-256',bytes);
   const key='external:sha256:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
-  return {...parsed,key,fileName,reviews:parsed.reviews.map(x=>({...x,key}))};
+  return {...parsed,key,fileName,reviews:parsed.reviews.map(x=>({...x,key})),actions:parsed.actions.map(x=>({...x,key}))};
 }
 export function mergeImportedReviews(current: Review[], record: ImportRecord) {
   return [...current,...record.reviews.filter(r=>!current.some(x=>x.key===record.key&&x.dimension===r.dimension))].slice(-500);
 }
-export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string) {
+export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string, actions: ReviewAction[]=[]) {
   const r=reviewReport(key,text,result,items),reviews=r.reviews;
+  const ownActions=actions.filter(a=>a.key===key),open=ownActions.filter(a=>a.status==='open');
   return ['# 文本评测复核报告','',`来源：${source}`,`原记录声明的模型：${result.meta.model}；时间：${result.meta.at}`,
+    '', '## 未解决事项', ...(open.length?open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh} · ${ACTION_KINDS[a.kind]}：${a.text}`):['暂无未完成处理项；这不代表内容通过或评语正确。']),
+    ...reviews.filter(v=>v.state==='unsupported'||v.state==='needs_context').map(v=>`- ${DIMENSIONS[v.dimension].labelZh}：${REVIEW_STATES[v.state]}${v.note?'；'+v.note:''}`),
+    '', '## 复核概况',
     `原始五维均分：${result.overall.toFixed(2)} / 5（未被复核改写）`,
     `已复核 ${reviews.filter(x=>x.state!=='unreviewed').length}/5；存疑 ${reviews.filter(x=>x.state==='unsupported').length}；待补上下文 ${reviews.filter(x=>x.state==='needs_context').length}`,'',
     ...SCORED_DIMENSIONS.flatMap(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=reviews.find(x=>x.dimension===id);return [`## ${DIMENSIONS[id].labelZh} · ${d.score}/5`,`原评语：${d.comment}`,'',...d.evidence.map(q=>`引用：${q}`),'',`复核：${REVIEW_STATES[v?.state??'unreviewed']}`,`备注：${v?.note||'未填写'}`,''];}),
+    ...(ownActions.some(a=>a.status==='done')?['## 已完成处理项',...ownActions.filter(a=>a.status==='done').map(a=>`- [x] ${ACTION_KINDS[a.kind]}：${a.text}`),'完成处理不代表重新评测，原始分数未改变。']:[]),
     '## 原文',text,'','## 边界',...r.limits.map(x=>'- '+x),'本报告记录人工复核，不授予自动发布许可。'].join('\n');
 }
 export function importTemplate() {
