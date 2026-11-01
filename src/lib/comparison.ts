@@ -1,4 +1,4 @@
-import type { ImportRecord } from './import-report';
+import {recordFromPayload, type ImportRecord } from './import-report';
 import { aggregateRuns } from './stats';
 
 export function comparisonWarnings(a: ImportRecord, b: ImportRecord): string[] {
@@ -28,4 +28,29 @@ export function changedRange(text: string, other: string) {
   let end = text.length, right = other.length;
   while (end > start && right > start && text[end - 1] === other[right - 1]) { end--; right--; }
   return { start, end };
+}
+export const MAX_COMPARISON_BYTES=48*1024*1024;
+export type SavedComparison={labels:[string,string];sides:[ImportRecord[],ImportRecord[]]};
+export async function importComparisonReport(raw:string):Promise<SavedComparison>{
+ if(new TextEncoder().encode(raw).length>MAX_COMPARISON_BYTES)throw Error('完整对照报告最大48MB');
+ let p:unknown;try{p=JSON.parse(raw);}catch{throw Error('对照报告JSON无法解析');}
+ if(!p||typeof p!=='object'||Array.isArray(p))throw Error('需要完整对照报告对象');
+ const report=p as Record<string,unknown>;
+ if(report.version!==1||report.kind!=='saved-results-comparison'||!Array.isArray(report.labels)||report.labels.length!==2||report.labels.some(n=>typeof n!=='string'||n.length>80)||!Array.isArray(report.sides)||report.sides.length!==2)throw Error('需要本工具导出的saved-results-comparison v1报告，含两侧资料和版本名称');
+ const sides:ImportRecord[][]=[];
+ for(const [sideIndex,side] of report.sides.entries()){
+  if(!Array.isArray(side)||side.length<1||side.length>20)throw Error(`第${sideIndex+1}侧须有1到20份记录`);
+  const records:ImportRecord[]=[];
+  for(const value of side){
+   if(!value||typeof value!=='object'||Array.isArray(value))throw Error('对照中的材料无效');
+   const record=value as Record<string,unknown>;
+   if(typeof record.key!=='string')throw Error('对照材料缺少稳定标识');
+   const loaded=await recordFromPayload({...record,version:1,recordKey:record.key},typeof record.fileName==='string'?record.fileName:'对照报告中的材料');
+   if(loaded.key!==record.key)throw Error('材料标识与完整原文、原始结果不一致；未恢复任何一侧');
+   records.push(loaded);
+  }
+  aggregateRecords(records); // Validate grouping and duplicates before any caller mutation.
+  sides.push(records);
+ }
+ return {labels:report.labels as [string,string],sides:sides as [ImportRecord[],ImportRecord[]]};
 }

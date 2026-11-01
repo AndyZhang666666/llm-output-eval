@@ -8,6 +8,7 @@ const empty: Snapshot = {
   notice: "只记录你的判断，不改动历史分数。",
 };
 const listeners = new Set<() => void>();
+let preserveUnreadable=false;
 let volatile: Snapshot | null = null,
   cache: { raw: string | null; snapshot: Snapshot } | null = null;
 function read(): Snapshot {
@@ -17,6 +18,7 @@ function read(): Snapshot {
   try {
     raw = localStorage.getItem(REVIEW_STORAGE);
   } catch {
+    preserveUnreadable=true;
     notice = "本地存储不可用，复核暂留本页，请及时导出。";
   }
   if (cache && cache.raw === raw) return cache.snapshot;
@@ -24,7 +26,8 @@ function read(): Snapshot {
   try {
     items = decodeReviews(raw);
   } catch {
-    notice = "本机复核记录无法恢复，仍可核对和导出。";
+    preserveUnreadable=true;
+    notice = "本机复核记录无法恢复，旧存储未被覆盖；仍可核对和导出。";
   }
   const snapshot = { items, ready: true, notice };
   cache = { raw, snapshot };
@@ -47,12 +50,13 @@ export function storeReviews(items: Review[]) {
   const next = items.slice(-500);
   let notice = "已保存至当前浏览器；这不是重新评测或准确率认证。";
   try {
+    if(preserveUnreadable)throw Error('保留旧存储');
     localStorage.setItem(
       REVIEW_STORAGE,
       JSON.stringify({ version: 1, items: next }),
     );
   } catch {
-    notice = "本地保存不可用，复核暂留本页，请及时导出。";
+    notice = "本地保存不可用，旧存储未被覆盖，复核暂留本页，请及时导出。";
   }
   volatile = { items: next, ready: true, notice };
   listeners.forEach((cb) => cb());

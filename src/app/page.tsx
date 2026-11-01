@@ -13,9 +13,9 @@ import { collectBadCases } from "@/lib/badcases";
 import { REPLAY_ITEMS, replayItem } from "@/lib/replay";
 import { recordKey, REVIEW_STATES } from "@/lib/review";
 import { useReviews, storeReviews, currentReviews } from "@/lib/review-store";
-import { mergeImportedReviews, reportMarkdown, type ImportRecord } from "@/lib/import-report";
-import { activateLibraryRecord,initializeLibrary,saveLibraryRecord,useLibrary } from '@/lib/library-store';
-import { mergeActions,useActions } from '@/lib/action-store';
+import { prepareImportedHumanState, reportMarkdown, type ImportRecord } from "@/lib/import-report";
+import { initializeLibrary,saveLibraryRecord,useLibrary } from '@/lib/library-store';
+import { currentActions,storeActions,useActions } from '@/lib/action-store';
 import { locateEvidence } from "@/lib/evidence";
 import { DIMENSIONS, SCORED_DIMENSIONS } from "@/lib/dimensions";
 import { useSettings } from "@/lib/settings";
@@ -35,16 +35,18 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  const request=useRef<AbortController|null>(null),resultPanel=useRef<HTMLElement>(null),sourceDoc=useRef<HTMLElement>(null);
  const reviews=useReviews();
  function importRecord(record:ImportRecord,restored=false){
+  const human=prepareImportedHumanState(record,currentReviews(),currentActions());
+  let nextConditions=record.conditions,message=restored?'已恢复保存的材料；本机复核独立保留。':'已导入，原始评分与评语完整保留；外部声明未经认证。';
+  try{const saved=saveLibraryRecord(record,record.name?.trim()||record.sourceText.slice(0,28).replace(/\s+/g,' ')||record.fileName);nextConditions=saved.records.find(r=>r.key===record.key)?.conditions;}catch(e){message=(e as Error).message;}
+  storeReviews(human.reviews);storeActions(human.actions);
   request.current?.abort();request.current=null;busySet(false);textSet(record.sourceText);resultSet(record.originalResult);externalSet(record.key);originSet('external');fileSet(record.fileName);errorSet(null);
-  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');
-  conditionsSet(record.conditions);storeReviews(mergeImportedReviews(currentReviews(),record));const actionNotice=mergeActions(record.actions??[]);
-  try{const saved=saveLibraryRecord(record,record.name?.trim()||record.sourceText.slice(0,28).replace(/\s+/g,' ')||record.fileName);conditionsSet(saved.records.find(r=>r.key===record.key)?.conditions);noticeSet((restored?'已恢复保存的材料；本机复核独立保留。':'已导入，原始评分与评语完整保留；外部声明未经认证。')+actionNotice);}catch(e){noticeSet((e as Error).message+actionNotice);}
+  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');conditionsSet(nextConditions);noticeSet(message);
  }
  // Restoring browser storage is an external event. Dimension changes must not restart it.
  const restoreRecord=useEffectEvent((record:ImportRecord)=>importRecord(record,true));
  useEffect(()=>{
   let active=true;
-  initializeLibrary().then(data=>{if(!active||new URLSearchParams(initialQuery).has('sample'))return;const requested=new URLSearchParams(initialQuery).get('record'),record=data.records.find(r=>r.key===(requested||data.activeKey));if(record)restoreRecord(record);else if(requested)noticeSet('此资料不在当前浏览器。可导入原JSON恢复，未把历史案例冒充所选资料。');});
+  initializeLibrary().then(data=>{if(!active||new URLSearchParams(initialQuery).has('sample'))return;const requested=new URLSearchParams(initialQuery).get('record'),record=data.records.find(r=>r.key===(requested||data.activeKey));if(record){try{restoreRecord(record);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}else if(requested)noticeSet('此资料不在当前浏览器。可导入原JSON恢复，未把历史案例冒充所选资料。');});
   return()=>{active=false;request.current?.abort();};
  },[initialQuery]); // Explicit history links always win over the saved import.
  useEffect(()=>()=>request.current?.abort(),[settings.baseUrl,settings.model,settings.apiKey]);
@@ -61,13 +63,13 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  return <>
  <div className="eval-intro"><h1>别只看分数，<br/>回到判断的依据。</h1><p>为故事与剧本核对五维评语。用已有AI评测自己的文本，再带回证据、分歧与下一步处理。</p></div>
  <ExternalTaskPanel disabled={busy} seedText={text} onImport={r=>importRecord(r)}/>
- <LibraryPanel disabled={busy} onOpen={r=>{activateLibraryRecord(r.key);importRecord(r,true);}}/>
+ <LibraryPanel disabled={busy} onOpen={r=>{try{importRecord(r,true);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}}/>
  <div className="record-tools"><ImportPanel disabled={busy} onImport={r=>importRecord(r)}/>
  <details className="history-source"><summary>更换历史记录 <span>{origin==='history'?replayItem(sampleId).label:'浏览内置对照样本'}</span></summary>
  <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`} title={origin==='history'?undefined:'历史示例不包含当前材料，不会比较当前导入结果。'}>{origin==='history'?'查看版本比较 →':'查看历史对照示例 →'}</Link></div>
  </details></div>
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
- {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span><Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
+ {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span>{library.data.records.some(r=>r.key===key)?<Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>:<span>此材料尚未入库，前往对照前请先导出JSON。</span>}{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
  <p className="library-notice" role="status">{library.notice}</p>
  {notice&&<p className="replay-note" role="status">{notice}</p>}<ErrorBanner message={error}/>
  <div className="review-desk" data-has-result={!!result}>

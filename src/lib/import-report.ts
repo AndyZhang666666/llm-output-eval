@@ -13,6 +13,12 @@ function evidence(x: unknown, name: string) { if(!Array.isArray(x)||x.length>100
 export function parseReviewImport(raw: string) {
   if(new TextEncoder().encode(raw).length>MAX_IMPORT_BYTES)throw Error('仅支持单份、最大1MB的 JSON');
   let p: unknown;try{p=JSON.parse(raw);}catch{throw Error('JSON 无法解析，请检查括号、引号和文件格式');}
+  if(object(p)&&p.kind==='saved-results-comparison')throw Error('这是完整对照报告，请在“版本对照 → 恢复完整对照报告”导入；此入口只接收单份材料');
+  return validateReviewPayload(p);
+}
+// Internal containers validate the same structure, after their own byte gate.
+// Envelope metadata must not make a once-valid external file unreadable.
+export function validateReviewPayload(p:unknown) {
   if(!object(p)||p.version!==1||!object(p.originalResult))throw Error('需要 version:1、sourceText、originalResult 与可选 reviews；请使用模板');
   string(p.sourceText,'原文',600000);if(!(p.sourceText as string).trim())throw Error('原文不能为空');
   const r=p.originalResult;
@@ -51,11 +57,25 @@ export function parseReviewImport(raw: string) {
 const canonical=(x: unknown): string => Array.isArray(x)?'['+x.map(canonical).join(',')+']':object(x)?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}':JSON.stringify(x);
 export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Promise<ImportRecord> {
   const parsed=parseReviewImport(raw);
+  return identifyRecord(parsed,fileName);
+}
+export async function recordFromPayload(payload:unknown,fileName='对照报告中的材料'):Promise<ImportRecord>{return identifyRecord(validateReviewPayload(payload),fileName);}
+async function identifyRecord(parsed:ReturnType<typeof validateReviewPayload>,fileName:string):Promise<ImportRecord>{
   // Hash all source/result contents, including metadata. Evolving reviews are separate state.
   const bytes=new TextEncoder().encode(canonical({sourceText:parsed.sourceText,originalResult:parsed.originalResult}));
   const digest=await crypto.subtle.digest('SHA-256',bytes);
   const key='external:sha256:'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
-  return {...parsed,key,fileName,reviews:parsed.reviews.map(x=>({...x,key})),actions:parsed.actions.map(x=>({...x,key}))};
+  const reviews=decodeReviews(JSON.stringify({version:1,items:parsed.reviews.map(x=>({...x,key}))}));
+  const actions=decodeActions(parsed.actions.map(x=>({...x,key})));
+  return {...parsed,key,fileName,reviews,actions};
+}
+export function prepareImportedHumanState(record:ImportRecord,currentReviews:Review[],currentActions:ReviewAction[]){
+ const incomingReviews=decodeReviews(JSON.stringify({version:1,items:record.reviews})),incomingActions=decodeActions(record.actions??[]);
+ if(incomingReviews.some(v=>v.key!==record.key)||incomingActions.some(a=>a.key!==record.key))throw Error('人工复核或处理项不属于当前材料');
+ const reviews=[...currentReviews,...incomingReviews.filter(v=>!currentReviews.some(x=>x.key===v.key&&x.dimension===v.dimension))];
+ if(reviews.length>500)throw Error('本机复核已满500条；请先导出并清理，当前材料未被替换');
+ const actions=[...currentActions,...incomingActions.filter(a=>!currentActions.some(x=>x.key===a.key&&x.id===a.id))];
+ return {reviews:decodeReviews(JSON.stringify({version:1,items:reviews})),actions:decodeActions(actions)};
 }
 export function mergeImportedReviews(current: Review[], record: ImportRecord) {
   return [...current,...record.reviews.filter(r=>!current.some(x=>x.key===record.key&&x.dimension===r.dimension))].slice(-500);

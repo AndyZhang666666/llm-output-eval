@@ -1,18 +1,20 @@
-import { parseReviewImport, type ImportRecord } from './import-report';
+import { validateReviewPayload, type ImportRecord } from './import-report';
 export const LIBRARY_STORAGE = 'llm-output-eval:library:v1';
 export const MAX_LIBRARY = 20;
+export const MAX_LIBRARY_BYTES = 24 * 1024 * 1024;
 export type LibraryRecord = ImportRecord & { name: string; savedAt: string };
 export type LibraryData = { version: 1; activeKey: string; records: LibraryRecord[] };
 export const EMPTY_LIBRARY: LibraryData = { version: 1, activeKey: '', records: [] };
 export function decodeLibrary(raw: string | null): LibraryData {
   if (!raw) return EMPTY_LIBRARY;
+  if(new TextEncoder().encode(raw).length>MAX_LIBRARY_BYTES)throw Error('本机资料库超过24MB，旧内容未被覆盖');
   const v = JSON.parse(raw);
   if (!v || v.version !== 1 || !Array.isArray(v.records) || v.records.length > MAX_LIBRARY || typeof v.activeKey !== 'string') throw Error('资料库格式无效');
   const keys = new Set();
   const records: LibraryRecord[] = v.records.map((r: LibraryRecord) => {
     if (!r || typeof r.key !== 'string' || !/^external:sha256:[0-9a-f]{64}$/.test(r.key) || keys.has(r.key) || typeof r.name !== 'string' || !r.name.trim() || r.name.length > 100 || !Number.isFinite(Date.parse(r.savedAt)) || typeof r.fileName !== 'string') throw Error('资料库记录无效');
     keys.add(r.key);
-    const parsed = parseReviewImport(JSON.stringify({ ...r, version: 1, recordKey: r.key }));
+    const parsed = validateReviewPayload({ ...r, version: 1, recordKey: r.key });
     return { ...parsed, key: r.key, name: r.name, fileName: r.fileName, savedAt: r.savedAt };
   });
   return { version: 1, activeKey: records.some(r => r.key === v.activeKey) ? v.activeKey : '', records };
@@ -24,5 +26,8 @@ export function addToLibrary(data: LibraryData, record: ImportRecord, name: stri
   const title = name.trim().slice(0, 100) || '未命名材料';
   // Human state lives in its own stores. Keeping stale imported copies here
   // would resurrect a deliberately cleared review when a material is reopened.
-  return { version: 1, activeKey: record.key, records: [{ ...record, reviews:[], actions:[], name: title, savedAt: now }, ...data.records] };
+  const next:LibraryData={ version: 1, activeKey: record.key, records: [{ ...record, reviews:[], actions:[], name: title, savedAt: now }, ...data.records] };
+  if(new TextEncoder().encode(JSON.stringify(next)).length>MAX_LIBRARY_BYTES)throw Error('资料库超过24MB，当前内容仍可导出；旧资料未覆盖');
+  return next;
 }
+export function addManyToLibrary(data:LibraryData,records:ImportRecord[]){let next=data;for(const record of records)next=addToLibrary(next,record,record.name||record.sourceText.slice(0,28)||record.fileName);return next;}

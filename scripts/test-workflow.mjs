@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
-const {importedRecord,importTemplate,reportMarkdown}=require('./.core-test/import-report.js');
+const {importedRecord,importTemplate,reportMarkdown,MAX_IMPORT_BYTES,parseReviewImport,prepareImportedHumanState}=require('./.core-test/import-report.js');
 const {JUDGE_SYSTEM_PROMPT,buildJudgeUserPrompt}=require('./.core-test/prompts.js');
 const {buildTaskPackage,importTaskResponse,CURRENT_RUBRIC}=require('./.core-test/task-package.js');
-const {EMPTY_LIBRARY,addToLibrary,decodeLibrary}=require('./.core-test/library.js');
-const {aggregateRecords,compatibleRun,comparisonWarnings,changedRange}=require('./.core-test/comparison.js');
+const {EMPTY_LIBRARY,addToLibrary,addManyToLibrary,decodeLibrary}=require('./.core-test/library.js');
+const {aggregateRecords,compatibleRun,comparisonWarnings,changedRange,importComparisonReport}=require('./.core-test/comparison.js');
 const record=async(patch={})=>importedRecord(JSON.stringify({...importTemplate(),...patch}));
 test('external task carries the exact incumbent judge, text and schema; validation keeps raw scores and quotes',async()=>{
  const base=importTemplate(),task=buildTaskPackage(base.sourceText);
@@ -56,4 +56,31 @@ test('legacy migration saves human state separately, repeated initialization rea
  globalThis.localStorage={getItem:()=>{throw Error('blocked');},setItem:()=>{throw Error('blocked');},removeItem:()=>{throw Error('blocked');}};
  store.saveLibraryRecord(await record({sourceText:'只留本页的材料'}),'临时材料');assert.equal(store.currentLibrary().records.length,3);
  delete globalThis.localStorage;
+});
+test('a legal near-1MB external file remains readable inside a larger library envelope',async()=>{
+ const p=importTemplate();p.originalResult.retainedExtension='';
+ const bytes=new TextEncoder().encode(JSON.stringify(p)).length;
+ p.originalResult.retainedExtension='x'.repeat(MAX_IMPORT_BYTES-bytes-20);
+ const raw=JSON.stringify(p);assert.equal(new TextEncoder().encode(raw).length,MAX_IMPORT_BYTES-20);
+ const r=await importedRecord(raw),data=addToLibrary(EMPTY_LIBRARY,r,'上限附近的合法资料'),stored=JSON.stringify(data);
+ assert.ok(new TextEncoder().encode(stored).length>MAX_IMPORT_BYTES);
+ assert.equal(decodeLibrary(stored).records[0].originalResult.retainedExtension,p.originalResult.retainedExtension);
+ assert.throws(()=>parseReviewImport(raw+' '.repeat(21)),/最大1MB/);
+ const bad=structuredClone(data);bad.records[0].originalResult.dimensions[0].score=6;assert.throws(()=>decodeLibrary(JSON.stringify(bad)),/1–5整数/);
+});
+test('a complete saved comparison roundtrips both sides and labels, rejects a bad side, and library batch overflow is atomic',async()=>{
+ const a=await record(),next=await record({originalResult:{...importTemplate().originalResult,meta:{...importTemplate().originalResult.meta,at:'2026-11-01T06:00:00Z'}}}),b=await record({sourceText:'另一个版本的原文'});
+ const payload={version:1,kind:'saved-results-comparison',labels:['初稿A','补完B'],sides:[[a,next],[b]]},raw=JSON.stringify(payload),restored=await importComparisonReport(raw);
+ assert.deepEqual(restored.labels,payload.labels);assert.deepEqual(restored.sides.map(side=>side.map(r=>r.key)),[[a.key,next.key],[b.key]]);assert.deepEqual(restored.sides[1][0].originalResult,b.originalResult);
+ const broken=structuredClone(payload);broken.sides[1][0].originalResult.dimensions[0].score=6;await assert.rejects(()=>importComparisonReport(JSON.stringify(broken)));assert.equal(JSON.stringify(payload),raw);
+ let library=EMPTY_LIBRARY;for(let i=0;i<19;i++)library=addToLibrary(library,await record({sourceText:'已存材料'+i}),'标题'+i);
+ const before=JSON.stringify(library);assert.throws(()=>addManyToLibrary(library,[a,b]),/已满20份/);assert.equal(JSON.stringify(library),before);
+});
+test('normalized action aliases and human-state capacity fail before any caller can switch its current material',async()=>{
+ const payload=importTemplate(),base={id:'same-id',dimension:'persona',kind:'comment_check',text:'核查',status:'open',updatedAt:'2026-11-01T00:00:00Z'};
+ payload.actions=[{...base,key:'old-a'},{...base,key:'old-b'}];
+ await assert.rejects(()=>importedRecord(JSON.stringify(payload)),/字段无效/);
+ const r=await record(),current=Array.from({length:500},(_,i)=>({...base,id:'existing-'+i,key:r.key})),before=JSON.stringify(current);
+ assert.throws(()=>prepareImportedHumanState({...r,actions:[{...base,id:'one-too-many',key:r.key}]},[],current),/最多500项/);
+ assert.equal(JSON.stringify(current),before);assert.equal(prepareImportedHumanState(r,[],[]).actions.length,0);
 });
