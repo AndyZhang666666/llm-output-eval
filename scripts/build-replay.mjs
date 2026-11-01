@@ -11,7 +11,7 @@ const items = ids.map((id, index) => {
   assert.ok(sample && item && item.runs.length === 3);
   const runs = item.runs.map(r => ({ ...r, meta: { ...r.meta, sample: true } }));
   for (const r of runs) assert.equal(r.overall, Math.round(r.dimensions.reduce((s, d) => s + d.score, 0) / 5 * 100) / 100);
-  return { id, label: labels[index], text: sample.text, note: sample.note, human: sample.human, runs };
+  return { id, label: labels[index], text: sample.text, note: id === 'e06' ? '由 g07 完整稿构造的句中截断版本（e06）。与 g07 对照，检查结构维度及其余维度的历史评分差异。' : sample.note, human: sample.human, runs };
 });
 assert.ok(items[1].text.startsWith(items[0].text));
 mkdirSync('src/data', { recursive: true });

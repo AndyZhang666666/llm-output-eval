@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { SafetyCard } from "@/components/DimensionCard";
 import { EvidenceReview } from "@/components/EvidenceReview";
@@ -33,7 +33,18 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
   storeReviews(mergeImportedReviews(currentReviews(),record));
   try{localStorage.setItem(EXTERNAL_STORAGE,JSON.stringify({version:1,recordKey:record.key,sourceText:record.sourceText,originalResult:record.originalResult,reviews:[]}));noticeSet(restored?'已恢复上次导入材料；本机复核独立保留。':'已导入，原始评分与评语完整保留；外部声明未经认证。');}catch{noticeSet('本机保存不可用，材料仅留本页，仍可复核与导出。');}
  }
- useEffect(()=>{let active=true;if(!params.has('sample')){try{const raw=localStorage.getItem(EXTERNAL_STORAGE);if(raw)importedRecord(raw,'本机导入草稿').then(r=>{if(active)importRecord(r,true);}).catch(()=>{if(active)noticeSet('上次导入草稿无法恢复，未覆盖保存内容。');});}catch{noticeSet('存储不可用，仍可导入、复核与导出。');}}return()=>{active=false;request.current?.abort();};},[]); // Restore once; explicit history links always win.
+ // Restoring browser storage is an external event. Dimension changes must not restart it.
+ const restoreRecord=useEffectEvent((record:ImportRecord)=>importRecord(record,true));
+ useEffect(()=>{
+  let active=true;
+  if(!new URLSearchParams(initialQuery).has('sample')){
+   Promise.resolve().then(()=>localStorage.getItem(EXTERNAL_STORAGE))
+    .then(raw=>raw?importedRecord(raw,'本机导入草稿'):null)
+    .then(record=>{if(active&&record)restoreRecord(record);})
+    .catch(()=>{if(active)noticeSet('上次导入草稿未能恢复；保存内容未被覆盖，仍可重新导入或继续浏览。');});
+  }
+  return()=>{active=false;request.current?.abort();};
+ },[initialQuery]); // Explicit history links always win over the saved import.
  useEffect(()=>()=>request.current?.abort(),[settings.baseUrl,settings.model,settings.apiKey]);
  function showSample(id:string,index=0){const item=replayItem(id),r=item.runs[index]??item.runs[0];sampleSet(item.id);runSet(index);textSet(item.text);resultSet(r);originSet('history');externalSet('');quoteSet(r.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');errorSet(null);noticeSet('历史记录原分不变；复核意见单独保存。');}
  function chooseDimension(id:ScoredDimensionId){dimSet(id);quoteSet(result?.dimensions.find(d=>d.id===id)?.evidence[0]??'');}
@@ -48,7 +59,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  return <>
  <div className="eval-intro"><h1>文本评测与复核</h1><p>导入自己的原文与评分，逐条核对证据，带走一份可追溯的复核报告。</p></div>
  <ImportPanel disabled={busy} onImport={r=>importRecord(r)}/>
- <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`}>查看版本比较 →</Link></div>
+ <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`} title={origin==='history'?undefined:'历史示例不包含当前材料，不会比较当前导入结果。'}>{origin==='history'?'查看版本比较 →':'查看历史对照示例 →'}</Link></div>
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {notice&&<p className="replay-note" role="status">{notice}</p>}<ErrorBanner message={error}/>
  {result&&<div className="dimension-nav" role="group" aria-label="当前复核维度">{SCORED_DIMENSIONS.map(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=mine.find(r=>r.dimension===id);return <button key={id} aria-pressed={dimension===id} onClick={()=>chooseDimension(id)}><span>{DIMENSIONS[id].labelZh}</span><b>{d.score}/5</b><small>{REVIEW_STATES[v?.state??'unreviewed']}</small></button>;})}</div>}

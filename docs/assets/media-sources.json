@@ -1,13 +1,28 @@
 [
   {
     "file": "eval-preview.jpg",
-    "source": "https://andyzhang666666.github.io/llm-output-eval/",
-    "captured": "2026-10-31",
-    "viewport": [
-      1280,
-      720
-    ],
-    "mode": "Historical g07 evaluation output. Source citation selected; human review remains pending and the original score is unchanged.",
-    "sha256": "2bf235680f3b3922abd769f265505039cfa0c5d7709c6e4dbb30b8b5d515e2a7"
+    "copiedAt": "2026-11-01",
+    "sourceCommit": "6940fa0055c0f6003f7d4ebf147a53c1cd432a88",
+    "sourceRepository": "AndyZhang666666/AndyZhang666666.github.io",
+    "sourceCapture": {
+      "id": "eval",
+      "route": "/llm-output-eval/",
+      "full": "assets/work/showcase/eval.jpg",
+      "crop": "assets/work/showcase/eval-crop.jpg",
+      "viewport": {
+        "width": 1280,
+        "height": 1000
+      },
+      "capturedAt": "2026-10-31T02:12:01.185Z",
+      "state": "Historical structure score and source evidence in the focused workspace; independent needs-context review in a disposable browser context, no new model call.",
+      "fullPage": true,
+      "cropSize": {
+        "width": 1200,
+        "height": 820
+      },
+      "fullSha256": "8236efe7fe8d72a860da8f4b5bae49b5b7e9356bd09807b441101b0568dd2c83",
+      "cropSha256": "b4528fe4ec1cb3e57e7da20b4b7f4b468878a23f822db6d7a8864713f5d18937"
+    },
+    "sha256": "b4528fe4ec1cb3e57e7da20b4b7f4b468878a23f822db6d7a8864713f5d18937"
   }
 ]
