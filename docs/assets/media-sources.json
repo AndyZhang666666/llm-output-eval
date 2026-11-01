@@ -2,7 +2,7 @@
   {
     "file": "eval-preview.jpg",
     "copiedAt": "2026-11-01",
-    "sourceCommit": "cbe6b64dc998311656e992ff222c34a24cc9fe72",
+    "sourceCommit": "339e09d7035c163a5f37fada722f729d775fc801",
     "sourceRepository": "AndyZhang666666/llm-output-eval",
     "sourceCapture": {
       "id": "eval",
@@ -13,20 +13,20 @@
         "width": 1440,
         "height": 900
       },
-      "capturedAt": "2026-11-01T10:20:29.057Z",
-      "state": "Historical e06 structure review in the compact Swiss workspace. Original 2/5 retained; quote shown in source. No model call and no review written.",
+      "capturedAt": "2026-11-01T14:30:48.650183+00:00",
+      "state": "Original historical e06/structure replay, raw score 2/5 unchanged, in the new Swiss review desk. Two synthetic UI-check records were present in the local library, collapsed and not displayed. No new model calls.",
       "fullPage": false,
       "cropSize": {
         "width": 1440,
         "height": 900
       },
-      "fullSha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066",
-      "cropSha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066",
-      "source": "http://127.0.0.1:8822",
-      "sourceCommit": "cbe6b64dc998311656e992ff222c34a24cc9fe72",
+      "fullSha256": "d51de7fce9edcdf573ea765b888d6f2cac0c73bf0e141768e919fae86131f97a",
+      "cropSha256": "d51de7fce9edcdf573ea765b888d6f2cac0c73bf0e141768e919fae86131f97a",
+      "source": "http://127.0.0.1:8830",
+      "sourceCommit": "339e09d7035c163a5f37fada722f729d775fc801",
       "sourceRepository": "AndyZhang666666/llm-output-eval",
-      "captureMethod": "Unedited current viewport screenshot, identical full and library-preview files; no compositing or model-generated mockup."
+      "captureMethod": "Unedited actual browser viewport screenshot; full and preview files identical. No compositing, model-generated mockup or invented business results."
     },
-    "sha256": "294bd04c337f83d318efac842d011cf0e39c66e806764032c577458c7bd0d066"
+    "sha256": "d51de7fce9edcdf573ea765b888d6f2cac0c73bf0e141768e919fae86131f97a"
   }
 ]
