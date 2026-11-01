@@ -4,6 +4,8 @@
 
 Can a reviewer inspect the evidence behind a low score and disagree with the judge?
 
+**In development, 2026-11-01:** `feat/product-depth-20261101` adds an external-AI handoff using the incumbent five-dimension rubric and exact judge prompt. Bring back a JSON result, review its evidence, record separate follow-up actions, and compare two personal reports without a key. A local material library keeps up to 20 records and never evicts one silently. External execution and metadata remain user declarations. Deterministic checks and a static build pass locally; browser review and publication are still pending. The live link remains on the previous release until approved. See [implementation and evidence](docs/PRODUCT-DEPTH-20261101.md).
+
 ![Actual Eval Lab interface](docs/assets/eval-preview.jpg)
 
 <!-- github-evidence-20261031 -->
