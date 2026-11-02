@@ -1,5 +1,8 @@
 # Eval Lab · 文本评测工作台
 
+2026-11-02 视觉打磨已通过用户审阅，获批合并发布：[设计取舍、官方参考与前后截图](docs/VISUAL-CRAFT-20261102.md)。本次保留原有产品功能；发布记录见仓库合并提交 与 Pages 工作流。
+
+
 [在线体验](https://andyzhang666666.github.io/llm-output-eval/) · [English](README.en.md) · [作品索引](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
 
 模型给了低分，评审者能不能找到依据，再留下自己的判断？
@@ -8,7 +11,7 @@
 
 2026-11-01 更新：支持导入自己的单份五维 JSON（最大1MB），严格核对格式、原分与均分；保留无法定位的原始引用。桌面原文和当前维度并排，手机切换面板仍保留维度。复核另存，新增可读 Markdown 报告，保留 JSON 往返与18条历史记录。[改动与验证](docs/IMPORTED-REVIEW.md)。
 
-![Eval Lab · 文本评测工作台的实际产品界面](docs/assets/eval-preview.jpg)
+![Eval Lab · 文本评测工作台的实际产品界面](docs/assets/visual-craft-20261102/after-desktop.jpg)
 
 <!-- github-evidence-20261031 -->
 
