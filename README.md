@@ -1,5 +1,8 @@
 # Eval Lab · 文本评测工作台
 
+本轮新视觉尚未发布：[设计取舍、官方参考与前后截图](docs/VISUAL-CRAFT-20261102.md)。当前线上版本保留。
+
+
 [在线体验](https://andyzhang666666.github.io/llm-output-eval/) · [English](README.en.md) · [作品索引](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
 
 模型给了低分，评审者能不能找到依据，再留下自己的判断？

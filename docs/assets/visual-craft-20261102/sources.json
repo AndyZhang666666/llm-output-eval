@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-02",
+  "status": "unpublished visual candidate",
+  "implementationCommit": "756cac4827fbbe96a64c70325b50693fa265b4db",
+  "images": [
+    {
+      "file": "before-desktop.jpg",
+      "sha256": "add90231ac9883ded9beba3692840a08586830db30fb12909ecd269934b70e66",
+      "source": "actual browser viewport screenshot",
+      "size": "1440x900",
+      "state": "built-in default; no model calls"
+    },
+    {
+      "file": "before-mobile.jpg",
+      "sha256": "e0eeb7e7504fce35bb03c66658425ac84c893efeff084eff87151233cce9e054",
+      "source": "actual browser viewport screenshot",
+      "size": "390x844",
+      "state": "built-in default; no model calls"
+    },
+    {
+      "file": "after-desktop.jpg",
+      "sha256": "ca54a46344f617d645e13fc3bd983dd2f54d96e24ad61ca451d71c6bfc4ecd93",
+      "source": "actual browser viewport screenshot",
+      "size": "1440x900",
+      "state": "built-in default; no model calls"
+    },
+    {
+      "file": "after-mobile.jpg",
+      "sha256": "10b4630a252383bfcf854bf38dc4ba61c98b2baaee854257294b4f8ee18ddcc2",
+      "source": "actual browser viewport screenshot",
+      "size": "390x844",
+      "state": "built-in default; no model calls"
+    }
+  ],
+  "composited": false,
+  "businessData": "synthetic, estimated, or historical replay per product labels"
+}
