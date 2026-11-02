@@ -61,13 +61,14 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  useEffect(()=>{const node=resultPanel.current;if(node&&key&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const a=node.animate([{opacity:.7,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:180});return()=>a.cancel();}},[key,dimension]);
  function editText(value:string){textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。输入仍保留，不会自动切回历史样本。');}
  return <>
- <div className="eval-intro"><h1>别只看分数，<br/>回到判断的依据。</h1><p>为故事与剧本核对五维评语。用已有AI评测自己的文本，再带回证据、分歧与下一步处理。</p></div>
+ <div className="eval-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><p>并置原文、引文与评语。保留模型原分，单独记录你的判断。</p></div>
+ <section className="material-toolbar" aria-label="选择待复核材料">
  <ExternalTaskPanel disabled={busy} seedText={text} onImport={r=>importRecord(r)}/>
  <LibraryPanel disabled={busy} onOpen={r=>{try{importRecord(r,true);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}}/>
  <div className="record-tools"><ImportPanel disabled={busy} onImport={r=>importRecord(r)}/>
  <details className="history-source"><summary>更换历史记录 <span>{origin==='history'?replayItem(sampleId).label:'浏览内置对照样本'}</span></summary>
  <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`} title={origin==='history'?undefined:'历史示例不包含当前材料，不会比较当前导入结果。'}>{origin==='history'?'查看版本比较 →':'查看历史对照示例 →'}</Link></div>
- </details></div>
+ </details></div></section>
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span>{library.data.records.some(r=>r.key===key)?<Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>:<span>此材料尚未入库，前往对照前请先导出JSON。</span>}{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
  <p className="library-notice" role="status">{library.notice}</p>

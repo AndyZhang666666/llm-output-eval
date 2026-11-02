@@ -27,7 +27,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="eval-header mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="eval-header-left flex items-center gap-6">
             <Link href="/" className="font-semibold tracking-tight">
-              <span className="eval-wordmark">
+              <svg className="eval-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M10 5H4v18h6M18 5h6v18h-6" fill="none" stroke="currentColor" strokeWidth="2"/><path d="m10 15 3 3 6-8" fill="none" stroke="currentColor" strokeWidth="2"/></svg><span className="eval-wordmark">
                 Eval Lab<span>文本评测与人工复核</span>
               </span>
             </Link>
