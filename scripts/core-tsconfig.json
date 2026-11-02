@@ -19,6 +19,13 @@
     "../src/lib/review.ts",
     "../src/lib/records.ts",
     "../src/lib/import-report.ts",
+    "../src/lib/task-package.ts",
+    "../src/lib/actions.ts",
+    "../src/lib/library.ts",
+    "../src/lib/library-store.ts",
+    "../src/lib/review-store.ts",
+    "../src/lib/action-store.ts",
+    "../src/lib/comparison.ts",
     "../src/lib/api.ts"
   ],
   "exclude": ["../node_modules"]

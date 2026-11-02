@@ -4,6 +4,8 @@
 
 Can a reviewer inspect the evidence behind a low score and disagree with the judge?
 
+**Approved release, 2026-11-02:** Take the existing five-dimension rubric and exact judge prompt to an external AI, bring back JSON, inspect the evidence, record separate follow-up actions, and compare two personal reports without a site API key. The local library holds up to 20 records and never evicts one silently. External execution and metadata remain user declarations. Deterministic checks, a static build and integrated browser review are complete; this release ships with the portfolio. [Implementation and evidence](docs/PRODUCT-DEPTH-20261101.md).
+
 ![Actual Eval Lab interface](docs/assets/eval-preview.jpg)
 
 <!-- github-evidence-20261031 -->

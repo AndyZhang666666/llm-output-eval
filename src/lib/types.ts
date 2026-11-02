@@ -63,6 +63,8 @@ export interface EvaluationResult {
     model: string;
     /** ISO timestamp. */
     at: string;
+    /** External handoffs can record an import time without claiming a run time. */
+    time_basis?: 'declared-run' | 'import-time';
     /** True when this result comes from bundled sample data, not a real model call. */
     sample: boolean;
     /** Judge latency in ms, if known. */
