@@ -3,6 +3,7 @@ import { decodeReviews, reviewReport, REVIEW_STATES, type Review } from './revie
 import type { EvaluationResult } from './types';
 import { ACTION_KINDS, decodeActions, type ReviewAction } from './actions';
 import type { ComparisonConditions } from './task-package';
+import { commentGloss } from './comment-gloss';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
 export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string };
@@ -89,7 +90,7 @@ export function reportMarkdown(key: string,text: string,result: EvaluationResult
     '', '## 复核概况',
     `原始五维均分：${result.overall.toFixed(2)} / 5（未被复核改写）`,
     `已复核 ${reviews.filter(x=>x.state!=='unreviewed').length}/5；存疑 ${reviews.filter(x=>x.state==='unsupported').length}；待补上下文 ${reviews.filter(x=>x.state==='needs_context').length}`,'',
-    ...SCORED_DIMENSIONS.flatMap(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=reviews.find(x=>x.dimension===id);return [`## ${DIMENSIONS[id].labelZh} · ${d.score}/5`,`原评语：${d.comment}`,'',...d.evidence.map(q=>`引用：${q}`),'',`复核：${REVIEW_STATES[v?.state??'unreviewed']}`,`人工参考分：${v?.humanScore===undefined?'未填写':v.humanScore+'/5'}；人工−模型差：${v?.humanScore===undefined?'暂无':v.humanScore-d.score}（人工参考不是金标）`,`备注：${v?.note||'未填写'}`,''];}),
+    ...SCORED_DIMENSIONS.flatMap(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=reviews.find(x=>x.dimension===id),gloss=commentGloss(d);return [`## ${DIMENSIONS[id].labelZh} · ${d.score}/5`,`原评语：${d.comment}`,...(gloss?['',`评语释义（随记录提供）：${gloss}`]:[]),'',...d.evidence.map(q=>`引用：${q}`),'',`复核：${REVIEW_STATES[v?.state??'unreviewed']}`,`人工参考分：${v?.humanScore===undefined?'未填写':v.humanScore+'/5'}；人工−模型差：${v?.humanScore===undefined?'暂无':v.humanScore-d.score}（人工参考不是金标）`,`备注：${v?.note||'未填写'}`,''];}),
     ...(ownActions.some(a=>a.status==='done')?['## 已完成处理项',...ownActions.filter(a=>a.status==='done').map(a=>`- [x] ${ACTION_KINDS[a.kind]}：${a.text}`),'完成处理不代表重新评测，原始分数未改变。']:[]),
     '## 原文',text,'','## 边界',...r.limits.map(x=>'- '+x),'本报告记录人工复核，不授予自动发布许可。'].join('\n');
 }

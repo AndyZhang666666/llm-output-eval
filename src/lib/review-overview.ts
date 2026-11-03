@@ -7,9 +7,10 @@ export function summarizeReviews(records:{key:string;originalResult:EvaluationRe
  const unique=[...new Map(records.map(r=>[r.key,r])).values()];
  const observations=unique.flatMap(r=>SCORED_DIMENSIONS.map(id=>({r,id,review:items.find(v=>v.key===r.key&&v.dimension===id)})));
  const reviewed=observations.filter(x=>x.review&&x.review.state!=='unreviewed');
+ const reviewedSamples=unique.filter(r=>SCORED_DIMENSIONS.every(id=>reviewed.some(x=>x.r.key===r.key&&x.id===id))).length;
  const pairs=observations.filter(x=>x.review?.humanScore!==undefined);
  const absoluteTotal=pairs.reduce((sum,x)=>sum+Math.abs(x.review!.humanScore!-x.r.originalResult.dimensions.find(d=>d.id===x.id)!.score),0);
- return {samples:unique.length,dimensions:observations.length,reviewed:reviewed.length,
+ return {samples:unique.length,reviewedSamples,dimensions:observations.length,reviewed:reviewed.length,
  supported:reviewed.filter(x=>x.review?.state==='supported').length,
  disputed:reviewed.filter(x=>x.review?.state==='unsupported').length,
  context:reviewed.filter(x=>x.review?.state==='needs_context').length,

@@ -87,6 +87,22 @@ test('normalized action aliases and human-state capacity fail before any caller 
 
 const {decodeReviews}=require('./.core-test/review.js');
 const {summarizeReviews,priorityDimension}=require('./.core-test/review-overview.js');
+test('completed records require all five judgments; partial work keeps its judgment denominator',async()=>{
+ const r=await record(),other={...r,key:r.key+':other'};
+ const items=r.originalResult.dimensions.map(d=>({key:r.key,dimension:d.id,state:'supported',note:'',updatedAt:'2026-11-03T00:00:00Z'}));
+ const partial=summarizeReviews([r,r,other],items.slice(0,1));assert.equal(partial.samples,2);assert.equal(partial.reviewedSamples,0);assert.equal(partial.reviewed,1);assert.equal(partial.dimensions,10);
+ const complete=summarizeReviews([r,r,other],items);assert.equal(complete.reviewedSamples,1);assert.equal(complete.reviewed,5);assert.equal(complete.supported,5);
+ assert.equal(summarizeReviews([],[]).reviewedSamples,0);
+});
+test('Markdown preserves original comment and optional Chinese gloss without changing imported scores',async()=>{
+ const payload=importTemplate();payload.originalResult.dimensions[0].comment='The character motivation is not established.';
+ payload.originalResult.dimensions[0].commentZh='人物动机尚未建立。';payload.originalResult.dimensions[1].comment_zh='事件关系需要核实。';
+ const r=await importedRecord(JSON.stringify(payload)),before=JSON.stringify(r.originalResult);
+ const md=reportMarkdown(r.key,r.sourceText,r.originalResult,[],'external, unverified');
+ assert.match(md,/原评语：The character motivation is not established\./);assert.match(md,/评语释义（随记录提供）：人物动机尚未建立。/);assert.match(md,/事件关系需要核实。/);
+ assert.equal(JSON.stringify(r.originalResult),before);
+ const plain=await record();assert.doesNotMatch(reportMarkdown(plain.key,plain.sourceText,plain.originalResult,[],'synthetic'),/评语释义/);
+});
 const {AIGC_INPUT,AIGC_VERSIONS}=require('./.core-test/aigc-example.js');
 test('optional reference score roundtrips separately, zero denominator stays unknown, unreviewed is not support',async()=>{
  const r=await record(),before=JSON.stringify(r.originalResult);

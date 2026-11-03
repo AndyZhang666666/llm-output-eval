@@ -15,3 +15,6 @@
 .demo-tools,.demo-help{--text:var(--eval-ink);--border:var(--eval-line);--panel:var(--eval-paper);--muted:var(--eval-muted);--accent:var(--eval-accent)}
 
 .task-draft-notice{font-size:12px;line-height:1.8;margin:10px 0;color:var(--eval-muted)}.unfinished-source{font-size:12px;min-height:44px;text-decoration:underline;color:var(--eval-accent);text-underline-offset:4px;margin-bottom:12px}
+
+.comment-gloss { margin:12px 0 18px; padding-left:12px; border-left:2px solid var(--eval-line); line-height:1.8; }
+.comment-gloss > span { display:block; font-size:11px; color:var(--eval-muted); margin-bottom:4px; }

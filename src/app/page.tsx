@@ -1,4 +1,5 @@
 "use client";
+import { commentGloss } from "@/lib/comment-gloss";
 import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { SafetyCard } from "@/components/DimensionCard";
@@ -94,6 +95,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <div className="current-dimension"><div><p>当前维度 · 原始评分</p><h2>{DIMENSIONS[dimension].labelZh}</h2></div><strong>{selected.score}<small>/5</small></strong></div>
  <details className="rubric-inspect"><summary>评分标准 · 这档与相邻档差在哪里？</summary><p className="replay-note">以下为本工具现有五维标准；外部记录是否实际使用，由导入声明决定。</p><ol>{DIMENSIONS[dimension].anchors.map((anchor,i)=><li key={i} data-current={i+1===selected.score}><b>{i+1}分{i+1===selected.score?' · 原评分':''}</b><span>{anchor}</span></li>)}</ol></details>
  <p className="judge-comment">{selected.comment||'原记录没有评语。'}</p>
+ {commentGloss(selected)&&<p className="comment-gloss"><span>评语释义 · 随记录提供</span>{commentGloss(selected)}</p>}
  <div className="quote-list"><p className="replay-note">原始引用 · 点击定位；定位成功不等于论证成立。</p>{selected.evidence.map((q,i)=>{const found=locateEvidence(text,q);return <button key={i} aria-pressed={q===quote} onClick={()=>{quoteSet(q);if(innerWidth<700)mobileSet('source');requestAnimationFrame(()=>sourceDoc.current?.querySelector('mark')?.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));}}><span>“{q}”</span><small>{found?'可定位':'无法定位 · 保留原引用'}</small></button>;})}</div>
  <div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} conditions={conditions} showContext={false} compact/></div>
  <button className="next-review" disabled={!next} onClick={()=>next&&chooseDimension(next)}>{next?'下一项待复核 →':'五维已复核，可导出报告'}</button>
