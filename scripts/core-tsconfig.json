@@ -26,7 +26,11 @@
     "../src/lib/review-store.ts",
     "../src/lib/action-store.ts",
     "../src/lib/comparison.ts",
-    "../src/lib/api.ts"
+    "../src/lib/api.ts",
+    "../src/lib/review-overview.ts",
+    "../src/lib/aigc-example.ts"
   ],
-  "exclude": ["../node_modules"]
+  "exclude": [
+    "../node_modules"
+  ]
 }

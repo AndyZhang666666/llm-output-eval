@@ -13,6 +13,8 @@ export type Review = {
   dimension: ScoredDimensionId;
   state: ReviewState;
   note: string;
+  /** Optional human reference; never replaces the original model score. */
+  humanScore?: number;
   updatedAt: string;
 };
 export function recordKey(
@@ -56,6 +58,7 @@ export function decodeReviews(raw: string | null): Review[] {
       !Object.hasOwn(REVIEW_STATES, x.state) ||
       typeof x.note !== "string" ||
       x.note.length > 500 ||
+      (x.humanScore !== undefined && (!Number.isInteger(x.humanScore) || x.humanScore < 1 || x.humanScore > 5)) ||
       typeof x.updatedAt !== "string" ||
       !Number.isFinite(Date.parse(x.updatedAt))
     )
@@ -65,6 +68,7 @@ export function decodeReviews(raw: string | null): Review[] {
       dimension: x.dimension,
       state: x.state,
       note: x.note,
+      ...(x.humanScore === undefined ? {} : {humanScore: x.humanScore}),
       updatedAt: x.updatedAt,
     };
   });
@@ -88,13 +92,11 @@ export function reviewReport(
     ],
   };
 }
-export function downloadJson(value: unknown, name: string) {
-  const url = URL.createObjectURL(
-    new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }),
-  );
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+let lastExportUrl:string|undefined;
+export function downloadText(text:string,name:string,type='text/markdown;charset=utf-8'){
+ if(lastExportUrl)URL.revokeObjectURL(lastExportUrl);
+ const url=URL.createObjectURL(new Blob([text],{type}));lastExportUrl=url;
+ const a=document.createElement('a');a.href=url;a.download=name;a.click();
+ window.dispatchEvent(new CustomEvent('eval-export',{detail:{url,name}}));
 }
+export function downloadJson(value:unknown,name:string){downloadText(JSON.stringify(value,null,2),name,'application/json');}

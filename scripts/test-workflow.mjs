@@ -84,3 +84,36 @@ test('normalized action aliases and human-state capacity fail before any caller 
  assert.throws(()=>prepareImportedHumanState({...r,actions:[{...base,id:'one-too-many',key:r.key}]},[],current),/最多500项/);
  assert.equal(JSON.stringify(current),before);assert.equal(prepareImportedHumanState(r,[],[]).actions.length,0);
 });
+
+const {decodeReviews}=require('./.core-test/review.js');
+const {summarizeReviews,priorityDimension}=require('./.core-test/review-overview.js');
+const {AIGC_INPUT,AIGC_VERSIONS}=require('./.core-test/aigc-example.js');
+test('optional reference score roundtrips separately, zero denominator stays unknown, unreviewed is not support',async()=>{
+ const r=await record(),before=JSON.stringify(r.originalResult);
+ const human={key:r.key,dimension:'structure',state:'unreviewed',note:'reference only',humanScore:2,updatedAt:'2026-11-03T00:00:00Z'};
+ assert.equal(decodeReviews(JSON.stringify({version:1,items:[human]}))[0].humanScore,2);
+ for(const score of [0,6,2.5,null,'3'])assert.throws(()=>decodeReviews(JSON.stringify({version:1,items:[{...human,humanScore:score}]})));
+ const restored=await importedRecord(JSON.stringify({version:1,recordKey:r.key,sourceText:r.sourceText,originalResult:r.originalResult,reviews:[human]}));
+ assert.equal(restored.reviews[0].humanScore,2);assert.equal(JSON.stringify(restored.originalResult),before);
+ const summary=summarizeReviews([r,r],[human,{...human,key:'not-accessible',state:'supported'}]);
+ assert.equal(summary.samples,1);assert.equal(summary.dimensions,5);assert.equal(summary.reviewed,0);assert.equal(summary.supported,0);assert.equal(summary.pairs,1);
+ assert.equal(summary.meanAbsoluteDifference,1);assert.equal(summarizeReviews([],[]).meanAbsoluteDifference,null);
+ assert.match(reportMarkdown(r.key,r.sourceText,r.originalResult,[human],'synthetic'),/人工参考分：2\/5/);
+ assert.equal(decodeReviews(JSON.stringify({version:1,items:[{...human,humanScore:undefined}]}))[0].humanScore,undefined);
+});
+test('A/B starts with an actual disagreement, otherwise maximum original delta; no invented human score',async()=>{
+ const a=await record(),b=structuredClone(a);b.key+='other';b.originalResult.dimensions.find(x=>x.id==='structure').score=5;
+ assert.equal(priorityDimension([a],[b],[]),'structure');
+ const review={key:a.key,dimension:'pacing',state:'needs_context',note:'need context',updatedAt:'2026-11-03T00:00:00Z'};
+ assert.equal(priorityDimension([a],[b],[review]),'pacing');assert.equal(review.humanScore,undefined);
+ assert.equal(priorityDimension([a],[b],[{...review,state:'unreviewed',humanScore:1}]),'pacing');
+});
+test('AIGC same-input fixture is explicitly synthetic; each quotation locates and scores remain valid',()=>{
+ assert.ok(AIGC_INPUT.includes('不要补造'));
+ for(const version of AIGC_VERSIONS){
+  const imported=parseReviewImport(JSON.stringify({version:1,sourceText:version.output,originalResult:version.result}));
+  assert.equal(imported.originalResult.meta.sample,true);assert.match(version.result.meta.model,/合成/);
+  for(const dimension of version.result.dimensions)for(const quote of dimension.evidence)assert.ok(version.output.includes(quote));
+ }
+ assert.ok(AIGC_VERSIONS[0].result.dimensions.find(x=>x.id==='structure').score>AIGC_VERSIONS[1].result.dimensions.find(x=>x.id==='structure').score);
+});
