@@ -1,5 +1,7 @@
 # Eval Lab
 
+2026-11-03 local review fixes: sibling tools open in new tabs; unfinished text is restored separately from confirmed results. No push, merge or publication. [Behavior and checks](docs/DRAFT-RECOVERY-20261103.md).
+
 Local iteration, 2026-11-03 — not published: Imports fold and focus review after validation. Optional human reference scores never replace original scores; A/B opens disagreements first and aggregates show denominators. The AIGC comparison is an authored synthetic fixture, not a model experiment. Core checks (27), lint and the static build passed; real exported files and phone-viewport actions were inspected. [验收与边界](docs/TASK-CLARITY-20261103.md)。
 
 Visual refresh approved after user review, 2026-11-02: [design, references and before/after screenshots](docs/VISUAL-CRAFT-20261102.md). Existing product behavior is preserved; the merge commit and Pages workflow record publication.

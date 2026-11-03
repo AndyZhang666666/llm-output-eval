@@ -31,7 +31,14 @@ export function changedRange(text: string, other: string) {
 }
 export const MAX_COMPARISON_BYTES=48*1024*1024;
 export type SavedComparison={labels:[string,string];sides:[ImportRecord[],ImportRecord[]]};
-export async function importComparisonReport(raw:string):Promise<SavedComparison>{
+export async function importComparisonReport(raw:string):Promise<SavedComparison>{return parseComparisonReport(raw,false);}
+export async function restoreComparisonDraft(raw:string):Promise<SavedComparison>{
+ const result=await parseComparisonReport(raw,true);
+ // Automatic recovery must not resurrect a deliberately cleared human review.
+ const clean=(side:ImportRecord[])=>side.map(r=>({...r,reviews:[],actions:[]}));
+ return {...result,sides:[clean(result.sides[0]),clean(result.sides[1])]};
+}
+async function parseComparisonReport(raw:string,allowIncomplete:boolean):Promise<SavedComparison>{
  if(new TextEncoder().encode(raw).length>MAX_COMPARISON_BYTES)throw Error('完整对照报告最大48MB');
  let p:unknown;try{p=JSON.parse(raw);}catch{throw Error('对照报告JSON无法解析');}
  if(!p||typeof p!=='object'||Array.isArray(p))throw Error('需要完整对照报告对象');
@@ -39,7 +46,7 @@ export async function importComparisonReport(raw:string):Promise<SavedComparison
  if(report.version!==1||report.kind!=='saved-results-comparison'||!Array.isArray(report.labels)||report.labels.length!==2||report.labels.some(n=>typeof n!=='string'||n.length>80)||!Array.isArray(report.sides)||report.sides.length!==2)throw Error('需要本工具导出的saved-results-comparison v1报告，含两侧资料和版本名称');
  const sides:ImportRecord[][]=[];
  for(const [sideIndex,side] of report.sides.entries()){
-  if(!Array.isArray(side)||side.length<1||side.length>20)throw Error(`第${sideIndex+1}侧须有1到20份记录`);
+  if(!Array.isArray(side)||side.length<(allowIncomplete?0:1)||side.length>20)throw Error(`第${sideIndex+1}侧须有1到20份记录`);
   const records:ImportRecord[]=[];
   for(const value of side){
    if(!value||typeof value!=='object'||Array.isArray(value))throw Error('对照中的材料无效');
@@ -49,7 +56,7 @@ export async function importComparisonReport(raw:string):Promise<SavedComparison
    if(loaded.key!==record.key)throw Error('材料标识与完整原文、原始结果不一致；未恢复任何一侧');
    records.push(loaded);
   }
-  aggregateRecords(records); // Validate grouping and duplicates before any caller mutation.
+  if(records.length)aggregateRecords(records); // Validate grouping and duplicates before any caller mutation.
   sides.push(records);
  }
  return {labels:report.labels as [string,string],sides:sides as [ImportRecord[],ImportRecord[]]};

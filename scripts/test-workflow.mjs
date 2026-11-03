@@ -117,3 +117,28 @@ test('AIGC same-input fixture is explicitly synthetic; each quotation locates an
  }
  assert.ok(AIGC_VERSIONS[0].result.dimensions.find(x=>x.id==='structure').score>AIGC_VERSIONS[1].result.dimensions.find(x=>x.id==='structure').score);
 });
+
+test('unsubmitted task drafts survive route remounts, isolate scopes and preserve unreadable storage',()=>{
+ const {readTabDraft,writeTabDraft,decodeDraft,DRAFT_PREFIX}=require('./.core-test/tab-drafts.js');
+ const storage=new Map();globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)};
+ const initial={text:'',raw:'',used:false},mine={text:'synthetic unfinished source',raw:'{broken result',used:false};
+ writeTabDraft('draft-test',mine);assert.deepEqual(readTabDraft('draft-test',initial).value,mine);
+ assert.deepEqual(decodeDraft(storage.get(DRAFT_PREFIX+'draft-test'),initial),mine);
+ assert.deepEqual(readTabDraft('another-scope',initial).value,initial);
+ storage.set(DRAFT_PREFIX+'damaged','{broken');const damaged=readTabDraft('damaged',initial);assert.equal(damaged.saved,false);
+ writeTabDraft('damaged',mine);assert.equal(storage.get(DRAFT_PREFIX+'damaged'),'{broken');assert.deepEqual(readTabDraft('damaged',initial).value,mine);
+ globalThis.sessionStorage={getItem:()=>{throw Error('blocked');},setItem:()=>{throw Error('blocked');}};
+ assert.equal(writeTabDraft('blocked',mine).saved,false);assert.deepEqual(readTabDraft('blocked',initial).value,mine);
+ assert.throws(()=>decodeDraft(JSON.stringify({version:1,value:{...mine,used:'true'}}),initial));
+ assert.equal(writeTabDraft('too-large',{raw:'x'.repeat(4*1024*1024+1)}).saved,false);
+ delete globalThis.sessionStorage;
+});
+
+test('unfinished A/B workspace recovers partial sides without resurrecting old human layers',async()=>{
+ const {restoreComparisonDraft}=require('./.core-test/comparison.js');const a=await record();
+ const human={key:a.key,dimension:'structure',state:'unsupported',humanScore:1,note:'old human layer',updatedAt:'2026-11-03T00:00:00Z'};
+ const raw=JSON.stringify({version:1,kind:'saved-results-comparison',labels:['未完成的A','待选B'],sides:[[{...a,reviews:[human]}],[]]});
+ await assert.rejects(()=>importComparisonReport(raw));
+ const restored=await restoreComparisonDraft(raw);assert.equal(restored.labels[0],'未完成的A');assert.equal(restored.sides[1].length,0);assert.equal(restored.sides[0][0].key,a.key);assert.deepEqual(restored.sides[0][0].reviews,[]);assert.deepEqual(restored.sides[0][0].actions,[]);
+ const bad=JSON.parse(raw);bad.sides[0][0].originalResult.overall=5;await assert.rejects(()=>restoreComparisonDraft(JSON.stringify(bad)));
+});

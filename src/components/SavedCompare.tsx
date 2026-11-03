@@ -7,18 +7,36 @@ import {useLibrary,initializeLibrary,saveLibraryRecord,saveLibraryRecords} from 
 import {useReviews,currentReviews,storeReviews} from '@/lib/review-store';
 import {currentActions,storeActions,useActions} from '@/lib/action-store';
 import {downloadJson} from '@/lib/review';
-import {aggregateRecords,changedRange,comparisonWarnings,compatibleRun,type SavedComparison} from '@/lib/comparison';
+import {aggregateRecords,changedRange,comparisonWarnings,compatibleRun,restoreComparisonDraft,type SavedComparison} from '@/lib/comparison';
 import {prepareImportedHumanState,type ImportRecord} from '@/lib/import-report';
+import {readTabDraft,writeTabDraft,protectTabDraft} from '@/lib/tab-drafts';
 import {priorityDimension} from '@/lib/review-overview';
 import type {ScoredDimensionId} from '@/lib/types';
 import {DIMENSIONS,SCORED_DIMENSIONS} from '@/lib/dimensions';
 import {formatRange} from '@/lib/stats';
 
+const EMPTY_COMPARE_DRAFT={report:'',dimension:''};
 function TextDifference({text,other}:{text:string;other:string}){const range=changedRange(text,other);return <article className="compare-original">{text.slice(0,range.start)}<mark>{text.slice(range.start,range.end)}</mark>{text.slice(range.end)}</article>;}
 /* Compare saved observations; a declared condition is not a quality certificate. */
 export function SavedCompare(){
  const library=useLibrary(),reviews=useReviews(),actionState=useActions();const [a,setA]=useState<ImportRecord[]>([]),[b,setB]=useState<ImportRecord[]>([]),[nameA,setNameA]=useState('版本A'),[nameB,setNameB]=useState('版本B'),[manualDimension,setDimension]=useState<{signature:string;id:ScoredDimensionId}|null>(null),[message,setMessage]=useState('');
- useEffect(()=>{let active=true;initializeLibrary().then(data=>{if(!active)return;const key=new URLSearchParams(location.search).get('record');const r=data.records.find(r=>r.key===key);if(r)setA([r]);});return()=>{active=false;};},[]);
+ const [workspaceReady,setWorkspaceReady]=useState(false),[workspaceVolatile,setWorkspaceVolatile]=useState(false);
+ useEffect(()=>{let active=true;initializeLibrary().then(async data=>{
+   const draft=readTabDraft('comparison-workspace',EMPTY_COMPARE_DRAFT);let restored:SavedComparison|undefined;
+   try{if(draft.value.report)restored=await restoreComparisonDraft(draft.value.report);}catch(e){protectTabDraft('comparison-workspace');if(active)setMessage((e as Error).message+'；旧对照草稿未覆盖，可以重新选择材料。');}
+   if(!active)return;
+   if(restored){setA(restored.sides[0]);setB(restored.sides[1]);setNameA(restored.labels[0]);setNameB(restored.labels[1]);if(SCORED_DIMENSIONS.includes(draft.value.dimension as ScoredDimensionId))setDimension({signature:JSON.stringify(restored.sides.map(side=>side.map(r=>r.key))),id:draft.value.dimension as ScoredDimensionId});setMessage('已恢复本标签页未完成的对照；人工复核仍读取独立记录。');}
+   const requested=new URLSearchParams(location.search).get('record'),record=data.records.find(r=>r.key===requested);
+   if(record&&record.key!==restored?.sides[0][0]?.key){setA([record]);setNameA('版本A');setDimension(null);}
+   setWorkspaceVolatile(!draft.saved);setWorkspaceReady(true);
+ });return()=>{active=false;};},[]);
+ useEffect(()=>{if(!workspaceReady)return;
+   const hasWork=a.length||b.length||nameA!=='版本A'||nameB!=='版本B',pair=JSON.stringify([a.map(r=>r.key),b.map(r=>r.key)]);
+   const raw=hasWork?JSON.stringify({version:1,kind:'saved-results-comparison',labels:[nameA,nameB],sides:[a,b].map(side=>side.map(r=>({...r,reviews:[],actions:[]})))}):'';
+   const saved=writeTabDraft('comparison-workspace',{report:raw,dimension:manualDimension?.signature===pair?manualDimension.id:''});
+   Promise.resolve().then(()=>{setWorkspaceVolatile(!saved.saved);if(!saved.saved)setMessage(saved.notice);});
+ },[a,b,nameA,nameB,manualDimension,workspaceReady]);
+ useEffect(()=>{if(!workspaceVolatile)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[workspaceVolatile]);
  const sides=[{label:nameA,setName:setNameA,records:a,set:setA,letter:'A'},{label:nameB,setName:setNameB,records:b,set:setB,letter:'B'}];
  const complete=a.length>0&&b.length>0,statsA=a.length?aggregateRecords(a):null,statsB=b.length?aggregateRecords(b):null,warnings=complete?comparisonWarnings(a[0],b[0]):[];
  const signature=JSON.stringify([a.map(r=>r.key),b.map(r=>r.key)]),recommended=priorityDimension(a,b,reviews.items);
@@ -34,11 +52,11 @@ export function SavedCompare(){
  }
  function report(){return {version:1,kind:'saved-results-comparison',labels:[nameA,nameB],sides:[a,b].map(records=>records.map(r=>({...r,reviews:currentReviews().filter(v=>v.key===r.key),actions:currentActions().filter(v=>v.key===r.key)}))),warnings,limits:['只描述保存的记录，不宣称显著性、因果改善或发布许可','相同原文的重复记录也不代表受控独立实验','条件来自用户和文件声明，未作认证']};}
  return <><div className="eval-intro"><h1>两份结果，<br/>哪些差异值得改？</h1><p>用自己的已评测结果对照原文、理由和人工分歧。无需Key，不重新调用模型；原始记录不会被改写。</p></div>
- <ComparisonImport onImport={restoreComparison}/>
- <div className="saved-compare-inputs">{sides.map(side=><section className="comparison-slot" key={side.letter} aria-label={'版本'+side.letter+'资料'}><div className="slot-title"><b>{side.letter}</b><label>版本名称<input value={side.label} maxLength={80} onChange={e=>side.setName(e.target.value)}/></label></div>
- <label className="review-field">从本机资料库选择<select aria-label={'选择版本'+side.letter+'材料'} value={library.data.records.some(r=>r.key===side.records[0]?.key)?side.records[0]?.key:''} onChange={e=>{const r=library.data.records.find(r=>r.key===e.target.value);side.set(r?[r]:[]);}}><option value="">选择材料，或在下方导入</option>{library.data.records.map(r=><option key={r.key} value={r.key} title={r.name}>{Array.from(r.name).length>12?Array.from(r.name).slice(0,12).join('')+'…':r.name} · {r.sourceText.length}字 · 原均分{r.originalResult.overall.toFixed(2)}/5 · {r.originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {r.originalResult.meta.at} · {r.originalResult.meta.model}</option>)}</select></label>
- <details className="comparison-material-details"><summary>导入或查看记录声明</summary><ImportPanel disabled={false} onImport={r=>load(r,side.set)}/>
- {side.records.length>0&&<><p className="replay-note">{side.records[0].sourceText.length}字 · 原均分{side.records[0].originalResult.overall.toFixed(2)}/5 · {side.records[0].originalResult.meta.model} · {side.records[0].originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {side.records[0].originalResult.meta.at} · {side.records.length}份保存记录，来源声明未经认证</p><details className="repeat-runs"><summary>追加同文重复记录（可选）</summary><p>仅列出同一原文、相同模型与相同声明条件的不同记录。缺失条件仍会显示提醒；不会把同一份记录重复计数。</p>{library.data.records.filter(r=>compatibleRun(side.records[0],r)).map(r=><label key={r.key}><input type="checkbox" checked={side.records.some(v=>v.key===r.key)} disabled={side.records.length>=20&&!side.records.some(v=>v.key===r.key)} onChange={e=>side.set(e.target.checked?[...side.records,r]:side.records.filter(v=>v.key!==r.key))}/>{r.name} · 原均分{r.originalResult.overall.toFixed(2)}/5 · {r.originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {r.originalResult.meta.at}</label>)}{!library.data.records.some(r=>compatibleRun(side.records[0],r))&&<p>资料库暂无匹配的同文运行。</p>}</details></>}
+ <p className="replay-note" role="status">{workspaceReady?'对照进度暂存本标签页；原始记录与人工判断仍分别保存。':'正在恢复本标签页对照草稿…'}</p><ComparisonImport disabled={!workspaceReady} onImport={restoreComparison}/>
+ <div className="saved-compare-inputs">{sides.map(side=><section className="comparison-slot" key={side.letter} aria-label={'版本'+side.letter+'资料'}><div className="slot-title"><b>{side.letter}</b><label>版本名称<input disabled={!workspaceReady} value={side.label} maxLength={80} onChange={e=>side.setName(e.target.value)}/></label></div>
+ <label className="review-field">从本机资料库选择<select disabled={!workspaceReady} aria-label={'选择版本'+side.letter+'材料'} value={library.data.records.some(r=>r.key===side.records[0]?.key)?side.records[0]?.key:''} onChange={e=>{const r=library.data.records.find(r=>r.key===e.target.value);side.set(r?[r]:[]);}}><option value="">选择材料，或在下方导入</option>{library.data.records.map(r=><option key={r.key} value={r.key} title={r.name}>{Array.from(r.name).length>12?Array.from(r.name).slice(0,12).join('')+'…':r.name} · {r.sourceText.length}字 · 原均分{r.originalResult.overall.toFixed(2)}/5 · {r.originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {r.originalResult.meta.at} · {r.originalResult.meta.model}</option>)}</select></label>
+ <details className="comparison-material-details"><summary>导入或查看记录声明</summary><ImportPanel draftId={'compare-'+side.letter} disabled={!workspaceReady} onImport={r=>load(r,side.set)}/>
+ {side.records.length>0&&<><p className="replay-note">{side.records[0].sourceText.length}字 · 原均分{side.records[0].originalResult.overall.toFixed(2)}/5 · {side.records[0].originalResult.meta.model} · {side.records[0].originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {side.records[0].originalResult.meta.at} · {side.records.length}份保存记录，来源声明未经认证</p><details className="repeat-runs"><summary>追加同文重复记录（可选）</summary><p>仅列出同一原文、相同模型与相同声明条件的不同记录。缺失条件仍会显示提醒；不会把同一份记录重复计数。</p>{library.data.records.filter(r=>compatibleRun(side.records[0],r)).map(r=><label key={r.key}><input type="checkbox" checked={side.records.some(v=>v.key===r.key)} disabled={!workspaceReady||side.records.length>=20&&!side.records.some(v=>v.key===r.key)} onChange={e=>side.set(e.target.checked?[...side.records,r]:side.records.filter(v=>v.key!==r.key))}/>{r.name} · 原均分{r.originalResult.overall.toFixed(2)}/5 · {r.originalResult.meta.time_basis==='import-time'?'导入时刻':'记录时间声明'} {r.originalResult.meta.at}</label>)}{!library.data.records.some(r=>compatibleRun(side.records[0],r))&&<p>资料库暂无匹配的同文运行。</p>}</details></>}
  </details></section>)}</div>
  <p role="status" className="replay-note">{[message,library.notice,...[reviews.notice,actionState.notice].filter(n=>/不可用|暂留|无法恢复|未被覆盖/.test(n))].filter(Boolean).join(' ')}</p>
  {!complete&&<div className="compare-await"><b>先选两份结果。</b><p>可以直接导入两份现有复核JSON。没有评测结果？先用自己的文本生成外部任务包，或体验一组历史对照。</p><Link href="/#my-text">用我的文本开始 →</Link></div>}

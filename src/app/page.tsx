@@ -22,6 +22,8 @@ import { DIMENSIONS, SCORED_DIMENSIONS } from "@/lib/dimensions";
 import { useSettings } from "@/lib/settings";
 import type { EvaluationResult, ScoredDimensionId } from "@/lib/types";
 import type { ComparisonConditions } from '@/lib/task-package';
+import {readTabDraft,writeTabDraft} from '@/lib/tab-drafts';
+const EMPTY_SOURCE_DRAFT={text:'',active:false};
 function subscribeURL(cb:()=>void){window.addEventListener('popstate',cb);return()=>window.removeEventListener('popstate',cb);}
 export default function EvaluatePage(){const query=useSyncExternalStore(subscribeURL,()=>location.search,()=>"");return <EvaluateWorkspace key={query} initialQuery={query}/>;}
 function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
@@ -35,23 +37,26 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  const [conditions,conditionsSet]=useState<ComparisonConditions|undefined>(),library=useLibrary(),actions=useActions();
  const request=useRef<AbortController|null>(null),resultPanel=useRef<HTMLElement>(null),sourceDoc=useRef<HTMLElement>(null);
  const reviews=useReviews();
- function importRecord(record:ImportRecord,restored=false){
+ const [unfinished,setUnfinished]=useState(''),[transientSource,setTransientSource]=useState(false);
+ useEffect(()=>{if(!transientSource)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[transientSource]);
+ function keepSourceInactive(){const prior=readTabDraft('unfinished-source',EMPTY_SOURCE_DRAFT);const saved=writeTabDraft('unfinished-source',{...prior.value,active:false});setTransientSource(!saved.saved);}
+ function importRecord(record:ImportRecord,restored=false,focus=true){
   const human=prepareImportedHumanState(record,currentReviews(),currentActions());
   let nextConditions=record.conditions,message=restored?'已恢复保存的材料；本机复核独立保留。':'已导入，原始评分与评语完整保留；外部声明未经认证。';
   try{const saved=saveLibraryRecord(record,record.name?.trim()||record.sourceText.slice(0,28).replace(/\s+/g,' ')||record.fileName);nextConditions=saved.records.find(r=>r.key===record.key)?.conditions;}catch(e){message=(e as Error).message;}
-  storeReviews(human.reviews);storeActions(human.actions);
+  storeReviews(human.reviews);storeActions(human.actions);if(!restored)keepSourceInactive();
   request.current?.abort();request.current=null;busySet(false);textSet(record.sourceText);resultSet(record.originalResult);externalSet(record.key);originSet('external');fileSet(record.fileName);errorSet(null);
-  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');conditionsSet(nextConditions);noticeSet(message);mobileSet('review');requestAnimationFrame(()=>{resultPanel.current?.focus({preventScroll:true});resultPanel.current?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
+  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');conditionsSet(nextConditions);noticeSet(message);mobileSet('review');if(focus)requestAnimationFrame(()=>{resultPanel.current?.focus({preventScroll:true});resultPanel.current?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
  }
  // Restoring browser storage is an external event. Dimension changes must not restart it.
- const restoreRecord=useEffectEvent((record:ImportRecord)=>importRecord(record,true));
+ const restoreRecord=useEffectEvent((record:ImportRecord)=>importRecord(record,true,false));
  useEffect(()=>{
   let active=true;
-  initializeLibrary().then(data=>{if(!active||new URLSearchParams(initialQuery).has('sample'))return;const requested=new URLSearchParams(initialQuery).get('record'),record=data.records.find(r=>r.key===(requested||data.activeKey));if(record){try{restoreRecord(record);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}else if(requested)noticeSet('此资料不在当前浏览器。可导入原JSON恢复，未把历史案例冒充所选资料。');});
+  initializeLibrary().then(data=>{if(!active)return;const params=new URLSearchParams(initialQuery),draft=readTabDraft('unfinished-source',EMPTY_SOURCE_DRAFT);setUnfinished(draft.value.text);if(!params.has('sample')&&!params.has('record')&&draft.value.active){textSet(draft.value.text);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');mobileSet('source');setTransientSource(!draft.saved);noticeSet('已恢复未评原文；旧分数仍失效。'+draft.notice);return;}if(params.has('sample'))return;const requested=params.get('record'),record=data.records.find(r=>r.key===(requested||data.activeKey));if(record){try{restoreRecord(record);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}else if(requested)noticeSet('此资料不在当前浏览器。可导入原JSON恢复，未把历史案例冒充所选资料。');});
   return()=>{active=false;request.current?.abort();};
  },[initialQuery]); // Explicit history links always win over the saved import.
  useEffect(()=>()=>request.current?.abort(),[settings.baseUrl,settings.model,settings.apiKey]);
- function showSample(id:string,index=0){const item=replayItem(id),r=item.runs[index]??item.runs[0];sampleSet(item.id);runSet(index);textSet(item.text);resultSet(r);originSet('history');externalSet('');conditionsSet(undefined);quoteSet(r.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');errorSet(null);noticeSet('历史记录原分不变；复核意见单独保存。');}
+ function showSample(id:string,index=0){keepSourceInactive();const item=replayItem(id),r=item.runs[index]??item.runs[0];sampleSet(item.id);runSet(index);textSet(item.text);resultSet(r);originSet('history');externalSet('');conditionsSet(undefined);quoteSet(r.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');errorSet(null);noticeSet('历史记录原分不变；复核意见单独保存。');}
  function chooseDimension(id:ScoredDimensionId){dimSet(id);quoteSet(result?.dimensions.find(d=>d.id===id)?.evidence[0]??'');}
  async function run(){errorSet(null);if(!hasKey){errorSet('尚未配置模型接口。你的材料已保留，可以导入已有结果继续复核，或前往设置后明确发起评测。');return;}const c=new AbortController();request.current=c;busySet(true);resultSet(null);try{const [r]=await evaluateText(text,1,settings,c.signal);if(request.current!==c)return;resultSet(r);originSet('run');externalSet('');quoteSet(r.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');collectBadCases(r,'single');}catch(e){if(request.current===c)errorSet((e as Error).message);}finally{if(request.current===c){request.current=null;busySet(false);}}}
  const key=result?(origin==='external'?externalKey:recordKey(origin==='history'?sampleId:'own',runIndex,text,result)):'';
@@ -60,7 +65,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  const selected=result?.dimensions.find(d=>d.id===dimension),located=quote?locateEvidence(text,quote):null;
  const next=SCORED_DIMENSIONS.slice(SCORED_DIMENSIONS.indexOf(dimension)+1).concat(SCORED_DIMENSIONS.slice(0,SCORED_DIMENSIONS.indexOf(dimension)+1)).find(id=>!mine.some(r=>r.dimension===id&&r.state!=='unreviewed'));
  useEffect(()=>{const node=resultPanel.current;if(node&&key&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const a=node.animate([{opacity:.7,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:180});return()=>a.cancel();}},[key,dimension]);
- function editText(value:string){textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。输入仍保留，不会自动切回历史样本。');}
+ function editText(value:string){const saved=writeTabDraft('unfinished-source',{text:value,active:true});setUnfinished(value);setTransientSource(!saved.saved);mobileSet('source');textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。'+saved.notice);}
  return <>
  <div className="eval-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><p>并置原文、引文与评语。保留模型原分，单独记录你的判断。</p></div>
  <ReviewOverview/>
@@ -71,6 +76,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <details className="history-source"><summary>更换历史记录 <span>{origin==='history'?replayItem(sampleId).label:'浏览内置对照样本'}</span></summary>
  <div className="replay-selects history-toolbar"><label className="replay-picker">历史样本<select aria-label="选择历史样本" disabled={busy} value={sampleId} onChange={e=>showSample(e.target.value)}>{REPLAY_ITEMS.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></label><label className="replay-picker">历史运行<select aria-label="选择历史运行" disabled={busy} value={runIndex} onChange={e=>showSample(sampleId,Number(e.target.value))}>{replayItem(sampleId).runs.map((_,i)=><option key={i} value={i}>第{i+1}次记录</option>)}</select></label><button disabled={busy} onClick={()=>showSample(sampleId,runIndex)}>载入所选历史记录</button><Link href={`/compare/?sample=${sampleId}&dimension=${dimension}`} title={origin==='history'?undefined:'历史示例不包含当前材料，不会比较当前导入结果。'}>{origin==='history'?'查看版本比较 →':'查看历史对照示例 →'}</Link></div>
  </details></div></section>
+ {unfinished&&origin!=='own'&&<button className="unfinished-source" disabled={busy} onClick={()=>editText(unfinished)}>恢复未评原文（使当前评测失效）</button>}
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span>{library.data.records.some(r=>r.key===key)?<Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>:<span>此材料尚未入库，前往对照前请先导出JSON。</span>}{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
  <p className="library-notice" role="status">{library.notice}</p>

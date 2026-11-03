@@ -28,7 +28,8 @@
     "../src/lib/comparison.ts",
     "../src/lib/api.ts",
     "../src/lib/review-overview.ts",
-    "../src/lib/aigc-example.ts"
+    "../src/lib/aigc-example.ts",
+    "../src/lib/tab-drafts.ts"
   ],
   "exclude": [
     "../node_modules"

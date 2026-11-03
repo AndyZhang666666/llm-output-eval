@@ -13,3 +13,5 @@
 @media(prefers-reduced-motion:no-preference){.aigc-dimensions button,.aigc-quote{transition:background .15s,color .15s}.aigc-quote:active{transform:translateY(1px)}}
 
 .demo-tools,.demo-help{--text:var(--eval-ink);--border:var(--eval-line);--panel:var(--eval-paper);--muted:var(--eval-muted);--accent:var(--eval-accent)}
+
+.task-draft-notice{font-size:12px;line-height:1.8;margin:10px 0;color:var(--eval-muted)}.unfinished-source{font-size:12px;min-height:44px;text-decoration:underline;color:var(--eval-accent);text-underline-offset:4px;margin-bottom:12px}
