@@ -6,12 +6,13 @@ import type {ImportRecord} from '@/lib/import-report';
 /* Intent: a writer brings a text and uses an AI they already have. The handoff,
    not connection settings, is the focal action; the red Swiss rule marks progress. */
 export function ExternalTaskPanel({onImport,disabled,seedText}:{onImport:(record:ImportRecord)=>void;disabled:boolean;seedText?:string}){
+ const panel=useRef<HTMLDetailsElement>(null);
  const [text,setText]=useState(''),[raw,setRaw]=useState(''),[model,setModel]=useState(''),[at,setAt]=useState(''),[used,setUsed]=useState(false),[temperature,setTemperature]=useState('');
  const [packed,setPacked]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),ticket=useRef(0);
  async function prepare(){try{const value=buildTaskPackage(text);setPacked(value);setNotice('任务包已准备；请在你使用的AI中运行，完成后返回这里。');try{await navigator.clipboard.writeText(value);setNotice('完整任务包已复制。本站不会获知外部对话，返回结果须由你粘贴。');}catch{setNotice('剪贴板不可用，请展开下方任务包全选复制。');}}catch(e){setNotice((e as Error).message);}}
- async function accept(){const id=++ticket.current;setBusy(true);setNotice('');try{const r=await importTaskResponse(text,raw,model,at?new Date(at).toISOString():new Date().toISOString(),used,at?'declared-run':'import-time');if(temperature!==''){const t=Number(temperature);if(!Number.isFinite(t)||t<0||t>2)throw Error('温度须为0到2');r.conditions={...r.conditions,temperature:t};}if(ticket.current===id){onImport(r);setNotice('结果已检查并打开。原分、原评语和外部引用均保留。');}}catch(e){if(ticket.current===id)setNotice((e as Error).message+'；当前复核材料未被替换。');}finally{if(ticket.current===id)setBusy(false);}}
+ async function accept(){const id=++ticket.current;setBusy(true);setNotice('');try{const r=await importTaskResponse(text,raw,model,at?new Date(at).toISOString():new Date().toISOString(),used,at?'declared-run':'import-time');if(temperature!==''){const t=Number(temperature);if(!Number.isFinite(t)||t<0||t>2)throw Error('温度须为0到2');r.conditions={...r.conditions,temperature:t};}if(ticket.current===id){onImport(r);if(panel.current)panel.current.open=false;setNotice('结果已检查并打开。原分、原评语和外部引用均保留。');}}catch(e){if(ticket.current===id)setNotice((e as Error).message+'；当前复核材料未被替换。');}finally{if(ticket.current===id)setBusy(false);}}
  function invalidate(value:string){ticket.current++;setBusy(false);setText(value);setPacked('');setRaw('');setUsed(false);setNotice('原文变化后需复制新的任务包，旧返回内容已清空。');}
- return <details className="external-task" id="my-text"><summary><span>用我的文本完成评测</span><small>无需本站 Key · 使用你已有的 AI</small></summary><div className="task-handoff">
+ return <details ref={panel} className="external-task" id="my-text"><summary><span>用我的文本完成评测</span><small>无需本站 Key · 使用你已有的 AI</small></summary><div className="task-handoff">
   <p>这里专注短剧、故事等创意文本的五维评测。你负责在外部AI中运行，本站检查返回格式并帮助复核，不代替服务商认证。</p>
   <ol className="task-steps"><li><b>01</b> 准备原文</li><li><b>02</b> 交给已有AI</li><li><b>03</b> 带回结果复核</li></ol>
   <label className="review-field">我的原文<textarea aria-label="外部任务原文" disabled={busy||disabled} value={text} onChange={e=>invalidate(e.target.value)} maxLength={20000} rows={5} placeholder="粘贴你的故事或剧本，最多20000字符"/></label>

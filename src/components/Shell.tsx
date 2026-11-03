@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import {ExportReceipt} from "./ExportReceipt";
+import EvalHelp from "./EvalHelp";
 import { SettingsDialog } from "./SettingsDialog";
 import { useSettings } from "@/lib/settings";
 
@@ -11,6 +13,7 @@ const NAV = [
   { href: "/compare", label: "版本对照", en: "" },
   { href: "/bad-cases", label: "低分记录", en: "" },
   { href: "/validation", label: "裁判校验", en: "" },
+  { href: "/aigc", label: "AIGC 规则对照", en: "" },
   { href: "/iteration", label: "迭代记录", en: "" },
 ];
 
@@ -74,7 +77,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </header>
+      <EvalHelp/>
       <main className="eval-main mx-auto max-w-6xl px-4 py-6">{children}</main>
+      <ExportReceipt/>
       <footer className="eval-footer mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-zinc-600">
         默认是历史回放。自有文本可交给已有AI评测，再带回结果复核；本站不观察外部执行。可选接口仅在明确请求时调用，Key只留当前页面内存。
         {notice}

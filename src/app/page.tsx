@@ -7,11 +7,12 @@ import { ImportPanel } from "@/components/ImportPanel";
 import { ExternalTaskPanel } from "@/components/ExternalTaskPanel";
 import { LibraryPanel } from "@/components/LibraryPanel";
 import { ActionList } from "@/components/ActionList";
+import { ReviewOverview } from "@/components/ReviewOverview";
 import { ErrorBanner } from "@/components/ui";
 import { evaluateText } from "@/lib/api";
 import { collectBadCases } from "@/lib/badcases";
 import { REPLAY_ITEMS, replayItem } from "@/lib/replay";
-import { recordKey, REVIEW_STATES } from "@/lib/review";
+import { recordKey, REVIEW_STATES, downloadText } from "@/lib/review";
 import { useReviews, storeReviews, currentReviews } from "@/lib/review-store";
 import { prepareImportedHumanState, reportMarkdown, type ImportRecord } from "@/lib/import-report";
 import { initializeLibrary,saveLibraryRecord,useLibrary } from '@/lib/library-store';
@@ -40,7 +41,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
   try{const saved=saveLibraryRecord(record,record.name?.trim()||record.sourceText.slice(0,28).replace(/\s+/g,' ')||record.fileName);nextConditions=saved.records.find(r=>r.key===record.key)?.conditions;}catch(e){message=(e as Error).message;}
   storeReviews(human.reviews);storeActions(human.actions);
   request.current?.abort();request.current=null;busySet(false);textSet(record.sourceText);resultSet(record.originalResult);externalSet(record.key);originSet('external');fileSet(record.fileName);errorSet(null);
-  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');conditionsSet(nextConditions);noticeSet(message);
+  quoteSet(record.originalResult.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');conditionsSet(nextConditions);noticeSet(message);mobileSet('review');requestAnimationFrame(()=>{resultPanel.current?.focus({preventScroll:true});resultPanel.current?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
  }
  // Restoring browser storage is an external event. Dimension changes must not restart it.
  const restoreRecord=useEffectEvent((record:ImportRecord)=>importRecord(record,true));
@@ -62,6 +63,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  function editText(value:string){textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。输入仍保留，不会自动切回历史样本。');}
  return <>
  <div className="eval-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><p>并置原文、引文与评语。保留模型原分，单独记录你的判断。</p></div>
+ <ReviewOverview/>
  <section className="material-toolbar" aria-label="选择待复核材料">
  <ExternalTaskPanel disabled={busy} seedText={text} onImport={r=>importRecord(r)}/>
  <LibraryPanel disabled={busy} onOpen={r=>{try{importRecord(r,true);}catch(e){noticeSet((e as Error).message+'；当前材料未被替换。');}}}/>
@@ -82,7 +84,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <p className="replay-note">{origin==='external'?`${fileName} · 模型、时间与原分为文件声明，未作认证。`:origin==='history'?replayItem(sampleId).note:'修改原文后需重新评测或导入匹配的结果。'}</p>
  <details className="record-meta"><summary>原始记录声明</summary>{result&&<p>{result.meta.model} · {result.meta.time_basis==='import-time'?'导入时间（外部运行时间未声明）：':''}{result.meta.at}{origin==='external'?' · 仅为文件声明，未经认证':''}</p>}</details><div className="review-actions">{hasKey?<button onClick={run} disabled={busy||!text.trim()}>{busy?'正在评测…':'使用已配置接口评测'}</button>:<a href="#my-text" onClick={()=>{const panel=document.getElementById('my-text');if(panel instanceof HTMLDetailsElement)panel.open=true;}}>用已有AI评测这段原文</a>}{busy&&<button onClick={()=>request.current?.abort()}>取消</button>}{loaded&&!hasKey&&<button onClick={()=>document.getElementById("interface-settings")?.click()}>配置接口（可选）</button>}</div>
  </section>
- <section ref={resultPanel} className="eval-results review-column" aria-label="当前维度评语与复核">{result&&selected?<>
+ <section ref={resultPanel} id="review-workspace" tabIndex={-1} className="eval-results review-column" aria-label="当前维度评语与复核">{result&&selected?<>
  <div className="current-dimension"><div><p>当前维度 · 原始评分</p><h2>{DIMENSIONS[dimension].labelZh}</h2></div><strong>{selected.score}<small>/5</small></strong></div>
  <details className="rubric-inspect"><summary>评分标准 · 这档与相邻档差在哪里？</summary><p className="replay-note">以下为本工具现有五维标准；外部记录是否实际使用，由导入声明决定。</p><ol>{DIMENSIONS[dimension].anchors.map((anchor,i)=><li key={i} data-current={i+1===selected.score}><b>{i+1}分{i+1===selected.score?' · 原评分':''}</b><span>{anchor}</span></li>)}</ol></details>
  <p className="judge-comment">{selected.comment||'原记录没有评语。'}</p>
@@ -90,7 +92,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} conditions={conditions} showContext={false} compact/></div>
  <button className="next-review" disabled={!next} onClick={()=>next&&chooseDimension(next)}>{next?'下一项待复核 →':'五维已复核，可导出报告'}</button>
  <details className="safety-detail"><summary>原始安全分类（不作为发布许可）</summary><SafetyCard s={result.safety}/></details>
- <button className="primary markdown-export" onClick={()=>{const value=reportMarkdown(key,text,result,reviews.items,sourceLabel,actions.items),url=URL.createObjectURL(new Blob([value],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='eval-review.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}>导出报告 · 未解决事项在前</button>
+ <button className="primary markdown-export" onClick={()=>{downloadText(reportMarkdown(key,text,result,reviews.items,sourceLabel,actions.items),'eval-review.md');}}>导出报告 · 未解决事项在前</button>
  </>:<div className="review-empty">{busy?'等待本次返回，不展示旧分数。':'当前原文没有有效评测。请导入匹配的结果，或配置接口后明确发起评测；原文不会被历史样本替换。'}</div>}</section></div></div>
  {result&&<ActionList recordKey={key} canAdd={false}/>}
  </>;
