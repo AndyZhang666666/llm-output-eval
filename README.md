@@ -1,6 +1,72 @@
 # Eval Lab · 文本评测工作台
 
-2026-11-09 布局细节：手机导航七项完整可见；短文稿提示紧随正文。保留原瑞士风格、评分与草稿约定。[前后截图、测量和验证](docs/LAYOUT-POLISH-20261109.md)。
+带自己的文稿来，留下审阅依据，对照修改前后的版本。也可以打开历史评测，核对模型评分和评语是否有原文支持。
+
+[审阅自己的文稿](https://andyzhang666666.github.io/llm-output-eval/workspace/) · [先看历史案例](https://andyzhang666666.github.io/llm-output-eval/) · [设计取舍](docs/PRODUCT-DEPTH-20261109.md) · [English](README.en.md)
+
+> 人工审阅无需模型密钥。历史模型输出单独回放，人工意见与模型原分分别保留。
+
+![Eval Lab 实际界面：原文、人工依据与修改版本](docs/assets/product-depth-20261109/manual-desktop.png)
+
+## 先体验一次
+
+1. 进入「我的文稿」，粘贴一段自己的文字，说明用途并保存初稿。
+2. 引用原句、记录观察，建立处理项，再保存一份修改稿。对照两版，检查改动针对了什么问题。
+3. 导出 Markdown 审阅记录或完整 JSON 报告。JSON 可在新浏览器中检查、确认后恢复，继续审阅。
+
+手上没有文稿，可以从[历史案例](https://andyzhang666666.github.io/llm-output-eval/)开始：选一个维度，点击评语引用，再留下支持、存疑或需要上下文的判断。
+
+## 为什么保留人的判断
+
+引用能在原文中找到，还需要判断评语是否成立、标准是否适合这篇文稿。工具把原始评分、人工依据和改稿处理分开保存；关联了修改稿，也仍需重新核对问题有没有解决。没有模型评测的文稿会明确显示「尚无模型评测」。
+
+## 三种使用方式
+
+| 方式 | 可以做什么 | 来源与边界 |
+| --- | --- | --- |
+| 自己的文稿 | 记录用途、人工审阅、处理项和版本对照，导出完整报告 | 本机人工审阅，不自动生成模型分数 |
+| 历史评测 | 查看 6 个样本的 18 次保存输出，定位引用并复核 | 历史记录回放，不是新一轮模型运行 |
+| 带回模型结果 | 复制任务包到自己的 AI，带回 JSON；也可自行配置可选接口 | 外部执行与来源信息由用户声明；合成格式练习另行标注 |
+
+五维标准、模型原分与历史校准结果保持独立。资料库满额时不会自动淘汰记录；重要内容可以导出备份。
+
+## 本地运行
+
+使用 Node.js 20，在完整仓库根目录执行：
+
+```sh
+npm ci
+npm run dev
+```
+
+打开 `http://localhost:3000/llm-output-eval/workspace/`。人工审阅与历史回放均无需 Key。
+
+复现程序检查与静态构建：
+
+```sh
+npm run test:core
+npm run check:replay
+npm run build
+```
+
+这些检查不调用付费模型；历史裁判校准另有运行方式与记录。
+
+## 设计与验证资料
+
+[当前发布记录 · 2026-11-09](docs/RELEASE-20261109.md) · [本轮功能与数据约定](docs/PRODUCT-DEPTH-20261109.md) · [界面设计](docs/DESIGN.md) · [历史裁判校准](validation/judge-validation.md) · [验证说明](docs/VALIDATION.md) · [更新记录](CHANGELOG.md) · [PR 检查](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+
+[全部作品](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
+
+## 本轮界面打磨
+
+2026-11-09：手机完整显示七项导航，短文稿的提示紧随正文。原瑞士网格、五维评分和草稿约定保持。[前后截图、测量与验证范围](docs/LAYOUT-POLISH-20261109.md)。
+
+## 迭代沿革与历史验证
+
+<details>
+<summary>展开各轮原始说明与实现记录</summary>
+
+以下保留各轮原始说明。“本地”“尚未发布”等措辞描述对应日期的阶段状态；当前功能和部署状态以 [2026-11-09 发布记录](docs/RELEASE-20261109.md) 为准。历史记录中的功能限制和验证数字沿用当时口径。
 
 2026-11-09 获批发布：个人文稿人工审阅、用途解释、处理项与修改稿、完整报告往返，以及大报告和20,000字符输入保护。原始评分与五维标准不变。源码基线 `66a13b4`；[本批发布与部署验证](docs/RELEASE-20261109.md)。下面的开发预览说明保留为阶段历史。
 
@@ -253,5 +319,7 @@ validation/
   results/                 三份原始 JSON
   judge-validation.md      报告
 ```
+
+</details>
 
 </details>
