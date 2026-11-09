@@ -57,6 +57,10 @@ These checks do not call a paid model. Historical judge calibration has its own 
 
 [All projects](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.en.md)
 
+## Interface follow-up
+
+2026-11-09: all seven mobile navigation labels remain visible; the source note follows short manuscript content. The Swiss grid, scoring and draft contracts are preserved. [Measurements, screenshots and verification scope](docs/LAYOUT-POLISH-20261109.md).
+
 ## Iteration history and earlier verification
 
 <details>

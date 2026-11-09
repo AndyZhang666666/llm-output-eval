@@ -57,6 +57,10 @@ npm run build
 
 [全部作品](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
 
+## 本轮界面打磨
+
+2026-11-09：手机完整显示七项导航，短文稿的提示紧随正文。原瑞士网格、五维评分和草稿约定保持。[前后截图、测量与验证范围](docs/LAYOUT-POLISH-20261109.md)。
+
 ## 迭代沿革与历史验证
 
 <details>

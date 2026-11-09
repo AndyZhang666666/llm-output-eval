@@ -1,7 +1,8 @@
 {
   "project": "llm-output-eval",
-  "approved_source_sha": "66a13b4551a9cccaeafb7d8ab3a308c808ec99c8",
+  "approved_source_sha": "e06732230b37464b14e1745ca0bd9ea685c6f61e",
   "release_date": "2026-11-09",
-  "release_scope": "personal-manuscripts-and-review-depth",
-  "model_calls_required": false
+  "release_scope": "visible-seven-item-navigation-and-manuscript-spacing",
+  "model_calls_required": false,
+  "previous_approved_source_sha": "66a13b4551a9cccaeafb7d8ab3a308c808ec99c8"
 }

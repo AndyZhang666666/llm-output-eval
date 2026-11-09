@@ -1,0 +1,517 @@
+{
+  "phase": "after",
+  "base": "http://127.0.0.1:8893/llm-output-eval",
+  "sourceText": "她打开母亲留下的信。信里没有秘密，只有一个回家的地址。她把行李收好，决定明天出发。",
+  "date": "2026-11-09T14:24:31.867Z",
+  "measurements": [
+    {
+      "width": 1280,
+      "nav": {
+        "rect": {
+          "x": 210,
+          "y": 13,
+          "width": 599.40625,
+          "height": 40,
+          "top": 13,
+          "right": 809.40625,
+          "bottom": 53,
+          "left": 210
+        },
+        "scrollWidth": 599,
+        "clientWidth": 599,
+        "links": [
+          {
+            "label": "文本复核",
+            "href": "/llm-output-eval/",
+            "rect": {
+              "x": 210,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 288,
+              "bottom": 53,
+              "left": 210
+            },
+            "current": null
+          },
+          {
+            "label": "我的文稿",
+            "href": "/llm-output-eval/workspace/",
+            "rect": {
+              "x": 291,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 369,
+              "bottom": 53,
+              "left": 291
+            },
+            "current": "page"
+          },
+          {
+            "label": "版本对照",
+            "href": "/llm-output-eval/compare/",
+            "rect": {
+              "x": 372,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 450,
+              "bottom": 53,
+              "left": 372
+            },
+            "current": null
+          },
+          {
+            "label": "低分记录",
+            "href": "/llm-output-eval/bad-cases/",
+            "rect": {
+              "x": 453,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 531,
+              "bottom": 53,
+              "left": 453
+            },
+            "current": null
+          },
+          {
+            "label": "裁判校验",
+            "href": "/llm-output-eval/validation/",
+            "rect": {
+              "x": 534,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 612,
+              "bottom": 53,
+              "left": 534
+            },
+            "current": null
+          },
+          {
+            "label": "AIGC 规则对照",
+            "href": "/llm-output-eval/aigc/",
+            "rect": {
+              "x": 615,
+              "y": 13,
+              "width": 113.40625,
+              "height": 40,
+              "top": 13,
+              "right": 728.40625,
+              "bottom": 53,
+              "left": 615
+            },
+            "current": null
+          },
+          {
+            "label": "迭代记录",
+            "href": "/llm-output-eval/iteration/",
+            "rect": {
+              "x": 731.40625,
+              "y": 13,
+              "width": 78,
+              "height": 40,
+              "top": 13,
+              "right": 809.40625,
+              "bottom": 53,
+              "left": 731.40625
+            },
+            "current": null
+          }
+        ]
+      },
+      "source": {
+        "panel": {
+          "x": 211,
+          "y": 432.484375,
+          "width": 506.5,
+          "height": 214.625,
+          "top": 432.484375,
+          "right": 717.5,
+          "bottom": 647.109375,
+          "left": 211
+        },
+        "article": {
+          "x": 211,
+          "y": 519.578125,
+          "width": 506.5,
+          "height": 92.78125,
+          "top": 519.578125,
+          "right": 717.5,
+          "bottom": 612.359375,
+          "left": 211
+        },
+        "text": {
+          "x": 211,
+          "y": 541.578125,
+          "width": 496,
+          "height": 47.390625,
+          "top": 541.578125,
+          "right": 707,
+          "bottom": 588.96875,
+          "left": 211
+        },
+        "note": {
+          "x": 211,
+          "y": 624.359375,
+          "width": 506.5,
+          "height": 22.75,
+          "top": 624.359375,
+          "right": 717.5,
+          "bottom": 647.109375,
+          "left": 211
+        },
+        "computedMinHeight": "0px",
+        "gap": 35.390625
+      },
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "nav": {
+        "rect": {
+          "x": 22,
+          "y": 58.625,
+          "width": 724,
+          "height": 48,
+          "top": 58.625,
+          "right": 746,
+          "bottom": 106.625,
+          "left": 22
+        },
+        "scrollWidth": 724,
+        "clientWidth": 724,
+        "links": [
+          {
+            "label": "文本复核",
+            "href": "/llm-output-eval/",
+            "rect": {
+              "x": 22,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 100,
+              "bottom": 102.625,
+              "left": 22
+            },
+            "current": null
+          },
+          {
+            "label": "我的文稿",
+            "href": "/llm-output-eval/workspace/",
+            "rect": {
+              "x": 103,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 181,
+              "bottom": 102.625,
+              "left": 103
+            },
+            "current": "page"
+          },
+          {
+            "label": "版本对照",
+            "href": "/llm-output-eval/compare/",
+            "rect": {
+              "x": 184,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 262,
+              "bottom": 102.625,
+              "left": 184
+            },
+            "current": null
+          },
+          {
+            "label": "低分记录",
+            "href": "/llm-output-eval/bad-cases/",
+            "rect": {
+              "x": 265,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 343,
+              "bottom": 102.625,
+              "left": 265
+            },
+            "current": null
+          },
+          {
+            "label": "裁判校验",
+            "href": "/llm-output-eval/validation/",
+            "rect": {
+              "x": 346,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 424,
+              "bottom": 102.625,
+              "left": 346
+            },
+            "current": null
+          },
+          {
+            "label": "AIGC 规则对照",
+            "href": "/llm-output-eval/aigc/",
+            "rect": {
+              "x": 427,
+              "y": 58.625,
+              "width": 113.40625,
+              "height": 44,
+              "top": 58.625,
+              "right": 540.40625,
+              "bottom": 102.625,
+              "left": 427
+            },
+            "current": null
+          },
+          {
+            "label": "迭代记录",
+            "href": "/llm-output-eval/iteration/",
+            "rect": {
+              "x": 543.40625,
+              "y": 58.625,
+              "width": 78,
+              "height": 44,
+              "top": 58.625,
+              "right": 621.40625,
+              "bottom": 102.625,
+              "left": 543.40625
+            },
+            "current": null
+          }
+        ]
+      },
+      "source": {
+        "panel": {
+          "x": 22,
+          "y": 685.671875,
+          "width": 353,
+          "height": 214.625,
+          "top": 685.671875,
+          "right": 375,
+          "bottom": 900.296875,
+          "left": 22
+        },
+        "article": {
+          "x": 22,
+          "y": 772.765625,
+          "width": 353,
+          "height": 92.78125,
+          "top": 772.765625,
+          "right": 375,
+          "bottom": 865.546875,
+          "left": 22
+        },
+        "text": {
+          "x": 22,
+          "y": 794.765625,
+          "width": 352,
+          "height": 47.390625,
+          "top": 794.765625,
+          "right": 374,
+          "bottom": 842.15625,
+          "left": 22
+        },
+        "note": {
+          "x": 22,
+          "y": 877.546875,
+          "width": 353,
+          "height": 22.75,
+          "top": 877.546875,
+          "right": 375,
+          "bottom": 900.296875,
+          "left": 22
+        },
+        "computedMinHeight": "0px",
+        "gap": 35.390625
+      },
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "nav": {
+        "rect": {
+          "x": 16,
+          "y": 60.625,
+          "width": 358,
+          "height": 94,
+          "top": 60.625,
+          "right": 374,
+          "bottom": 154.625,
+          "left": 16
+        },
+        "scrollWidth": 358,
+        "clientWidth": 358,
+        "links": [
+          {
+            "label": "文本复核",
+            "href": "/llm-output-eval/",
+            "rect": {
+              "x": 16,
+              "y": 60.625,
+              "width": 89.5,
+              "height": 44,
+              "top": 60.625,
+              "right": 105.5,
+              "bottom": 104.625,
+              "left": 16
+            },
+            "current": null
+          },
+          {
+            "label": "我的文稿",
+            "href": "/llm-output-eval/workspace/",
+            "rect": {
+              "x": 105.5,
+              "y": 60.625,
+              "width": 89.5,
+              "height": 44,
+              "top": 60.625,
+              "right": 195,
+              "bottom": 104.625,
+              "left": 105.5
+            },
+            "current": "page"
+          },
+          {
+            "label": "版本对照",
+            "href": "/llm-output-eval/compare/",
+            "rect": {
+              "x": 195,
+              "y": 60.625,
+              "width": 89.5,
+              "height": 44,
+              "top": 60.625,
+              "right": 284.5,
+              "bottom": 104.625,
+              "left": 195
+            },
+            "current": null
+          },
+          {
+            "label": "低分记录",
+            "href": "/llm-output-eval/bad-cases/",
+            "rect": {
+              "x": 284.5,
+              "y": 60.625,
+              "width": 89.5,
+              "height": 44,
+              "top": 60.625,
+              "right": 374,
+              "bottom": 104.625,
+              "left": 284.5
+            },
+            "current": null
+          },
+          {
+            "label": "裁判校验",
+            "href": "/llm-output-eval/validation/",
+            "rect": {
+              "x": 16,
+              "y": 106.625,
+              "width": 119.328125,
+              "height": 44,
+              "top": 106.625,
+              "right": 135.328125,
+              "bottom": 150.625,
+              "left": 16
+            },
+            "current": null
+          },
+          {
+            "label": "AIGC 规则对照",
+            "href": "/llm-output-eval/aigc/",
+            "rect": {
+              "x": 135.328125,
+              "y": 106.625,
+              "width": 119.328125,
+              "height": 44,
+              "top": 106.625,
+              "right": 254.65625,
+              "bottom": 150.625,
+              "left": 135.328125
+            },
+            "current": null
+          },
+          {
+            "label": "迭代记录",
+            "href": "/llm-output-eval/iteration/",
+            "rect": {
+              "x": 254.65625,
+              "y": 106.625,
+              "width": 119.34375,
+              "height": 44,
+              "top": 106.625,
+              "right": 374,
+              "bottom": 150.625,
+              "left": 254.65625
+            },
+            "current": null
+          }
+        ]
+      },
+      "source": {
+        "panel": {
+          "x": 16,
+          "y": 393.15625,
+          "width": 358,
+          "height": 214.625,
+          "top": 393.15625,
+          "right": 374,
+          "bottom": 607.78125,
+          "left": 16
+        },
+        "article": {
+          "x": 16,
+          "y": 480.25,
+          "width": 358,
+          "height": 92.78125,
+          "top": 480.25,
+          "right": 374,
+          "bottom": 573.03125,
+          "left": 16
+        },
+        "text": {
+          "x": 16,
+          "y": 502.25,
+          "width": 352,
+          "height": 47.390625,
+          "top": 502.25,
+          "right": 368,
+          "bottom": 549.640625,
+          "left": 16
+        },
+        "note": {
+          "x": 16,
+          "y": 585.03125,
+          "width": 358,
+          "height": 22.75,
+          "top": 585.03125,
+          "right": 374,
+          "bottom": 607.78125,
+          "left": 16
+        },
+        "computedMinHeight": "0px",
+        "gap": 35.390625
+      },
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "modelCalls": 0
+}
