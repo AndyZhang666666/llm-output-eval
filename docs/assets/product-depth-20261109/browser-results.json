@@ -1,0 +1,64 @@
+{
+  "status": "pass",
+  "widths": [
+    1280,
+    768,
+    390
+  ],
+  "reducedMotion": true,
+  "tasks": [
+    "manual original→applicability→source action→revision→comparison→Markdown/JSON",
+    "synthetic return→calibration→independent purpose→report",
+    "exact-source linking; wrong-source reject",
+    "fresh-context upload→impact→restore",
+    "sentence-completion comparison→existing complete-arc sample"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "controls": [
+    {
+      "label": "新建文稿",
+      "height": 44
+    },
+    {
+      "label": "人设一致性\n待审阅",
+      "height": 58
+    },
+    {
+      "label": "剧情连贯性\n待审阅",
+      "height": 58
+    },
+    {
+      "label": "节奏与钩子密度\n待审阅",
+      "height": 58
+    },
+    {
+      "label": "对白自然度\n待审阅",
+      "height": 58
+    },
+    {
+      "label": "结构完整性\n已留意见",
+      "height": 58
+    },
+    {
+      "label": "适用于这次用途\n不适用于这次用途\n需要更多上下文",
+      "height": 44
+    },
+    {
+      "label": "使用选中的原文",
+      "height": 44
+    },
+    {
+      "label": "保存这一维人工意见",
+      "height": 44
+    },
+    {
+      "label": "加入处理清单",
+      "height": 44
+    },
+    {
+      "label": "移除",
+      "height": 44
+    }
+  ]
+}
