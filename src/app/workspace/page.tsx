@@ -16,6 +16,7 @@ import {commentGloss} from '@/lib/comment-gloss';
 import {useTabDraft} from '@/lib/use-tab-draft';
 import {writeTabDraft,readTabDraft} from '@/lib/tab-drafts';
 import {changedRange,comparisonWarnings} from '@/lib/comparison';
+import {useReviewContexts} from '@/lib/context-store';
 import {ImportPanel} from '@/components/ImportPanel';
 import {ActionList} from '@/components/ActionList';
 const NEW_DRAFT={text:'',name:'',purpose:'complete'};
@@ -23,7 +24,7 @@ const RESTORE_DRAFT={raw:''};
 const REFINE_DRAFT={text:'',name:'',purpose:'',picked:''};
 
 export default function ManuscriptWorkspace(){
- const store=useManuscripts(),library=useLibrary(),actions=useActions(),reviews=useReviews();
+ const store=useManuscripts(),library=useLibrary(),actions=useActions(),reviews=useReviews(),contexts=useReviewContexts();
  const [newMode,setNewMode]=useState(false),[dimension,setDimension]=useState<ScoredDimensionId>('structure'),[mobile,setMobile]=useState('source'),[notice,setNotice]=useState(''),[compareId,setCompareId]=useState(''),[compareRecords,setCompareRecords]=useState({left:'',right:''});
  const [draft,setDraft,draftStatus]=useTabDraft('manuscript-new',NEW_DRAFT),[restore,setRestore,restoreStatus]=useTabDraft('manuscript-restore',RESTORE_DRAFT);
  const [pending,setPending]=useState<Awaited<ReturnType<typeof importManuscriptReport>>|null>(null),[loading,setLoading]=useState(false);
@@ -31,7 +32,7 @@ export default function ManuscriptWorkspace(){
  useEffect(()=>{initializeLibrary();},[]);
  useEffect(()=>{if(!store.data.projects.length||!/暂留|不可用|未覆盖/.test(store.notice))return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[store.data.projects.length,store.notice]);
  const project=store.data.projects.find(p=>p.id===store.data.activeProjectId),revision=project?.revisions.find(r=>r.id===project.activeRevisionId);
- const availableRecords=[...new Map([...(project?.assessmentSnapshots||[]),...library.data.records].map(r=>[r.key,r])).values()];
+ const availableRecords=[...new Map([...(project?.assessmentSnapshots||[]),...library.data.records].map(r=>[r.key,r])).values()].map(record=>({...record,reviewContext:contexts.items[record.key]??record.reviewContext}));
  const modelRecords=revision?availableRecords.filter(r=>revision.assessmentKeys.includes(r.key)):[];
  const applicableActions=project?actions.items.filter(a=>project.revisions.some(r=>r.assessmentKeys.includes(a.key)||revisionActionKey(r.id)===a.key)):[];
  function persist(next:Manuscript){storeManuscripts(putManuscript(currentManuscripts(),next));}
@@ -56,7 +57,7 @@ export default function ManuscriptWorkspace(){
   {(newMode||!project)&&<section className="manuscript-create" aria-label="建立自己的文稿"><h2>从自己的文本开始</h2><p>先保存初稿，后面的修改会形成新版本；原文不会在后台被重写。</p><div className="manuscript-create-fields"><label className="review-field">文稿名称<input value={draft.name} maxLength={100} onChange={e=>setDraft({...draft,name:e.target.value})}/></label><label className="review-field">这份材料的用途<select value={draft.purpose} onChange={e=>setDraft({...draft,purpose:e.target.value as Purpose})}>{Object.entries(PURPOSES).map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label></div><label className="review-field">原文<textarea aria-label="建立文稿的原文" rows={8} maxLength={20000} value={draft.text} onChange={e=>setDraft({...draft,text:e.target.value})}/></label><div className="review-actions"><button disabled={!store.ready||!draftStatus.ready||!draft.text.trim()} className="primary" onClick={create}>保存初稿，进入人工审阅</button>{project&&<button onClick={()=>setNewMode(false)}>收起，保留输入草稿</button>}</div><p className="replay-note" role="status">{draftStatus.notice}</p></section>}
   <p className="manuscript-notice" role="status">{notice||store.notice}</p>
   {project&&revision&&!newMode&&<>
-   <div className="manuscript-scope"><label>当前文稿<select aria-label="当前文稿" value={project.id} onChange={e=>{const p=store.data.projects.find(p=>p.id===e.target.value);if(p)activate(p);}}>{store.data.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><p>{PURPOSES[revision.purpose]} · {revision.sourceText.length}字 · {project.revisions.length}/20个版本</p><div className="review-actions"><button onClick={()=>downloadText(manuscriptMarkdown(project,library.data.records,reviews.items,actions.items),'eval-manuscript-review.md')}>导出审阅 Markdown</button><button onClick={()=>downloadJson(manuscriptReport(project,library.data.records,reviews.items,actions.items),'eval-manuscript-review.json')}>导出完整文稿 JSON</button><button onClick={removeProject}>删除此文稿</button></div></div>
+   <div className="manuscript-scope"><label>当前文稿<select aria-label="当前文稿" value={project.id} onChange={e=>{const p=store.data.projects.find(p=>p.id===e.target.value);if(p)activate(p);}}>{store.data.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><p>{PURPOSES[revision.purpose]} · {revision.sourceText.length}字 · {project.revisions.length}/20个版本</p><div className="review-actions"><button onClick={()=>downloadText(manuscriptMarkdown(project,library.data.records,reviews.items,actions.items,contexts.items),'eval-manuscript-review.md')}>导出审阅 Markdown</button><button onClick={()=>downloadJson(manuscriptReport(project,library.data.records,reviews.items,actions.items,contexts.items),'eval-manuscript-review.json')}>导出完整文稿 JSON</button><button onClick={removeProject}>删除此文稿</button></div></div>
    <div className="manuscript-layout"><aside className="manuscript-versions" aria-label="文稿版本"><h2>保留过的版本</h2>{project.revisions.map((r,i)=><button key={r.id} aria-pressed={revision.id===r.id} onClick={()=>activate(project,r.id)}><span>V{i+1}</span><strong>{r.name}</strong><small>{PURPOSES[r.purpose]} · {r.assessmentKeys.length?'有模型记录':'仅人工审阅'}</small></button>)}<p>正文固定保存，编辑请建立修改稿。</p></aside>
     <div className="manuscript-main"><div className="review-mobile-tabs" role="group" aria-label="文稿工作面板"><button aria-pressed={mobile==='source'} onClick={()=>setMobile('source')}>原文</button><button aria-pressed={mobile==='review'} onClick={()=>setMobile('review')}>人工审阅</button></div>
      <div className="manuscript-desk" data-mobile={mobile}><section className="manuscript-source" aria-label="当前文稿原文"><div className="review-heading"><h2>{revision.name}</h2><b>{modelRecords.length?'原始模型记录已关联':'尚无模型评测'}</b></div><p className="purpose-warning">{purposeWarning(revision)}</p><article id="manuscript-source" ref={source} tabIndex={0} className="source-document">{revision.sourceText}</article><p className="replay-note">选中原文可以带入人工引用。人工意见不会改写原始评价。</p></section>

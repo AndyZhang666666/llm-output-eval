@@ -2,7 +2,7 @@ import {SCORED_DIMENSIONS,DIMENSIONS} from './dimensions';
 import {decodeActions,type ReviewAction} from './actions';
 import {reportMarkdown,recordFromPayload,validateReviewPayload,type ImportRecord} from './import-report';
 import type {Review} from './review';
-import {PURPOSES,type Purpose,APPLICABILITY} from './review-context';
+import {PURPOSES,type Purpose,APPLICABILITY,validateReviewContext,type ReviewContext} from './review-context';
 export {PURPOSES,type Purpose,APPLICABILITY} from './review-context';
 export const MANUSCRIPT_STORAGE='llm-output-eval:manuscripts:v2';
 export const MAX_MANUSCRIPT_BYTES=8*1024*1024;
@@ -72,9 +72,14 @@ export function linkAssessment(project:Manuscript,revisionId:string,record:Impor
  return validateManuscript({...project,assessmentSnapshots:project.assessmentSnapshots.some(r=>r.key===record.key)?project.assessmentSnapshots:[...project.assessmentSnapshots,{...record,reviews:[],actions:[]}],revisions:project.revisions.map(r=>r.id===revisionId?{...r,assessmentKeys:[...new Set([...r.assessmentKeys,record.key])]}:r)});
 }
 export function purposeWarning(revision:TextRevision){return revision.purpose==='complete'?'当前声明为完整短篇；五维标准是否适用仍由人核对。':revision.purpose==='undeclared'?'材料用途尚未声明，不能默认完整性标准适用。':'开场、片段或其他用途可能不要求完整叙事弧；保留模型原分，另记适用性，不据此自动宣布改稿更好。';}
-export function manuscriptReport(project:Manuscript,records:ImportRecord[],reviews:Review[],actions:ReviewAction[]){
+export function manuscriptReport(project:Manuscript,records:ImportRecord[],reviews:Review[],actions:ReviewAction[],contexts:Record<string,ReviewContext>={}){
  const available=[...new Map([...project.assessmentSnapshots,...records].map(r=>[r.key,r])).values()];
- const own=available.filter(r=>project.revisions.some(v=>v.assessmentKeys.includes(r.key)));
+ // Single-record interpretation is mutable human metadata, not an original score
+ // or a manuscript observation. Capture the current layer without editing either.
+ const own=available.filter(r=>project.revisions.some(v=>v.assessmentKeys.includes(r.key))).map(record=>{
+  const context=contexts[record.key]??record.reviewContext;
+  return context?{...record,reviewContext:validateReviewContext(context)}:record;
+ });
  const manualKeys=project.revisions.map(v=>revisionActionKey(v.id));
  return {version:2,kind:'manuscript-review' as const,project:validateManuscript(project),manualActions:actions.filter(a=>manualKeys.includes(a.key)),assessments:own.map(r=>({...r,version:1,recordKey:r.key,reviews:reviews.filter(v=>v.key===r.key),actions:actions.filter(a=>a.key===r.key)})),limits:['人工审阅不等于模型评测，没有模型结果不生成分数','版本正文独立保存，处理项关联不等于问题已解决或已重新评测','模型声明和复核结论保持独立；用途不同不直接宣布赢家']};
 }
@@ -88,14 +93,14 @@ export async function importManuscriptReport(raw:string){
  const manualActions=decodeActions(p.manualActions);if(manualActions.some(a=>!project.revisions.some(v=>revisionActionKey(v.id)===a.key)))throw Error('人工处理项不属于这份文稿');
  return {project:validateManuscript({...project,assessmentSnapshots:assessments.map(r=>({...r,reviews:[],actions:[]}))}),assessments,manualActions};
 }
-export function manuscriptMarkdown(project:Manuscript,records:ImportRecord[],reviews:Review[],actions:ReviewAction[]){
- const r=manuscriptReport(project,records,reviews,actions),open=actions.filter(a=>a.status==='open'&&(r.assessments.some(v=>v.key===a.key)||project.revisions.some(v=>revisionActionKey(v.id)===a.key)));
+export function manuscriptMarkdown(project:Manuscript,records:ImportRecord[],reviews:Review[],actions:ReviewAction[],contexts:Record<string,ReviewContext>={}){
+ const r=manuscriptReport(project,records,reviews,actions,contexts),open=actions.filter(a=>a.status==='open'&&(r.assessments.some(v=>v.key===a.key)||project.revisions.some(v=>revisionActionKey(v.id)===a.key)));
  const pending=project.revisions.flatMap(v=>v.observations.filter(o=>o.applicability==='needs_context').map(o=>`- ${v.name} / ${DIMENSIONS[o.dimension].labelZh}：${APPLICABILITY[o.applicability]}；${o.reason||o.note||'需补充说明'}`));
  return ['# 文稿审阅与改稿报告','',`文稿：${project.name}`,'','## 尚未解决的问题与下一步',...open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh}：${a.text}`),...pending,...(!open.length&&!pending.length?['未列出问题不代表作品已通过评审。']:[]),'',...project.revisions.flatMap(v=>[
   `## ${v.name}`,`版本：${v.id}；创建时间：${v.createdAt}；用途：${PURPOSES[v.purpose]}`,`父版本：${v.parentId||'无（初稿）'}`,purposeWarning(v),'',`模型评测：${v.assessmentKeys.length?v.assessmentKeys.length+'份关联原始记录':'尚无模型评测；以下仅为人工审阅'}`,
   '### 本次准备处理的来源事项',...(v.addressedActions.length?v.addressedActions.map(a=>`- ${a.text}（来源 ${a.key}；事项 ${a.id}；关联并不表示已解决）${a.evidence?'；原文依据：'+a.evidence:''}`):['未关联处理项。']),
   '### 人工审阅',...(v.observations.length?v.observations.flatMap(o=>[`- ${DIMENSIONS[o.dimension].labelZh}：${APPLICABILITY[o.applicability]}`,`  引用：${o.evidence||'未引用'}`,`  意见：${o.note||'未填写'}`,`  适用性理由：${o.reason||'未填写'}`]):['尚无人工审阅。']),
-  '### 本版人工处理清单',...actions.filter(a=>a.key===revisionActionKey(v.id)).map(a=>`- [${a.status==='done'?'x':' '}] ${a.text}（勾选仅记录处理进度）`),'### 原文',v.sourceText,'',...r.assessments.filter(record=>v.assessmentKeys.includes(record.key)).map(record=>reportMarkdown(record.key,record.sourceText,record.originalResult,reviews,record.originalResult.meta.sample?'合成示例 / 非模型运行':'关联的原始模型记录（来源声明未认证）',actions,{purpose:v.purpose,judgments:v.observations.map(o=>({dimension:o.dimension,applicability:o.applicability,reason:o.reason})),updatedAt:v.createdAt}).replace(/^#/gm,'##')),
+  '### 本版人工处理清单',...actions.filter(a=>a.key===revisionActionKey(v.id)).map(a=>`- [${a.status==='done'?'x':' '}] ${a.text}（勾选仅记录处理进度）`),'### 原文',v.sourceText,'',...r.assessments.filter(record=>v.assessmentKeys.includes(record.key)).map(record=>['### 关联模型记录与单篇人工解释','用途与适用性来自该记录的单篇复核，与上方本版人工审阅分别保留。',reportMarkdown(record.key,record.sourceText,record.originalResult,reviews,record.originalResult.meta.sample?'合成示例 / 非模型运行':'关联的原始模型记录（来源声明未认证）',actions,record.reviewContext).replace(/^#/gm,'##')].join('\n\n')),
  ]),'## 边界',...r.limits.map(x=>'- '+x)].join('\n');
 }
 
