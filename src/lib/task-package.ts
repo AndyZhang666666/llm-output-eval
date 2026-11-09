@@ -1,5 +1,5 @@
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt } from './prompts';
-import { importedRecord, type ImportRecord } from './import-report';
+import { importedRecord, MAX_IMPORT_BYTES,type ImportRecord } from './import-report';
 import {SCORED_DIMENSIONS} from './dimensions';
 import {normalizeTaskJSON,transportFor} from './json-transport';
 export {normalizeTaskJSON} from './json-transport';
@@ -27,6 +27,7 @@ export function buildTaskPackage(sourceText: string) {
 }
 export async function importTaskResponse(sourceText: string, raw: string, model: string, at: string, usedPackage: boolean, timeBasis: 'declared-run'|'import-time'='declared-run'): Promise<ImportRecord> {
   if (!sourceText.trim() || sourceText.length > 20000) throw Error('原文须为1到20000字符');
+  if(new TextEncoder().encode(raw).length>MAX_IMPORT_BYTES)throw Error('返回结果最大1MB，当前材料未被替换');
   let value: unknown;
   try { value = JSON.parse(normalizeTaskJSON(raw)); } catch (error) { throw Error(error instanceof Error && error.message.includes('代码块') ? error.message : '返回结果不是JSON，请粘贴一个JSON对象或一个完整JSON代码块'); }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('返回结果须为JSON对象');

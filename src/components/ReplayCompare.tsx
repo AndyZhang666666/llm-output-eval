@@ -22,8 +22,7 @@ export function ReplayCompare() {
       <div className="eval-intro">
         <h1>改了以后，真的更好吗？</h1>
         <p>
-          同一故事的截断稿与句子补全稿，各保留 3
-          次历史评分。先看差异，再回到原文判断它是否值得改。
+          {control?'同一份完整闭环样本放在两侧，只用于检查自对照，不伪造两次独立评测。':'同一故事的截断稿与句子补全稿，各保留3次历史评分。先看差异，再回到原文判断它是否值得改。'}
         </p>
       </div>
       <div className="replay-toolbar" aria-label="选择对照样本">
@@ -43,7 +42,7 @@ export function ReplayCompare() {
                 samples: [a, b],
                 aggregates: [sa, sb],
                 limits: [
-                  "同故事的截断与完整历史样本，不是线上改稿实验",
+                  "同故事的截断与句子补全历史样本，不是线上改稿实验",
                   "极差只描述已保存记录，不是置信区间或显著性",
                   "同文自对照读取相同记录，不代表独立重复评测",
                 ],
@@ -67,6 +66,7 @@ export function ReplayCompare() {
               ? "两侧读取同一份原始记录，差值应为零。即便如此，单侧不同运行之间仍可能有波动。"
               : "这里只补完了胸牌姓名，并没有据此证明叙事弧完整。原始评语仍指出缺少发展和结局；请先核对标准适用性。"}
           </p>
+          {!control&&<Link href="/?sample=g01&dimension=structure">看一个完整闭环样本：押金争执 →</Link>}
         </div>
         <div className="replay-delta">
           <span>结构完整性 · 3 次均值</span>

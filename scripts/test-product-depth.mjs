@@ -18,6 +18,7 @@ test('single JSON fence is transport only; mixed commentary is rejected and valu
  assert.throws(()=>normalizeTaskJSON('notes\n```json\n{}\n```')&&JSON.parse(normalizeTaskJSON('notes\n```json\n{}\n```')));
  assert.throws(()=>normalizeTaskJSON('```json\n{}\n```\nextra'),/代码块/);
  await assert.rejects(()=>importTaskResponse(t.sourceText,'```json\n'+JSON.stringify({...r,overall:5})+'\n```','declared','2026-11-09T00:00:00Z',false),/均分/);
+ await assert.rejects(()=>importTaskResponse(t.sourceText,' '.repeat(1024*1024)+before,'declared','2026-11-09T00:00:00Z',false),/最大1MB/);
 });
 test('quick return example is always synthetic and quotes current text without certifying the prompt or a model call',async()=>{
  const text='这是验收用的合成原文。不是用户资料。',payload=exampleTaskResponse(text),r=await importTaskResponse(text,JSON.stringify(payload),'should not certify','2026-11-09T00:00:00Z',true);
@@ -80,4 +81,11 @@ test('revision-source actions and library limits reject unlinked records rather 
  let data=EMPTY_MANUSCRIPTS;for(let i=0;i<20;i++)data=putManuscript(data,createManuscript('合成材料'+i,'材料'+i,'complete','limit'+i,at));
  assert.throws(()=>putManuscript(data,createManuscript('第21份','超额','complete','limit21',at)),/最多20/);assert.equal(data.projects.length,20);
  p=linkAssessment(p,p.activeRevisionId,r);assert.equal(p.assessmentSnapshots[0].originalResult.overall,3);
+});
+
+test('damaged purpose storage remains intact while new context can be exported from memory',()=>{
+ const {CONTEXT_STORAGE,currentContexts,saveReviewContext,decodeContexts}=require('./.core-test/context-store.js'),values=new Map([[CONTEXT_STORAGE,'{broken']]);
+ globalThis.localStorage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)};
+ assert.deepEqual(currentContexts(),{});saveReviewContext('fixture-record',{purpose:'opening',judgments:[],updatedAt:at});assert.equal(values.get(CONTEXT_STORAGE),'{broken');assert.equal(currentContexts()['fixture-record'].purpose,'opening');assert.throws(()=>decodeContexts('{bad'));
+ delete globalThis.localStorage;
 });

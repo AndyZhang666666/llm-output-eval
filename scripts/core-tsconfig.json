@@ -31,7 +31,8 @@
     "../src/lib/aigc-example.ts",
     "../src/lib/tab-drafts.ts",
     "../src/lib/manuscripts.ts",
-    "../src/lib/manuscript-store.ts"
+    "../src/lib/manuscript-store.ts",
+    "../src/lib/context-store.ts"
   ],
   "exclude": [
     "../node_modules"
