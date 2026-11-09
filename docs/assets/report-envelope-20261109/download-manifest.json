@@ -1,0 +1,29 @@
+{
+  "source": "Actual browser downloads from synthetic 400KB material",
+  "files": [
+    {
+      "file": "review-report.json",
+      "bytes": 1233154,
+      "sha256": "a7e3d30ab91ea22935c821df111485063ce4c90af55a783921ea3c94c171702d",
+      "localEvidence": "/tmp/eval-report-envelope-20261109/review-report.json"
+    },
+    {
+      "file": "library-report.json",
+      "bytes": 1233153,
+      "sha256": "4e7268725683c9c3687ec26513d685be6d9ecb24f7720fc9e2fcc9b6e7c3e577",
+      "localEvidence": "/tmp/eval-report-envelope-20261109/library-report.json"
+    },
+    {
+      "file": "restored-review-report.json",
+      "bytes": 1233154,
+      "sha256": "a7e3d30ab91ea22935c821df111485063ce4c90af55a783921ea3c94c171702d",
+      "localEvidence": "/tmp/eval-report-envelope-20261109/restored-review-report.json"
+    },
+    {
+      "file": "legacy-after-draft.json",
+      "bytes": 1233154,
+      "sha256": "a7e3d30ab91ea22935c821df111485063ce4c90af55a783921ea3c94c171702d",
+      "localEvidence": "/tmp/eval-report-envelope-20261109/legacy-after-draft.json"
+    }
+  ]
+}

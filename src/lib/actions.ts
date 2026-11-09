@@ -9,6 +9,8 @@ export type ReviewAction = {
   text: string;
   status: 'open' | 'done';
   updatedAt: string;
+  /** Optional original quotation, tied to the immutable source record. */
+  evidence?: string;
 };
 export const ACTION_KINDS = { comment_check: '核查评语', source_edit: '修改原文' } as const;
 export const ACTION_STORAGE = 'llm-output-eval:actions:v1';
@@ -19,6 +21,7 @@ export function decodeActions(value: unknown): ReviewAction[] {
   return value.map((a: ReviewAction) => {
     if (!a || typeof a.id !== 'string' || !a.id || a.id.length > 200 || ids.has(a.key+'|'+a.id) || typeof a.key !== 'string' || a.key.length > 800 || !SCORED_DIMENSIONS.includes(a.dimension) || !Object.hasOwn(ACTION_KINDS, a.kind) || typeof a.text !== 'string' || !a.text.trim() || a.text.length > 500 || !['open', 'done'].includes(a.status) || typeof a.updatedAt!=='string' || a.updatedAt.length>80 || !Number.isFinite(Date.parse(a.updatedAt))) throw Error('处理清单字段无效');
     ids.add(a.key+'|'+a.id);
-    return { id: a.id, key: a.key, dimension: a.dimension, kind: a.kind, text: a.text, status: a.status, updatedAt: a.updatedAt };
+    if(a.evidence!==undefined&&(typeof a.evidence!=='string'||a.evidence.length>2000))throw Error('处理项原文依据须为不超过2000字的原句');
+    return { id: a.id, key: a.key, dimension: a.dimension, kind: a.kind, text: a.text, status: a.status, updatedAt: a.updatedAt,...(a.evidence===undefined?{}:{evidence:a.evidence}) };
   });
 }

@@ -1,5 +1,13 @@
 # Eval Lab
 
+2026-11-09 approved release: personal manuscript review, intended-use context, source-linked revisions, complete report roundtrips and bounded large-report/source editing. Original scores and the five-dimension rubric are unchanged. Approved source `66a13b4`; [release and deployment verification](docs/RELEASE-20261109.md). Earlier development-preview notes below remain historical records.
+
+2026-11-09 capacity fix: genuine downloads from a 400KB legacy material roundtrip with raw/normalized transport intact. Original material remains capped at 1MB; bounded report envelopes cannot expand it. Edits over 20,000 characters stay complete with an inline notice and new-task guard, while old large reports remain reviewable/exportable. [Checks and artifact hashes](docs/REPORT-ENVELOPE-20261109.md).
+
+2026-11-09 independent review fix: complete manuscript reports retain single-record intended-use/applicability notes separately from manuscript-version observations. Real downloads and a fresh 390px browser restore preserve both layers, original results and record IDs. [Evidence and scope](docs/REPORT-CONTEXT-20261109.md).
+
+2026-11-09 development preview — not published: review your own text without a model, record intended use and rubric applicability, link source-bound actions to an immutable revision, compare versions and restore a complete manuscript report. Synthetic JSON practice is explicitly not a model run. The original 31 checks remain unchanged; 45 checks, lint and the static production build pass. [Scope, design and evidence limits](docs/PRODUCT-DEPTH-20261109.md).
+
 2026-11-03 release batch: verified task clarity, draft recovery and final display/export details. [Release scope and validation limits](docs/RELEASE-20261103.md). Earlier local-only notes remain as history.
 
 Final display/export polish verified locally; calculation and persistence contracts retained. Unpublished. [Changes and checks](docs/FINAL-DETAIL-20261103.md).
@@ -19,7 +27,7 @@ Can a reviewer inspect the evidence behind a low score and disagree with the jud
 
 **Approved release, 2026-11-02:** Take the existing five-dimension rubric and exact judge prompt to an external AI, bring back JSON, inspect the evidence, record separate follow-up actions, and compare two personal reports without a site API key. The local library holds up to 20 records and never evicts one silently. External execution and metadata remain user declarations. Deterministic checks, a static build and integrated browser review are complete; this release ships with the portfolio. [Implementation and evidence](docs/PRODUCT-DEPTH-20261101.md).
 
-![Actual Eval Lab interface](docs/assets/visual-craft-20261102/after-desktop.jpg)
+![Actual Eval Lab manual review and revision workspace](docs/assets/product-depth-20261109/manual-desktop.png)
 
 <!-- github-evidence-20261031 -->
 
@@ -35,7 +43,7 @@ Can a reviewer inspect the evidence behind a low score and disagree with the jud
 
 1. Open a historical sample and select a low-scoring dimension.
 2. Locate its quotation in the source, then record support, doubt or a need for context.
-3. Compare the truncated and complete versions of the same story and export the review.
+3. Compare a truncated passage with its sentence-completed version, then inspect an existing complete story arc. Export original results and human reviews separately.
 
 ## Run mode and limits
 

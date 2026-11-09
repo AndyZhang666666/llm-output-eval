@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "inputBytes": 410645,
+  "reviewReportBytes": 1233154,
+  "libraryReportBytes": 1233153,
+  "sourceCharacters": 409625,
+  "checks": [
+    "EvidenceReview actual download >1MB reimports in fresh390 browser with stable source/result/key/transport",
+    "LibraryPanel actual download >1MB reimports",
+    "oversized original material rejected; active library/material unchanged",
+    "20001-character edit stays complete, invalidates current result, warns in place and blocks new task",
+    "oversized work draft restores after reload; 20000-character correction unblocks task",
+    "legacy large report remains readable/exportable after draft editing"
+  ],
+  "errors": [],
+  "externalRequests": []
+}

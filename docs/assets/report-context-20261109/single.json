@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "recordKey": "external:sha256:09d6b30cdfe49f11976dbc9874b360d883d3b2b26fd93b03788dc0da1ae0c090",
+  "sourceText": "她推开门，停了一下。门后传来父亲的脚步声。",
+  "originalResult": {
+    "exampleOnly": true,
+    "dimensions": [
+      {
+        "id": "persona",
+        "score": 3,
+        "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+        "evidence": [
+          "她推开门，停了一下。门后传来父亲的脚步声。"
+        ]
+      },
+      {
+        "id": "coherence",
+        "score": 3,
+        "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+        "evidence": [
+          "她推开门，停了一下。门后传来父亲的脚步声。"
+        ]
+      },
+      {
+        "id": "pacing",
+        "score": 3,
+        "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+        "evidence": [
+          "她推开门，停了一下。门后传来父亲的脚步声。"
+        ]
+      },
+      {
+        "id": "dialogue",
+        "score": 3,
+        "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+        "evidence": [
+          "她推开门，停了一下。门后传来父亲的脚步声。"
+        ]
+      },
+      {
+        "id": "structure",
+        "score": 3,
+        "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+        "evidence": [
+          "她推开门，停了一下。门后传来父亲的脚步声。"
+        ]
+      }
+    ],
+    "safety": {
+      "category": "none",
+      "needs_review": false,
+      "comment": "合成格式示例，未进行安全评测。",
+      "evidence": []
+    },
+    "overall": 3,
+    "meta": {
+      "model": "合成示例 · 非模型运行",
+      "at": "2026-11-09T07:37:12.881Z",
+      "time_basis": "import-time",
+      "sample": true
+    }
+  },
+  "reviews": [],
+  "limits": [
+    "复核为访客在本机记录的判断，不改动原始评分或历史校验指标",
+    "引用定位允许标点、空白与大小写归一；定位成功不等于论证成立",
+    "未复核不等于通过，安全分类不等于发布许可"
+  ],
+  "source": "合成示例返回 · 未调用模型",
+  "conditions": {},
+  "transport": {
+    "raw": "{\n  \"exampleOnly\": true,\n  \"dimensions\": [\n    {\n      \"id\": \"persona\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"coherence\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"pacing\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"dialogue\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"structure\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    }\n  ],\n  \"safety\": {\n    \"category\": \"none\",\n    \"needs_review\": false,\n    \"comment\": \"合成格式示例，未进行安全评测。\",\n    \"evidence\": []\n  },\n  \"overall\": 3\n}",
+    "normalized": "{\n  \"exampleOnly\": true,\n  \"dimensions\": [\n    {\n      \"id\": \"persona\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"coherence\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"pacing\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"dialogue\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    },\n    {\n      \"id\": \"structure\",\n      \"score\": 3,\n      \"comment\": \"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\n      \"evidence\": [\n        \"她推开门，停了一下。门后传来父亲的脚步声。\"\n      ]\n    }\n  ],\n  \"safety\": {\n    \"category\": \"none\",\n    \"needs_review\": false,\n    \"comment\": \"合成格式示例，未进行安全评测。\",\n    \"evidence\": []\n  },\n  \"overall\": 3\n}",
+    "wrapper": "plain"
+  },
+  "reviewContext": {
+    "purpose": "opening",
+    "judgments": [
+      {
+        "dimension": "structure",
+        "applicability": "not_applicable",
+        "reason": "单篇复核：这是开场片段，不要求完整结尾。"
+      }
+    ],
+    "updatedAt": "2026-11-09T07:37:13.195Z"
+  },
+  "actions": []
+}

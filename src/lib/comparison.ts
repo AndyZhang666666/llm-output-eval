@@ -3,6 +3,9 @@ import { aggregateRuns } from './stats';
 
 export function comparisonWarnings(a: ImportRecord, b: ImportRecord): string[] {
   const messages: string[] = [];
+  const purposeA=a.reviewContext?.purpose||'undeclared',purposeB=b.reviewContext?.purpose||'undeclared';
+  if(purposeA!==purposeB)messages.push('材料用途不同，原分差不能直接当作改稿收益');
+  else if(purposeA==='undeclared')messages.push('材料用途未声明，不能确认五维标准在两侧同样适用');
   if (a.originalResult.meta.model !== b.originalResult.meta.model) messages.push('模型声明不同，分差不能归因于改稿');
   else if (['未提供', '未知', 'unknown'].includes(a.originalResult.meta.model.toLowerCase())) messages.push('模型信息缺失，无法确认比较条件');
   for (const [key, label] of [['rubricId', '评分规则'], ['promptId', 'Prompt版本'], ['temperature', '温度']] as const) {

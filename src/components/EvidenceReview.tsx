@@ -12,6 +12,8 @@ import { useReviews, storeReviews, currentReviews } from "@/lib/review-store";
 import type { EvaluationResult, ScoredDimensionId } from "@/lib/types";
 import { ActionList } from './ActionList';
 import { currentActions } from '@/lib/action-store';
+import {currentContexts} from '@/lib/context-store';
+import type {ImportRecord} from '@/lib/import-report';
 import type { ComparisonConditions } from '@/lib/task-package';
 export function EvidenceReview({
   recordKey,
@@ -21,6 +23,7 @@ export function EvidenceReview({
   quote,
   sourceLabel,
   conditions,
+  importMeta,
   showContext = true,
   compact = false,
 }: {
@@ -31,6 +34,7 @@ export function EvidenceReview({
   quote: string;
   sourceLabel?: string;
   conditions?: ComparisonConditions;
+  importMeta?:Pick<ImportRecord,'transport'>;
   showContext?: boolean;
   compact?: boolean;
 }) {
@@ -132,7 +136,7 @@ export function EvidenceReview({
         <small>状态与参考分分别记录；填分不等于证据已支持。撤回不改原分或独立处理项。</small>
         <button disabled={!current} onClick={()=>store(currentReviews().filter(x=>!(x.key===recordKey&&x.dimension===dimension)))}>撤回本维度人工层</button>
       </div>
-      <ActionList key={recordKey+dimension} recordKey={recordKey} dimension={dimension} canAdd={state==='unsupported'||state==='needs_context'}/>
+      <ActionList key={recordKey+dimension} recordKey={recordKey} dimension={dimension} evidence={quote} canAdd={state==='unsupported'||state==='needs_context'}/>
       <p className="replay-note" role="status">
         {notice}
       </p>
@@ -142,7 +146,7 @@ export function EvidenceReview({
           disabled={!ready}
           onClick={() =>
             downloadJson(
-              {...reviewReport(recordKey, sourceText, result, items),source:sourceLabel||"见原记录的来源声明",conditions,actions:currentActions().filter(a=>a.key===recordKey)},
+              {...reviewReport(recordKey, sourceText, result, items),source:sourceLabel||"见原记录的来源声明",conditions,...importMeta,reviewContext:currentContexts()[recordKey],actions:currentActions().filter(a=>a.key===recordKey)},
               "eval-review.json",
             )
           }

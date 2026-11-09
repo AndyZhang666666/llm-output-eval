@@ -18,3 +18,5 @@
 
 .comment-gloss { margin:12px 0 18px; padding-left:12px; border-left:2px solid var(--eval-line); line-height:1.8; }
 .comment-gloss > span { display:block; font-size:11px; color:var(--eval-muted); margin-bottom:4px; }
+
+.calibration-summary{display:flex;justify-content:space-between;gap:24px;border-block:1px solid var(--eval-line,#ddd8cf);padding:18px 0;margin:18px 0;color:var(--eval-ink,#24241f)}.calibration-summary h2{font-size:16px;margin:0 0 8px}.calibration-summary p{font-size:14px;margin:0;line-height:1.7}.calibration-summary small{display:block;font-size:13px;color:var(--eval-muted,#625f57)}.task-declarations{margin:16px 0}.task-declarations summary{min-height:44px;cursor:pointer}.handoff-return>button{min-height:44px}@media(max-width:700px){.calibration-summary{display:block}.calibration-summary>p{margin-top:12px}}

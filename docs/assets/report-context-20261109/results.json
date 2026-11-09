@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "url": "http://127.0.0.1:8862/llm-output-eval/",
+  "checks": [
+    "single context retained in complete manuscript JSON and Markdown",
+    "version observations remain distinct even with different applicability",
+    "unchanged original result and stable record key",
+    "fresh 390 context upload → impact → restore → re-export retains both layers",
+    "malformed applicability reason does not overwrite workspace",
+    "reopened single evidence review restores original purpose/reason"
+  ],
+  "errors": []
+}

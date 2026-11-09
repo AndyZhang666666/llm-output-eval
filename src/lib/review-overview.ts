@@ -28,3 +28,9 @@ export function priorityDimension(a:ImportRecord[],b:ImportRecord[],items:Review
  ranked.sort((x,y)=>Number(y.dispute)-Number(x.dispute)||y.human-x.human||y.delta-x.delta||x.index-y.index);
  return ranked[0].id;
 }
+
+/** A distribution of human review states, not judge accuracy. */
+export function calibrationSummary(key:string,items:Review[]){
+ const own=SCORED_DIMENSIONS.map(id=>items.find(v=>v.key===key&&v.dimension===id)).filter((v):v is Review=>!!v&&v.state!=='unreviewed');
+ return {reviewed:own.length,supported:own.filter(v=>v.state==='supported').length,disputed:own.filter(v=>v.state==='unsupported').length,context:own.filter(v=>v.state==='needs_context').length,priority:own.filter(v=>v.state==='unsupported'||v.state==='needs_context').map(v=>v.dimension)};
+}
