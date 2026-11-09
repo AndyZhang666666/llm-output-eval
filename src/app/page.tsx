@@ -8,6 +8,8 @@ import { ImportPanel } from "@/components/ImportPanel";
 import { ExternalTaskPanel } from "@/components/ExternalTaskPanel";
 import { LibraryPanel } from "@/components/LibraryPanel";
 import { ActionList } from "@/components/ActionList";
+import {ReviewApplicability} from "@/components/ReviewApplicability";
+import {useReviewContexts,mergeReviewContext} from "@/lib/context-store";
 import {CalibrationSummary} from "@/components/CalibrationSummary";
 import { ReviewOverview } from "@/components/ReviewOverview";
 import { ErrorBanner } from "@/components/ui";
@@ -38,12 +40,14 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  const [busy,busySet]=useState(false),[error,errorSet]=useState<string|null>(null),[mobile,mobileSet]=useState('review');
  const [conditions,conditionsSet]=useState<ComparisonConditions|undefined>(),library=useLibrary(),actions=useActions();
  const request=useRef<AbortController|null>(null),resultPanel=useRef<HTMLElement>(null),sourceDoc=useRef<HTMLElement>(null);
- const reviews=useReviews();
+ const reviews=useReviews(),reviewContexts=useReviewContexts();
+ const [importMeta,setImportMeta]=useState<Pick<ImportRecord,"transport">>({});
  const [unfinished,setUnfinished]=useState(''),[transientSource,setTransientSource]=useState(false);
  useEffect(()=>{if(!transientSource)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[transientSource]);
  function keepSourceInactive(){const prior=readTabDraft('unfinished-source',EMPTY_SOURCE_DRAFT);const saved=writeTabDraft('unfinished-source',{...prior.value,active:false});setTransientSource(!saved.saved);}
  function importRecord(record:ImportRecord,restored=false,focus=true){
   const human=prepareImportedHumanState(record,currentReviews(),currentActions());
+  mergeReviewContext(record.key,record.reviewContext);setImportMeta({transport:record.transport});
   let nextConditions=record.conditions,message=restored?'已恢复保存的材料；本机复核独立保留。':'已导入，原始评分与评语完整保留；外部声明未经认证。';
   try{const saved=saveLibraryRecord(record,record.name?.trim()||record.sourceText.slice(0,28).replace(/\s+/g,' ')||record.fileName);nextConditions=saved.records.find(r=>r.key===record.key)?.conditions;}catch(e){message=(e as Error).message;}
   storeReviews(human.reviews);storeActions(human.actions);if(!restored)keepSourceInactive();
@@ -70,6 +74,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  function editText(value:string){const saved=writeTabDraft('unfinished-source',{text:value,active:true});setUnfinished(value);setTransientSource(!saved.saved);mobileSet('source');textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。'+saved.notice);}
  return <>
  <div className="eval-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><p>并置原文、引文与评语。保留模型原分，单独记录你的判断。</p></div>
+ <div className="workspace-entry"><Link href="/?sample=e06&dimension=structure">先复核一个案例</Link><Link className="primary" href="/workspace/">使用我的文本 · 人工审阅与改稿</Link><span>无需 Key，原分与人工判断分开。</span></div>
  <ReviewOverview/>
  <section className="material-toolbar" aria-label="选择待复核材料">
  <ExternalTaskPanel disabled={busy} seedText={text} onImport={r=>importRecord(r)}/>
@@ -99,11 +104,11 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  <p className="judge-comment">{selected.comment||'原记录没有评语。'}</p>
  {commentGloss(selected)&&<p className="comment-gloss"><span>评语释义 · 随记录提供</span>{commentGloss(selected)}</p>}
  <div className="quote-list"><p className="replay-note">原始引用 · 点击定位；定位成功不等于论证成立。</p>{selected.evidence.map((q,i)=>{const found=locateEvidence(text,q);return <button key={i} aria-pressed={q===quote} onClick={()=>{quoteSet(q);if(innerWidth<700)mobileSet('source');requestAnimationFrame(()=>sourceDoc.current?.querySelector('mark')?.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));}}><span>“{q}”</span><small>{found?'可定位':'无法定位 · 保留原引用'}</small></button>;})}</div>
- <div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} conditions={conditions} showContext={false} compact/></div>
+ <ReviewApplicability key={key} recordKey={key} dimension={dimension}/><div id="evidence-review"><EvidenceReview key={key} recordKey={key} sourceText={text} result={result} dimension={dimension} quote={quote} sourceLabel={sourceLabel} conditions={conditions} importMeta={origin==='external'?importMeta:undefined} showContext={false} compact/></div>
  <button className="next-review" disabled={!next} onClick={()=>next&&chooseDimension(next)}>{next?'下一项待复核 →':'五维已复核，可导出报告'}</button>
  <details className="safety-detail"><summary>原始安全分类（不作为发布许可）</summary><SafetyCard s={result.safety}/></details>
- <button className="primary markdown-export" onClick={()=>{downloadText(reportMarkdown(key,text,result,reviews.items,sourceLabel,actions.items),'eval-review.md');}}>导出报告 · 未解决事项在前</button>
+ <button className="primary markdown-export" onClick={()=>{downloadText(reportMarkdown(key,text,result,reviews.items,sourceLabel,actions.items,reviewContexts.items[key]),'eval-review.md');}}>导出报告 · 未解决事项在前</button>
  </>:<div className="review-empty">{busy?'等待本次返回，不展示旧分数。':'当前原文没有有效评测。请导入匹配的结果，或配置接口后明确发起评测；原文不会被历史样本替换。'}</div>}</section></div></div>
- {result&&<ActionList recordKey={key} canAdd={false}/>}
+ {result&&<><ActionList recordKey={key} canAdd={false}/><Link className="manual-task-entry" href="/workspace/" onClick={e=>{const prior=readTabDraft("manuscript-new",{text:"",name:"",purpose:"undeclared"}).value;if(prior.text&&prior.text!==text&&!window.confirm("人工文稿入口已有未提交原文。是否替换该草稿？已保存版本和原始评测不受影响。")){e.preventDefault();return;}if(prior.text!==text)writeTabDraft("manuscript-new",{text,name:"",purpose:reviewContexts.items[key]?.purpose||"undeclared"});}}>把这份原文放入改稿工作区 →</Link></>}
  </>;
 }

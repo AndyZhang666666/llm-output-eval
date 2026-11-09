@@ -29,7 +29,9 @@
     "../src/lib/api.ts",
     "../src/lib/review-overview.ts",
     "../src/lib/aigc-example.ts",
-    "../src/lib/tab-drafts.ts"
+    "../src/lib/tab-drafts.ts",
+    "../src/lib/manuscripts.ts",
+    "../src/lib/manuscript-store.ts"
   ],
   "exclude": [
     "../node_modules"

@@ -1,6 +1,8 @@
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt } from './prompts';
 import { importedRecord, type ImportRecord } from './import-report';
 import {SCORED_DIMENSIONS} from './dimensions';
+import {normalizeTaskJSON,transportFor} from './json-transport';
+export {normalizeTaskJSON} from './json-transport';
 
 // The prompt itself is unchanged. These are declared comparison conditions,
 // never a certificate that an external service obeyed the package.
@@ -36,15 +38,7 @@ export async function importTaskResponse(sourceText: string, raw: string, model:
     reviews: [],
     conditions: usedPackage&&!synthetic ? { rubricId: CURRENT_RUBRIC, promptId: CURRENT_PROMPT } : {},
   }), synthetic?'合成示例返回（未调用模型）':'外部AI返回结果');
-  return record;
-}
-
-// Only transport wrappers are removed; values and missing fields are never repaired.
-export function normalizeTaskJSON(raw:string){
- const text=raw.trim();if(!text.startsWith('```'))return text;
- const matched=/^```(?:json)?\s*\n([\s\S]*?)\n```$/i.exec(text);
- if(!matched||matched[1].includes('```'))throw Error('只接受一个完整JSON代码块，代码块之外不能有其他说明');
- return matched[1].trim();
+  return {...record,transport:transportFor(raw)};
 }
 export function exampleTaskResponse(text:string){
  if(!text.trim()||text.length>20000)throw Error('请先填入1到20000字符的原文');

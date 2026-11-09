@@ -5,16 +5,18 @@ import { ACTION_KINDS, decodeActions, type ReviewAction } from './actions';
 import type { ComparisonConditions } from './task-package';
 import { commentGloss } from './comment-gloss';
 import {calibrationSummary} from './review-overview';
+import {validateReviewContext,contextMarkdown,type ReviewContext} from './review-context';
+import {normalizeTaskJSON,transportFor,validateTransport,type JSONTransport} from './json-transport';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
-export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string };
+export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string;reviewContext?:ReviewContext;transport?:JSONTransport };
 const object = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 function string(x: unknown, name: string, max: number) { if(typeof x!=='string'||x.length>max)throw Error(`${name}须为不超过${max}字的文本`);return x; }
 function evidence(x: unknown, name: string) { if(!Array.isArray(x)||x.length>100)throw Error(`${name}须为最多100条的引用数组`);x.forEach(q=>string(q,name,10000)); }
 // Unlike model-response parsing, imports never discard unlocated quotations or fix scores.
 export function parseReviewImport(raw: string) {
   if(new TextEncoder().encode(raw).length>MAX_IMPORT_BYTES)throw Error('仅支持单份、最大1MB的 JSON');
-  let p: unknown;try{p=JSON.parse(raw);}catch{throw Error('JSON 无法解析，请检查括号、引号和文件格式');}
+  let p: unknown;try{p=JSON.parse(normalizeTaskJSON(raw));}catch(error){throw Error(error instanceof Error&&error.message.includes('代码块')?error.message:'JSON 无法解析，请检查括号、引号和文件格式；仅支持纯JSON或单个JSON代码块');}
   if(object(p)&&p.kind==='saved-results-comparison')throw Error('这是完整对照报告，请在“版本对照 → 恢复完整对照报告”导入；此入口只接收单份材料');
   return validateReviewPayload(p);
 }
@@ -54,12 +56,13 @@ export function validateReviewPayload(p:unknown) {
     if(p.conditions.temperature!==undefined){if(typeof p.conditions.temperature!=='number'||!Number.isFinite(p.conditions.temperature)||p.conditions.temperature<0||p.conditions.temperature>2)throw Error('温度须为0到2的数值');conditions.temperature=p.conditions.temperature;}
   }
   const name=p.name===undefined?undefined:string(p.name,'材料名称',100);
-  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews,actions,conditions,name};
+  const reviewContext=p.reviewContext===undefined?undefined:validateReviewContext(p.reviewContext),transport=p.transport===undefined?undefined:validateTransport(p.transport);
+  return {sourceText:p.sourceText as string,originalResult:r as unknown as EvaluationResult,reviews,actions,conditions,name,reviewContext,transport};
 }
 const canonical=(x: unknown): string => Array.isArray(x)?'['+x.map(canonical).join(',')+']':object(x)?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}':JSON.stringify(x);
 export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Promise<ImportRecord> {
   const parsed=parseReviewImport(raw);
-  return identifyRecord(parsed,fileName);
+  return identifyRecord({...parsed,transport:parsed.transport||transportFor(raw)},fileName);
 }
 export async function recordFromPayload(payload:unknown,fileName='对照报告中的材料'):Promise<ImportRecord>{return identifyRecord(validateReviewPayload(payload),fileName);}
 async function identifyRecord(parsed:ReturnType<typeof validateReviewPayload>,fileName:string):Promise<ImportRecord>{
@@ -82,13 +85,13 @@ export function prepareImportedHumanState(record:ImportRecord,currentReviews:Rev
 export function mergeImportedReviews(current: Review[], record: ImportRecord) {
   return [...current,...record.reviews.filter(r=>!current.some(x=>x.key===record.key&&x.dimension===r.dimension))].slice(-500);
 }
-export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string, actions: ReviewAction[]=[]) {
+export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string, actions: ReviewAction[]=[],context?:ReviewContext) {
   const r=reviewReport(key,text,result,items),reviews=r.reviews,calibration=calibrationSummary(key,items);
   const ownActions=actions.filter(a=>a.key===key),open=ownActions.filter(a=>a.status==='open');
   return ['# 文本评测复核报告','',`来源：${source}`,`原记录声明的模型：${result.meta.model}；${result.meta.time_basis==='import-time'?'导入时间（未声明外部运行时间）':'原记录时间声明'}：${result.meta.at}`,
     '', '## 人工复核汇总统计',`支持 ${calibration.supported} 项 · 存疑 ${calibration.disputed} 项 · 需上下文 ${calibration.context} 项（已复核 ${calibration.reviewed}/5）`,calibration.priority.length?'优先校准维度：'+calibration.priority.map(id=>DIMENSIONS[id].labelZh).join('、'):'尚无存疑或待上下文维度；不代表裁判准确。','这些是本机人工判断分布，不是模型准确率或发布结论。', '', '## 未解决事项', ...(open.length?open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh} · ${ACTION_KINDS[a.kind]}：${a.text}`):['暂无未完成处理项；这不代表内容通过或评语正确。']),
     ...reviews.filter(v=>v.state==='unsupported'||v.state==='needs_context').map(v=>`- ${DIMENSIONS[v.dimension].labelZh}：${REVIEW_STATES[v.state]}${v.note?'；'+v.note:''}`),
-    '', '## 复核概况',
+    '', '## 材料用途与标准适用性',...contextMarkdown(context),'', '## 复核概况',
     `原始五维均分：${result.overall.toFixed(2)} / 5（未被复核改写）`,
     `已复核 ${reviews.filter(x=>x.state!=='unreviewed').length}/5；存疑 ${reviews.filter(x=>x.state==='unsupported').length}；待补上下文 ${reviews.filter(x=>x.state==='needs_context').length}`,'',
     ...SCORED_DIMENSIONS.flatMap(id=>{const d=result.dimensions.find(d=>d.id===id)!,v=reviews.find(x=>x.dimension===id),gloss=commentGloss(d);return [`## ${DIMENSIONS[id].labelZh} · ${d.score}/5`,`原评语：${d.comment}`,...(gloss?['',`评语释义（随记录提供）：${gloss}`]:[]),'',...d.evidence.map(q=>`引用：${q}`),'',`复核：${REVIEW_STATES[v?.state??'unreviewed']}`,`人工参考分：${v?.humanScore===undefined?'未填写':v.humanScore+'/5'}；人工−模型差：${v?.humanScore===undefined?'暂无':v.humanScore-d.score}（人工参考不是金标）`,`备注：${v?.note||'未填写'}`,''];}),
