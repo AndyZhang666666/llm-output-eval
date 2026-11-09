@@ -1,5 +1,7 @@
 # Eval Lab
 
+2026-11-09 interface follow-up: all seven mobile navigation labels remain visible; the source note follows short manuscript content. The Swiss grid, scoring and draft contracts are preserved. [Measurements, screenshots and verification scope](docs/LAYOUT-POLISH-20261109.md).
+
 2026-11-09 approved release: personal manuscript review, intended-use context, source-linked revisions, complete report roundtrips and bounded large-report/source editing. Original scores and the five-dimension rubric are unchanged. Approved source `66a13b4`; [release and deployment verification](docs/RELEASE-20261109.md). Earlier development-preview notes below remain historical records.
 
 2026-11-09 capacity fix: genuine downloads from a 400KB legacy material roundtrip with raw/normalized transport intact. Original material remains capped at 1MB; bounded report envelopes cannot expand it. Edits over 20,000 characters stay complete with an inline notice and new-task guard, while old large reports remain reviewable/exportable. [Checks and artifact hashes](docs/REPORT-ENVELOPE-20261109.md).

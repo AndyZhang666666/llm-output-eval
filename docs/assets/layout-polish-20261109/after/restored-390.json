@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "kind": "manuscript-review",
+  "project": {
+    "id": "4abe12cf-dd49-4b14-989d-8910e5e145a4",
+    "name": "布局验收 · 短篇",
+    "createdAt": "2026-11-09T14:24:14.296Z",
+    "activeRevisionId": "fea6bb42-5c7f-42cc-a295-c218ba785bc5",
+    "revisions": [
+      {
+        "id": "4abe12cf-dd49-4b14-989d-8910e5e145a4:v1",
+        "name": "初稿",
+        "sourceText": "她打开母亲留下的信。信里没有秘密，只有一个回家的地址。她把行李收好，决定明天出发。",
+        "purpose": "complete",
+        "createdAt": "2026-11-09T14:24:14.296Z",
+        "parentId": null,
+        "observations": [
+          {
+            "dimension": "structure",
+            "note": "需要交代她为何愿意回去。",
+            "evidence": "只有一个回家的地址。",
+            "applicability": "applicable",
+            "reason": "",
+            "updatedAt": "2026-11-09T14:24:15.186Z"
+          }
+        ],
+        "addressedActions": [],
+        "assessmentKeys": []
+      },
+      {
+        "id": "fea6bb42-5c7f-42cc-a295-c218ba785bc5",
+        "name": "补充动机",
+        "sourceText": "她打开母亲留下的信。信里没有秘密，只有一个回家的地址。她把行李收好，决定明天出发。她终于不再害怕空屋。",
+        "purpose": "complete",
+        "createdAt": "2026-11-09T14:24:15.304Z",
+        "parentId": "4abe12cf-dd49-4b14-989d-8910e5e145a4:v1",
+        "observations": [],
+        "addressedActions": [],
+        "assessmentKeys": []
+      }
+    ],
+    "assessmentSnapshots": []
+  },
+  "manualActions": [],
+  "assessments": [],
+  "limits": [
+    "人工审阅不等于模型评测，没有模型结果不生成分数",
+    "版本正文独立保存，处理项关联不等于问题已解决或已重新评测",
+    "模型声明和复核结论保持独立；用途不同不直接宣布赢家"
+  ]
+}
