@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-09T09:12:57.786Z",
+  "base": "https://andyzhang666666.github.io/llm-output-eval",
+  "release": {
+    "project": "llm-output-eval",
+    "approved_source_sha": "66a13b4551a9cccaeafb7d8ab3a308c808ec99c8",
+    "release_date": "2026-11-09",
+    "release_scope": "personal-manuscripts-and-review-depth",
+    "model_calls_required": false
+  },
+  "checks": [
+    "Public /workspace/ creates own text, preserves original version, records manual evidence, creates a revision and actually exports JSON/Markdown without model results",
+    "Fresh 390px browser restores the actual public export after impact confirmation and re-exports identical manuscript/observations, with no horizontal overflow"
+  ],
+  "errors": [],
+  "mutationRequests": [],
+  "modelCalls": 0,
+  "scope": "Synthetic own text in disposable isolated browser contexts; no actual users or live model effects"
+}

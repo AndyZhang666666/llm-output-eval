@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "kind": "manuscript-review",
+  "project": {
+    "id": "c389ba9b-562b-495d-b953-603240f9f177",
+    "name": "上线验收 · 原创片段",
+    "createdAt": "2026-11-09T09:12:53.306Z",
+    "activeRevisionId": "5b9b2d9b-468d-4948-ba09-77b3b7dc53fa",
+    "revisions": [
+      {
+        "id": "c389ba9b-562b-495d-b953-603240f9f177:v1",
+        "name": "初稿",
+        "sourceText": "她推开旧书店的门，看见母亲留下的一封信。她先把书架整理好，才坐下来读信。信里没有秘密，只有一个回家的地址。",
+        "purpose": "complete",
+        "createdAt": "2026-11-09T09:12:53.306Z",
+        "parentId": null,
+        "observations": [
+          {
+            "dimension": "structure",
+            "note": "需要在前文补充她迟迟没有回家的动机。",
+            "evidence": "只有一个回家的地址。",
+            "applicability": "applicable",
+            "reason": "",
+            "updatedAt": "2026-11-09T09:12:53.426Z"
+          }
+        ],
+        "addressedActions": [],
+        "assessmentKeys": []
+      },
+      {
+        "id": "5b9b2d9b-468d-4948-ba09-77b3b7dc53fa",
+        "name": "补充动机",
+        "sourceText": "她推开旧书店的门，看见母亲留下的一封信。她先把书架整理好，才坐下来读信。信里没有秘密，只有一个回家的地址。她一直害怕回到空屋，这一次决定带着信回去。",
+        "purpose": "complete",
+        "createdAt": "2026-11-09T09:12:53.510Z",
+        "parentId": "c389ba9b-562b-495d-b953-603240f9f177:v1",
+        "observations": [],
+        "addressedActions": [],
+        "assessmentKeys": []
+      }
+    ],
+    "assessmentSnapshots": []
+  },
+  "manualActions": [],
+  "assessments": [],
+  "limits": [
+    "人工审阅不等于模型评测，没有模型结果不生成分数",
+    "版本正文独立保存，处理项关联不等于问题已解决或已重新评测",
+    "模型声明和复核结论保持独立；用途不同不直接宣布赢家"
+  ]
+}
