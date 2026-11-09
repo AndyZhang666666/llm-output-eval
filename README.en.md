@@ -1,8 +1,10 @@
 # Eval Lab
 
+2026-11-09 capacity fix: genuine downloads from a 400KB legacy material roundtrip with raw/normalized transport intact. Original material remains capped at 1MB; bounded report envelopes cannot expand it. Edits over 20,000 characters stay complete with an inline notice and new-task guard, while old large reports remain reviewable/exportable. [Checks and artifact hashes](docs/REPORT-ENVELOPE-20261109.md).
+
 2026-11-09 independent review fix: complete manuscript reports retain single-record intended-use/applicability notes separately from manuscript-version observations. Real downloads and a fresh 390px browser restore preserve both layers, original results and record IDs. [Evidence and scope](docs/REPORT-CONTEXT-20261109.md).
 
-2026-11-09 development preview — not published: review your own text without a model, record intended use and rubric applicability, link source-bound actions to an immutable revision, compare versions and restore a complete manuscript report. Synthetic JSON practice is explicitly not a model run. The original 31 checks remain unchanged; 43 checks, lint and the static production build pass. [Scope, design and evidence limits](docs/PRODUCT-DEPTH-20261109.md).
+2026-11-09 development preview — not published: review your own text without a model, record intended use and rubric applicability, link source-bound actions to an immutable revision, compare versions and restore a complete manuscript report. Synthetic JSON practice is explicitly not a model run. The original 31 checks remain unchanged; 45 checks, lint and the static production build pass. [Scope, design and evidence limits](docs/PRODUCT-DEPTH-20261109.md).
 
 2026-11-03 release batch: verified task clarity, draft recovery and final display/export details. [Release scope and validation limits](docs/RELEASE-20261103.md). Earlier local-only notes remain as history.
 

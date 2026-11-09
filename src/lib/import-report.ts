@@ -8,23 +8,53 @@ import {calibrationSummary} from './review-overview';
 import {validateReviewContext,contextMarkdown,type ReviewContext} from './review-context';
 import {normalizeTaskJSON,transportFor,validateTransport,type JSONTransport} from './json-transport';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
+// A saved report repeats the bounded original paste twice (raw + normalized)
+// and adds bounded human annotations. This is not a larger source-material gate.
+export const MAX_REVIEW_REPORT_BYTES = 12 * MAX_IMPORT_BYTES;
+const MAX_REVIEW_EXTRA_BYTES = 6 * MAX_IMPORT_BYTES;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
 export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string;reviewContext?:ReviewContext;transport?:JSONTransport };
 const object = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 function string(x: unknown, name: string, max: number) { if(typeof x!=='string'||x.length>max)throw Error(`${name}须为不超过${max}字的文本`);return x; }
 function evidence(x: unknown, name: string) { if(!Array.isArray(x)||x.length>100)throw Error(`${name}须为最多100条的引用数组`);x.forEach(q=>string(q,name,10000)); }
 // Unlike model-response parsing, imports never discard unlocated quotations or fix scores.
-export function parseReviewImport(raw: string) {
-  if(new TextEncoder().encode(raw).length>MAX_IMPORT_BYTES)throw Error('仅支持单份、最大1MB的 JSON');
+function importContainer(raw: string) {
+  const bytes=new TextEncoder().encode(raw).length;
+  if(bytes>MAX_REVIEW_REPORT_BYTES)throw Error('本工具单篇报告最大12MB；单份原始材料仍最大1MB');
   let p: unknown;try{p=JSON.parse(normalizeTaskJSON(raw));}catch(error){throw Error(error instanceof Error&&error.message.includes('代码块')?error.message:'JSON 无法解析，请检查括号、引号和文件格式；仅支持纯JSON或单个JSON代码块');}
   if(object(p)&&p.kind==='saved-results-comparison')throw Error('这是完整对照报告，请在“版本对照 → 恢复完整对照报告”导入；此入口只接收单份材料');
-  return validateReviewPayload(p);
+  if(bytes>MAX_IMPORT_BYTES){
+    if(!object(p)||typeof p.recordKey!=='string'||!/^external:sha256:[0-9a-f]{64}$/.test(p.recordKey)||!p.transport)throw Error('单份原始材料最大1MB；更大文件仅接受本工具带原始粘贴记录的单篇复核报告');
+    const parsed=validateReviewPayload(p);
+    validateSavedEnvelope(p,parsed);
+    return {parsed,expectedKey:p.recordKey};
+  }
+  return {parsed:validateReviewPayload(p),expectedKey:undefined};
+}
+export function parseReviewImport(raw:string){return importContainer(raw).parsed;}
+function validateSavedEnvelope(p:Record<string,unknown>,parsed:ReturnType<typeof validateReviewPayload>){
+  const allowed=new Set(['version','recordKey','sourceText','originalResult','reviews','limits','source','conditions','transport','reviewContext','actions','name']);
+  if(Object.keys(p).some(key=>!allowed.has(key)))throw Error('单篇报告包含未识别的信封字段；原始材料仍最大1MB');
+  if(p.source!==undefined&&(typeof p.source!=='string'||p.source.length>1000))throw Error('报告来源说明须为1000字以内文本');
+  if(p.limits!==undefined&&(!Array.isArray(p.limits)||p.limits.length>20||p.limits.some(x=>typeof x!=='string'||x.length>2000)))throw Error('报告边界说明格式无效');
+  const extra=Object.fromEntries(Object.entries(p).filter(([key])=>!['sourceText','originalResult','transport'].includes(key)));
+  if(new TextEncoder().encode(JSON.stringify(extra)).length>MAX_REVIEW_EXTRA_BYTES)throw Error('复核报告附加说明超过6MB，原始材料未变化');
+  let original:unknown;try{original=JSON.parse(parsed.transport!.normalized);}catch{throw Error('原始粘贴记录不是JSON，不能作为大报告的原材料依据');}
+  if(!object(original))throw Error('原始粘贴记录须为JSON对象');
+  if(original.version===1&&object(original.originalResult)){
+    if(original.sourceText!==parsed.sourceText||canonical(original.originalResult)!==canonical(parsed.originalResult))throw Error('报告原文或原始结果与保留的粘贴记录不一致；未改写材料');
+  }else{
+    // External-task returns contain the result only. Source and declared metadata
+    // were added by that task, whose text capacity remains 20,000 characters.
+    if(parsed.sourceText.length>20000||!Array.isArray(original.dimensions)||!object(original.safety)||canonical({...original,meta:parsed.originalResult.meta})!==canonical(parsed.originalResult))throw Error('报告结果与外部任务原始返回不一致，或任务原文超过20000字符');
+  }
 }
 // Internal containers validate the same structure, after their own byte gate.
 // Envelope metadata must not make a once-valid external file unreadable.
 export function validateReviewPayload(p:unknown) {
   if(!object(p)||p.version!==1||!object(p.originalResult))throw Error('需要 version:1、sourceText、originalResult 与可选 reviews；请使用模板');
   string(p.sourceText,'原文',600000);if(!(p.sourceText as string).trim())throw Error('原文不能为空');
+  if(new TextEncoder().encode(JSON.stringify({sourceText:p.sourceText,originalResult:p.originalResult})).length>MAX_IMPORT_BYTES)throw Error('原文与原始评测材料最大1MB；报告信封不能扩大原材料上限');
   const r=p.originalResult;
   if(!Array.isArray(r.dimensions)||r.dimensions.length!==5)throw Error('只支持创意文本的五个既有维度');
   const ids=new Set();
@@ -61,8 +91,10 @@ export function validateReviewPayload(p:unknown) {
 }
 const canonical=(x: unknown): string => Array.isArray(x)?'['+x.map(canonical).join(',')+']':object(x)?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}':JSON.stringify(x);
 export async function importedRecord(raw: string,fileName='粘贴的 JSON'): Promise<ImportRecord> {
-  const parsed=parseReviewImport(raw);
-  return identifyRecord({...parsed,transport:parsed.transport||transportFor(raw)},fileName);
+  const {parsed,expectedKey}=importContainer(raw);
+  const record=await identifyRecord({...parsed,transport:parsed.transport||transportFor(raw)},fileName);
+  if(expectedKey&&record.key!==expectedKey)throw Error('报告标识与完整原文、原始结果不一致，未导入任何材料');
+  return record;
 }
 export async function recordFromPayload(payload:unknown,fileName='对照报告中的材料'):Promise<ImportRecord>{return identifyRecord(validateReviewPayload(payload),fileName);}
 async function identifyRecord(parsed:ReturnType<typeof validateReviewPayload>,fileName:string):Promise<ImportRecord>{
