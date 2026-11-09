@@ -1,5 +1,6 @@
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt } from './prompts';
 import { importedRecord, type ImportRecord } from './import-report';
+import {SCORED_DIMENSIONS} from './dimensions';
 
 // The prompt itself is unchanged. These are declared comparison conditions,
 // never a certificate that an external service obeyed the package.
@@ -25,14 +26,28 @@ export function buildTaskPackage(sourceText: string) {
 export async function importTaskResponse(sourceText: string, raw: string, model: string, at: string, usedPackage: boolean, timeBasis: 'declared-run'|'import-time'='declared-run'): Promise<ImportRecord> {
   if (!sourceText.trim() || sourceText.length > 20000) throw Error('原文须为1到20000字符');
   let value: unknown;
-  try { value = JSON.parse(raw); } catch { throw Error('返回结果不是JSON，请只粘贴JSON对象，不含代码围栏'); }
+  try { value = JSON.parse(normalizeTaskJSON(raw)); } catch (error) { throw Error(error instanceof Error && error.message.includes('代码块') ? error.message : '返回结果不是JSON，请粘贴一个JSON对象或一个完整JSON代码块'); }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('返回结果须为JSON对象');
-  if (!model.trim()) throw Error('请声明外部模型名称；不知道时可填“未提供”');
+  const synthetic=(value as Record<string,unknown>).exampleOnly===true;
+  if (!model.trim()&&!synthetic) throw Error('请声明外部模型名称；不知道时可填“未提供”');
   const record = await importedRecord(JSON.stringify({
     version: 1, sourceText,
-    originalResult: { ...value, meta: { model: model.trim(), at, time_basis:timeBasis, sample: false } },
+    originalResult: { ...value, meta: { model: synthetic?'合成示例 · 非模型运行':model.trim(), at, time_basis:timeBasis, sample: synthetic } },
     reviews: [],
-    conditions: usedPackage ? { rubricId: CURRENT_RUBRIC, promptId: CURRENT_PROMPT } : {},
-  }), '外部AI返回结果');
+    conditions: usedPackage&&!synthetic ? { rubricId: CURRENT_RUBRIC, promptId: CURRENT_PROMPT } : {},
+  }), synthetic?'合成示例返回（未调用模型）':'外部AI返回结果');
   return record;
+}
+
+// Only transport wrappers are removed; values and missing fields are never repaired.
+export function normalizeTaskJSON(raw:string){
+ const text=raw.trim();if(!text.startsWith('```'))return text;
+ const matched=/^```(?:json)?\s*\n([\s\S]*?)\n```$/i.exec(text);
+ if(!matched||matched[1].includes('```'))throw Error('只接受一个完整JSON代码块，代码块之外不能有其他说明');
+ return matched[1].trim();
+}
+export function exampleTaskResponse(text:string){
+ if(!text.trim()||text.length>20000)throw Error('请先填入1到20000字符的原文');
+ const quote=text.trim().slice(0,Math.min(80,text.trim().length));
+ return {exampleOnly:true,dimensions:SCORED_DIMENSIONS.map(id=>({id,score:3,comment:'合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。',evidence:[quote]})),safety:{category:'none',needs_review:false,comment:'合成格式示例，未进行安全评测。',evidence:[]},overall:3};
 }

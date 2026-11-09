@@ -4,6 +4,7 @@ import type { EvaluationResult } from './types';
 import { ACTION_KINDS, decodeActions, type ReviewAction } from './actions';
 import type { ComparisonConditions } from './task-package';
 import { commentGloss } from './comment-gloss';
+import {calibrationSummary} from './review-overview';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const EXTERNAL_STORAGE = 'llm-output-eval:external:v1';
 export type ImportRecord = { key: string; sourceText: string; originalResult: EvaluationResult; reviews: Review[]; fileName: string; actions?: ReviewAction[]; conditions?: ComparisonConditions; name?:string };
@@ -82,10 +83,10 @@ export function mergeImportedReviews(current: Review[], record: ImportRecord) {
   return [...current,...record.reviews.filter(r=>!current.some(x=>x.key===record.key&&x.dimension===r.dimension))].slice(-500);
 }
 export function reportMarkdown(key: string,text: string,result: EvaluationResult,items: Review[],source: string, actions: ReviewAction[]=[]) {
-  const r=reviewReport(key,text,result,items),reviews=r.reviews;
+  const r=reviewReport(key,text,result,items),reviews=r.reviews,calibration=calibrationSummary(key,items);
   const ownActions=actions.filter(a=>a.key===key),open=ownActions.filter(a=>a.status==='open');
   return ['# 文本评测复核报告','',`来源：${source}`,`原记录声明的模型：${result.meta.model}；${result.meta.time_basis==='import-time'?'导入时间（未声明外部运行时间）':'原记录时间声明'}：${result.meta.at}`,
-    '', '## 未解决事项', ...(open.length?open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh} · ${ACTION_KINDS[a.kind]}：${a.text}`):['暂无未完成处理项；这不代表内容通过或评语正确。']),
+    '', '## 人工复核汇总统计',`支持 ${calibration.supported} 项 · 存疑 ${calibration.disputed} 项 · 需上下文 ${calibration.context} 项（已复核 ${calibration.reviewed}/5）`,calibration.priority.length?'优先校准维度：'+calibration.priority.map(id=>DIMENSIONS[id].labelZh).join('、'):'尚无存疑或待上下文维度；不代表裁判准确。','这些是本机人工判断分布，不是模型准确率或发布结论。', '', '## 未解决事项', ...(open.length?open.map(a=>`- [ ] ${DIMENSIONS[a.dimension].labelZh} · ${ACTION_KINDS[a.kind]}：${a.text}`):['暂无未完成处理项；这不代表内容通过或评语正确。']),
     ...reviews.filter(v=>v.state==='unsupported'||v.state==='needs_context').map(v=>`- ${DIMENSIONS[v.dimension].labelZh}：${REVIEW_STATES[v.state]}${v.note?'；'+v.note:''}`),
     '', '## 复核概况',
     `原始五维均分：${result.overall.toFixed(2)} / 5（未被复核改写）`,

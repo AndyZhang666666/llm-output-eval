@@ -114,7 +114,7 @@ export default function BadCasesPage() {
         >
           我的运行记录（{realItems.length}）
         </button>
-        <Link href="/compare/">对照完整稿看结构是否改善 →</Link>
+        <Link href="/compare/">对照句子补全稿看评分与依据 →</Link>
       </div>
       {showReplay && (
         <p className="replay-note">

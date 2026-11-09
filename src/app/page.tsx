@@ -8,6 +8,7 @@ import { ImportPanel } from "@/components/ImportPanel";
 import { ExternalTaskPanel } from "@/components/ExternalTaskPanel";
 import { LibraryPanel } from "@/components/LibraryPanel";
 import { ActionList } from "@/components/ActionList";
+import {CalibrationSummary} from "@/components/CalibrationSummary";
 import { ReviewOverview } from "@/components/ReviewOverview";
 import { ErrorBanner } from "@/components/ui";
 import { evaluateText } from "@/lib/api";
@@ -61,7 +62,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  function chooseDimension(id:ScoredDimensionId){dimSet(id);quoteSet(result?.dimensions.find(d=>d.id===id)?.evidence[0]??'');}
  async function run(){errorSet(null);if(!hasKey){errorSet('尚未配置模型接口。你的材料已保留，可以导入已有结果继续复核，或前往设置后明确发起评测。');return;}const c=new AbortController();request.current=c;busySet(true);resultSet(null);try{const [r]=await evaluateText(text,1,settings,c.signal);if(request.current!==c)return;resultSet(r);originSet('run');externalSet('');quoteSet(r.dimensions.find(d=>d.id===dimension)?.evidence[0]??'');collectBadCases(r,'single');}catch(e){if(request.current===c)errorSet((e as Error).message);}finally{if(request.current===c){request.current=null;busySet(false);}}}
  const key=result?(origin==='external'?externalKey:recordKey(origin==='history'?sampleId:'own',runIndex,text,result)):'';
- const sourceLabel=origin==='external'?'外部导入，未经认证':origin==='history'?'历史记录回放':origin==='run'?'本次模型运行':'用户原文，尚无有效评测';
+ const sourceLabel=origin==='external'?(result?.meta.sample?'合成示例返回 · 未调用模型':'外部导入，未经认证'):origin==='history'?'历史记录回放':origin==='run'?'本次模型运行':'用户原文，尚无有效评测';
  const mine=reviews.items.filter(r=>r.key===key),reviewed=mine.filter(r=>r.state!=='unreviewed').length,disputed=mine.filter(r=>r.state==='unsupported').length,context=mine.filter(r=>r.state==='needs_context').length;
  const selected=result?.dimensions.find(d=>d.id===dimension),located=quote?locateEvidence(text,quote):null;
  const next=SCORED_DIMENSIONS.slice(SCORED_DIMENSIONS.indexOf(dimension)+1).concat(SCORED_DIMENSIONS.slice(0,SCORED_DIMENSIONS.indexOf(dimension)+1)).find(id=>!mine.some(r=>r.dimension===id&&r.state!=='unreviewed'));
@@ -80,6 +81,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  {unfinished&&origin!=='own'&&<button className="unfinished-source" disabled={busy} onClick={()=>editText(unfinished)}>恢复未评原文（使当前评测失效）</button>}
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span>{library.data.records.some(r=>r.key===key)?<Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>:<span>此材料尚未入库，前往对照前请先导出JSON。</span>}{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
+ {result&&<CalibrationSummary recordKey={key}/>}
  <p className="library-notice" role="status">{library.notice}</p>
  {notice&&<p className="replay-note" role="status">{notice}</p>}<ErrorBanner message={error}/>
  <div className="review-desk" data-has-result={!!result}>
