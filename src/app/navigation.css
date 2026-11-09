@@ -1,0 +1,48 @@
+/* Keep each destination readable. Navigation never relies on a clipped label
+   to advertise an invisible horizontal scroll area. */
+.eval-nav a:focus-visible {
+  outline: 2px solid var(--eval-accent);
+  outline-offset: -2px;
+}
+
+@media (max-width: 1100px) {
+  .eval-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 16px;
+  }
+  .eval-header-left { display: contents; }
+  .eval-header-left > a { grid-column: 1; grid-row: 1; }
+  .eval-header > button { grid-column: 2; grid-row: 1; position: static; }
+  .eval-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: visible;
+    margin: 0;
+    padding-bottom: 4px;
+  }
+  .eval-nav a { min-height: 44px; }
+  .eval-nav a:after { bottom: 0; }
+}
+
+@media (max-width: 760px) {
+  /* 358px content width at 390px: four 89.5px cells, then three 119.3px
+     cells. The longer AIGC label belongs to the wider second row. */
+  .eval-nav {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 2px 0;
+  }
+  .eval-nav a {
+    grid-column: span 3;
+    min-width: 0;
+    justify-content: center;
+    padding: 8px 4px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .eval-nav a:nth-child(n + 5) { grid-column: span 4; }
+}
