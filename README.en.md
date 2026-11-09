@@ -1,5 +1,69 @@
 # Eval Lab
 
+Review your own manuscript, keep the evidence behind your comments, and compare revisions. Or inspect a saved model evaluation and check whether its reasons hold up against the source.
+
+[Review your text](https://andyzhang666666.github.io/llm-output-eval/workspace/) · [Explore historical cases](https://andyzhang666666.github.io/llm-output-eval/) · [Design decisions](docs/PRODUCT-DEPTH-20261109.md) · [中文](README.md)
+
+> Manual review needs no model key. Historical model outputs are replayed separately; human comments never overwrite original scores.
+
+![Actual Eval Lab workspace: source text, human evidence and manuscript revisions](docs/assets/product-depth-20261109/manual-desktop.png)
+
+## Try a review
+
+1. Open the manuscript workspace, paste your text, state its intended use and save a first version.
+2. Quote a passage, record an observation and create a follow-up action. Save a revision and compare the two versions to see which issue each change addresses.
+3. Export a readable Markdown review or a complete JSON report. Inspect and confirm the JSON import in a fresh browser to restore the manuscript and continue.
+
+No manuscript handy? Open a [historical case](https://andyzhang666666.github.io/llm-output-eval/), select a dimension, locate its quotation and record support, doubt or a need for context.
+
+## Why human judgement stays separate
+
+A quotation can exist in the source while the judgement attached to it is wrong. The rubric may also be unsuitable for the text's intended use. Original scores, human evidence and revision actions are saved separately. Linking a revision to an action still leaves the reviewer to check whether the issue was resolved. A manuscript without a model evaluation is shown as unevaluated.
+
+## Three ways to use it
+
+| Mode | What you can do | Source and limits |
+| --- | --- | --- |
+| Your manuscript | Record intended use, review passages, track actions, compare versions and export a complete report | Local manual review; no model scores are generated automatically |
+| Historical evaluations | Inspect 18 saved outputs across six samples, locate quotations and review the reasons | Saved-output replay, not a new model run |
+| Bring back model results | Take a task package to your own AI and import its JSON; a model endpoint is also optional | External execution and metadata are user declarations; synthetic format practice is labelled separately |
+
+The five-dimension rubric, original scores and historical calibration results remain distinct. A full library never silently evicts a record. Export important work as a backup.
+
+## Run locally
+
+Use Node.js 20 from the complete repository root:
+
+```sh
+npm ci
+npm run dev
+```
+
+Open `http://localhost:3000/llm-output-eval/workspace/`. Manual review and historical replay both work without a key.
+
+Reproduce the deterministic checks and static build:
+
+```sh
+npm run test:core
+npm run check:replay
+npm run build
+```
+
+These checks do not call a paid model. Historical judge calibration has its own commands and records.
+
+## Design and verification
+
+[Current release · 2026-11-09](docs/RELEASE-20261109.md) · [Feature scope and data contracts](docs/PRODUCT-DEPTH-20261109.md) · [Interface design](docs/DESIGN.md) · [Historical judge calibration](validation/judge-validation.md) · [Validation records](docs/VALIDATION.md) · [Changelog](CHANGELOG.md) · [PR checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+
+[All projects](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.en.md)
+
+## Iteration history and earlier verification
+
+<details>
+<summary>Expand the original release notes and implementation records</summary>
+
+The notes below retain their original wording. “Local” and “unpublished” describe the stage at each recorded date. See the [2026-11-09 release record](docs/RELEASE-20261109.md) for current scope and deployment status. Earlier feature limits and validation figures keep their original context.
+
 2026-11-09 approved release: personal manuscript review, intended-use context, source-linked revisions, complete report roundtrips and bounded large-report/source editing. Original scores and the five-dimension rubric are unchanged. Approved source `66a13b4`; [release and deployment verification](docs/RELEASE-20261109.md). Earlier development-preview notes below remain historical records.
 
 2026-11-09 capacity fix: genuine downloads from a 400KB legacy material roundtrip with raw/normalized transport intact. Original material remains capped at 1MB; bounded report envelopes cannot expand it. Edits over 20,000 characters stay complete with an inline notice and new-task guard, while old large reports remain reviewable/exportable. [Checks and artifact hashes](docs/REPORT-ENVELOPE-20261109.md).
@@ -85,3 +149,5 @@ Use the repository’s existing licence and notices. This update does not change
 ## Personal inputs and portable results · 2026-11-01
 
 This update adds personal inputs and a portable result, with the reviewed implementation integrated through a release branch. The main review flow works in the browser without a model key. Imports are unverified; original scores and 18 historical runs stay intact. Human review is exported separately and does not grant publication approval.
+
+</details>
