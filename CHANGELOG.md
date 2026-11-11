@@ -1,5 +1,14 @@
 # 更新记录
 
+## 2026-11-11 · 适用性参考、改稿对照与校准备忘（开发分支，未发布）
+
+- 保留模型五维原分与原始均分，按明确不适用的维度另算参考均分；待补上下文不排除，全部不适用时显示无均分，纯人工文稿不生成模型分数。Markdown 同口径，JSON 结构保持兼容。
+- 当前原文可与保存顺序的上一版逐字对照增删，保留空白、中文和两版正文；20k 大差异有固定计算预算。首版明确不可对照。
+- 本版送评 Prompt 复用未改动的完整五维任务包；Rubric Patch 仅汇总当前记录的明确问题、原始引句及人工备注，保持草稿／待人工审阅，不自动改规则或评分。
+- 原45项断言冻结保留，另增8项检查；本地静态构建、实际剪贴板、文件下载、跨干净浏览器恢复、1280/768/390与键盘／减少动效验证见[证据与边界](docs/TASK-LOOPS-20261111.md)。
+
+Development only: separate applicability reference mean, preceding-version inline diff, unchanged-rubric handoff and quoted draft calibration memo. No merge or deployment in this change.
+
 ## 2026-11-09 · 手机导航完整展示与短文稿间距
 
 - 七个导航入口在手机默认排成两行，保留完整标签、44px点击区和可见键盘焦点；平板不再与品牌挤在同一行。

@@ -30,6 +30,8 @@ A quotation can exist in the source while the judgement attached to it is wrong.
 
 The five-dimension rubric, original scores and historical calibration results remain distinct. A full library never silently evicts a record. Export important work as a backup.
 
+2026-11-11 development preview: explicit N/A judgments can show a separate applicable-dimension reference mean. The manuscript source offers an inline diff against the preceding saved version and a current-version evaluation prompt. Calibration offers a draft Rubric Patch memo for manual review. Original scores, the original mean and the canonical rubric stay unchanged. [Behavior and local evidence](docs/TASK-LOOPS-20261111.md). This branch has not been merged or deployed.
+
 ## Run locally
 
 Use Node.js 20 from the complete repository root:

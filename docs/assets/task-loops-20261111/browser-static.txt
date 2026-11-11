@@ -1,0 +1,2 @@
+PASS: main record, memo, revision, inline diff, clipboard and real exports at three widths.
+PASS: static task-loop browser scenarios, clipboard, downloads, restore, three widths, keyboard and reduced motion.
