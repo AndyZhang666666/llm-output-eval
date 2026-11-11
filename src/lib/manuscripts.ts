@@ -2,6 +2,7 @@ import {SCORED_DIMENSIONS,DIMENSIONS} from './dimensions';
 import {decodeActions,type ReviewAction} from './actions';
 import {reportMarkdown,recordFromPayload,validateReviewPayload,type ImportRecord} from './import-report';
 import type {Review} from './review';
+import {applicableReferenceLabel} from './task-loops';
 import {PURPOSES,type Purpose,APPLICABILITY,validateReviewContext,type ReviewContext} from './review-context';
 export {PURPOSES,type Purpose,APPLICABILITY} from './review-context';
 export const MANUSCRIPT_STORAGE='llm-output-eval:manuscripts:v2';
@@ -100,7 +101,7 @@ export function manuscriptMarkdown(project:Manuscript,records:ImportRecord[],rev
   `## ${v.name}`,`版本：${v.id}；创建时间：${v.createdAt}；用途：${PURPOSES[v.purpose]}`,`父版本：${v.parentId||'无（初稿）'}`,purposeWarning(v),'',`模型评测：${v.assessmentKeys.length?v.assessmentKeys.length+'份关联原始记录':'尚无模型评测；以下仅为人工审阅'}`,
   '### 本次准备处理的来源事项',...(v.addressedActions.length?v.addressedActions.map(a=>`- ${a.text}（来源 ${a.key}；事项 ${a.id}；关联并不表示已解决）${a.evidence?'；原文依据：'+a.evidence:''}`):['未关联处理项。']),
   '### 人工审阅',...(v.observations.length?v.observations.flatMap(o=>[`- ${DIMENSIONS[o.dimension].labelZh}：${APPLICABILITY[o.applicability]}`,`  引用：${o.evidence||'未引用'}`,`  意见：${o.note||'未填写'}`,`  适用性理由：${o.reason||'未填写'}`]):['尚无人工审阅。']),
-  '### 本版人工处理清单',...actions.filter(a=>a.key===revisionActionKey(v.id)).map(a=>`- [${a.status==='done'?'x':' '}] ${a.text}（勾选仅记录处理进度）`),'### 原文',v.sourceText,'',...r.assessments.filter(record=>v.assessmentKeys.includes(record.key)).map(record=>['### 关联模型记录与单篇人工解释','用途与适用性来自该记录的单篇复核，与上方本版人工审阅分别保留。',reportMarkdown(record.key,record.sourceText,record.originalResult,reviews,record.originalResult.meta.sample?'合成示例 / 非模型运行':'关联的原始模型记录（来源声明未认证）',actions,record.reviewContext).replace(/^#/gm,'##')].join('\n\n')),
+  '### 本版人工处理清单',...actions.filter(a=>a.key===revisionActionKey(v.id)).map(a=>`- [${a.status==='done'?'x':' '}] ${a.text}（勾选仅记录处理进度）`),'### 原文',v.sourceText,'',...r.assessments.filter(record=>v.assessmentKeys.includes(record.key)).map(record=>['### 关联模型记录与单篇人工解释',...(v.observations.length&&applicableReferenceLabel(record.originalResult,v.observations)?[applicableReferenceLabel(record.originalResult,v.observations)!,`适用性来源：本版 ${v.name} 已保存人工观察（未合并单篇声明）；下方单篇报告独立保留该记录自己的解释。`]:[]),'用途与适用性来自该记录的单篇复核，与上方本版人工审阅分别保留。',reportMarkdown(record.key,record.sourceText,record.originalResult,reviews,record.originalResult.meta.sample?'合成示例 / 非模型运行':'关联的原始模型记录（来源声明未认证）',actions,record.reviewContext).replace(/^#/gm,'##')].join('\n\n')),
  ]),'## 边界',...r.limits.map(x=>'- '+x)].join('\n');
 }
 
