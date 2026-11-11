@@ -1,0 +1,5 @@
+PASS: 6 historical samples / 18 recorded runs; no invented scores or new API calls
+▲ Next.js 16.3.5 (Turbopack)
+✓ Running next.config.ts took 1558ms
+
+  Creating an optimized production build ...

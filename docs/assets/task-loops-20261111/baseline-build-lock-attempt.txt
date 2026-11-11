@@ -1,0 +1,10 @@
+PASS: 6 historical samples / 18 recorded runs; no invented scores or new API calls
+▲ Next.js 16.3.5 (webpack)
+✓ Running next.config.ts took 66ms
+⨯ Another next build process is already running.
+
+  This could be:
+  - A next build still in progress
+  - A previous build that didn't exit cleanly
+
+  Suggestion: Wait for the build to complete.
