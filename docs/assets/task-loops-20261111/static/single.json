@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "recordKey": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+  "recordKey": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
   "sourceText": "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。",
   "originalResult": {
     "exampleOnly": true,
@@ -55,25 +55,25 @@
     "overall": 3,
     "meta": {
       "model": "合成示例 · 非模型运行",
-      "at": "2026-11-11T07:09:11.102Z",
+      "at": "2026-11-11T07:24:35.641Z",
       "time_basis": "import-time",
       "sample": true
     }
   },
   "reviews": [
     {
-      "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+      "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
       "dimension": "structure",
       "state": "unsupported",
       "note": "引用确实存在；仅凭开场不能判断完整结局。",
-      "updatedAt": "2026-11-11T07:09:11.459Z"
+      "updatedAt": "2026-11-11T07:24:36.015Z"
     },
     {
-      "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+      "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
       "dimension": "coherence",
       "state": "needs_context",
       "note": "",
-      "updatedAt": "2026-11-11T07:09:11.832Z"
+      "updatedAt": "2026-11-11T07:24:36.389Z"
     }
   ],
   "limits": [
@@ -102,7 +102,7 @@
         "reason": "需上一场背景，不能自动排除这一维。"
       }
     ],
-    "updatedAt": "2026-11-11T07:09:11.799Z"
+    "updatedAt": "2026-11-11T07:24:36.357Z"
   },
   "actions": []
 }

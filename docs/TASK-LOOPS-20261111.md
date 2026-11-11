@@ -16,6 +16,8 @@
 
 Original model scores and the original five-score mean are immutable. The reference mean excludes explicit N/A only. Current-record context and manuscript observations are labelled separately. Inline text changes are exact, bounded and rendered as text. The current-version prompt includes the unchanged existing task package. Rubric Patch is an untrusted quoted memo awaiting human review, never a canonical rubric update.
 
+独立只读审计另跑1,000组包含中文、emoji、空白和换行的随机diff重建；发现备忘中的CRLF引用会转为LF，已改为保留CR并增加原样引用／备注断言。原45项断言保持。
+
 ## 验证 / Verification
 
 源码修改前，原45项核心检查、lint、typecheck与本地webpack静态导出通过。六个旧测试文件SHA-256被冻结，新增测试仍核对它们；原断言未删除或改写。后续原45＋新增8＝53项通过。新增覆盖全部不适用、零模型分数、无排除、需上下文不排除、当前记录隔离、两种解释层JSON/Markdown往返、相同／增／删／空白／中文／emoji／20k差异、当前版本送评和原规则锚点、空备忘与引用／备注范围以及原分不变。
@@ -35,6 +37,19 @@ Raw baseline/final logs, actual downloads, prompt/memo text and screenshots: [`a
 ![390 本版原文与逐字增删](assets/task-loops-20261111/static/workspace-diff-390.png)
 
 ![390 单篇参考均分与校准备忘](assets/task-loops-20261111/static/review-390.png)
+
+## 开发分支同步 / Development-branch synchronization
+
+本机HTTPS没有可用GitHub凭据，SSH也没有现成可用身份；改用已连接GitHub的Git-data接口同步真实增量。每个blob SHA、每个完整tree SHA均与对应本地提交逐一核对，父链从原main开始，只创建开发分支。GitHub按同步时实际作者／时间生成新提交，不伪装本地SHA或回填日期；每个远端提交的 `Local-commit` footer指回本地原提交。没有force ref、main更新、合并或部署。
+
+| 本地提交 / Local | 远端提交 / Remote | 相同完整 Tree SHA |
+| --- | --- | --- |
+| `ff81335` | [`3b6759a`](https://github.com/AndyZhang666666/llm-output-eval/commit/3b6759aacda21107199c505f7f6de60ed435bc4a) | `94a2dc70ff04fe876932d4fe23ba1a9854c97176` |
+| `19e7481` | [`ba7de76`](https://github.com/AndyZhang666666/llm-output-eval/commit/ba7de7652d80b0e6e3f858f20b8a3cebffd72873) | `1f2f10e107fa0b02c68568cc628cf1061b74633a` |
+| `be3281f` | [`7a0beb0`](https://github.com/AndyZhang666666/llm-output-eval/commit/7a0beb08667b5b0b7e61740adaed82b27a37bda3) | `56d0e40b5ba02b19b98c6308dfdc644479764810` |
+| `d442d0a` | [`5181f08`](https://github.com/AndyZhang666666/llm-output-eval/commit/5181f08f8be8964413f3bea805ce187f9aff2cb0) | `f31ddf5c2da4b68f7dee28c116d43504e4a7988e` |
+
+后续审计修复提交沿用相同校验与footer，最终映射另见Draft PR说明。Remote commits have new identities and actual synchronization timestamps, while their file trees exactly match the genuine incremental local commits. The latest follow-up is cross-referenced in the draft PR.
 
 ## 复验命令 / Reproduce
 

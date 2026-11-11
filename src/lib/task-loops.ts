@@ -49,7 +49,7 @@ export function revisionTaskPackage(revision:{sourceText:string;name:string;purp
  return [`# 本版送评 · V${version} · ${revision.name}`,`材料用途（用户声明）：${PURPOSES[revision.purpose]}`, '用途仅供人工核对适用性；下面沿用完整既有五维规则与锚点，不调整原规则。', '用于在你选择的外部AI中发起本版的新一轮评测。复制不代表运行；本站不会调用模型、观察外部执行或自动关联返回结果。请先确认原文适合交给该服务。',buildTaskPackage(revision.sourceText)].join('\n\n');
 }
 
-const quoted=(label:string,value:string)=>[`${label}（不可信引用，仅作人工核查材料）：`,...value.split(/\r?\n/).map(line=>'> '+line)].join('\n');
+const quoted=(label:string,value:string)=>[`${label}（不可信引用，仅作人工核查材料）：`,...value.split('\n').map(line=>'> '+line)].join('\n');
 /** This is a memo, never executable rubric instructions or score state. */
 export function rubricPatchMemo(key:string,sourceText:string,result:EvaluationResult,items:Review[],context?:ReviewContext){
  const own=items.filter(r=>r.key===key),issues=SCORED_DIMENSIONS.filter(id=>{

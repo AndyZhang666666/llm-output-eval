@@ -2,17 +2,17 @@
   "version": 2,
   "kind": "manuscript-review",
   "project": {
-    "id": "8cd60c10-131c-4857-9209-866e5f18a638",
+    "id": "87f7eaf0-9155-4d76-9214-ca5595170ad8",
     "name": "窗边车票 · 合成验收稿",
-    "createdAt": "2026-11-11T07:09:12.565Z",
-    "activeRevisionId": "dc829466-7e12-47b2-b497-29231076e5a3",
+    "createdAt": "2026-11-11T07:24:37.122Z",
+    "activeRevisionId": "3801d054-2222-4497-b996-ba3beb762752",
     "revisions": [
       {
-        "id": "8cd60c10-131c-4857-9209-866e5f18a638:v1",
+        "id": "87f7eaf0-9155-4d76-9214-ca5595170ad8:v1",
         "name": "初稿",
         "sourceText": "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。",
         "purpose": "opening",
-        "createdAt": "2026-11-11T07:09:12.565Z",
+        "createdAt": "2026-11-11T07:24:37.122Z",
         "parentId": null,
         "observations": [
           {
@@ -21,21 +21,21 @@
             "evidence": "门外的人没有回答。",
             "applicability": "not_applicable",
             "reason": "本版人工声明：这一段准备作为开场，结尾完整度不适用。",
-            "updatedAt": "2026-11-11T07:09:12.665Z"
+            "updatedAt": "2026-11-11T07:24:37.222Z"
           }
         ],
         "addressedActions": [],
         "assessmentKeys": [
-          "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82"
+          "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c"
         ]
       },
       {
-        "id": "dc829466-7e12-47b2-b497-29231076e5a3",
+        "id": "3801d054-2222-4497-b996-ba3beb762752",
         "name": "让回应可见",
         "sourceText": "顾遥把新车票放在窗边。\n\n  她说：“灯已经亮了，现在告诉我。”\n门外的人轻轻敲了两下门。",
         "purpose": "opening",
-        "createdAt": "2026-11-11T07:09:12.732Z",
-        "parentId": "8cd60c10-131c-4857-9209-866e5f18a638:v1",
+        "createdAt": "2026-11-11T07:24:37.290Z",
+        "parentId": "87f7eaf0-9155-4d76-9214-ca5595170ad8:v1",
         "observations": [],
         "addressedActions": [],
         "assessmentKeys": []
@@ -97,7 +97,7 @@
           "overall": 3,
           "meta": {
             "model": "合成示例 · 非模型运行",
-            "at": "2026-11-11T07:09:11.102Z",
+            "at": "2026-11-11T07:24:35.641Z",
             "time_basis": "import-time",
             "sample": true
           }
@@ -120,14 +120,14 @@
               "reason": "需上一场背景，不能自动排除这一维。"
             }
           ],
-          "updatedAt": "2026-11-11T07:09:11.799Z"
+          "updatedAt": "2026-11-11T07:24:36.357Z"
         },
         "transport": {
           "raw": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
           "normalized": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
           "wrapper": "plain"
         },
-        "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+        "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
         "fileName": "文稿报告中的原始评测"
       }
     ]
@@ -189,25 +189,25 @@
         "overall": 3,
         "meta": {
           "model": "合成示例 · 非模型运行",
-          "at": "2026-11-11T07:09:11.102Z",
+          "at": "2026-11-11T07:24:35.641Z",
           "time_basis": "import-time",
           "sample": true
         }
       },
       "reviews": [
         {
-          "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+          "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
           "dimension": "structure",
           "state": "unsupported",
           "note": "引用确实存在；仅凭开场不能判断完整结局。",
-          "updatedAt": "2026-11-11T07:09:11.459Z"
+          "updatedAt": "2026-11-11T07:24:36.015Z"
         },
         {
-          "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+          "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
           "dimension": "coherence",
           "state": "needs_context",
           "note": "",
-          "updatedAt": "2026-11-11T07:09:11.832Z"
+          "updatedAt": "2026-11-11T07:24:36.389Z"
         }
       ],
       "actions": [],
@@ -227,18 +227,18 @@
             "reason": "需上一场背景，不能自动排除这一维。"
           }
         ],
-        "updatedAt": "2026-11-11T07:09:11.799Z"
+        "updatedAt": "2026-11-11T07:24:36.357Z"
       },
       "transport": {
         "raw": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
         "normalized": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
         "wrapper": "plain"
       },
-      "key": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82",
+      "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
       "fileName": "文稿报告中的原始评测",
-      "savedAt": "2026-11-11T07:09:13.749Z",
+      "savedAt": "2026-11-11T07:24:38.322Z",
       "version": 1,
-      "recordKey": "external:sha256:0686a914e4de63e503e27f3f71c66acf0d24103b61b92328fd0dc7d557b1cd82"
+      "recordKey": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c"
     }
   ],
   "limits": [
