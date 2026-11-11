@@ -11,6 +11,7 @@ import { ActionList } from "@/components/ActionList";
 import {ReviewApplicability} from "@/components/ReviewApplicability";
 import {useReviewContexts,mergeReviewContext} from "@/lib/context-store";
 import {CalibrationSummary} from "@/components/CalibrationSummary";
+import {ApplicableReference} from "@/components/ApplicableReference";
 import { ReviewOverview } from "@/components/ReviewOverview";
 import { ErrorBanner } from "@/components/ui";
 import { evaluateText } from "@/lib/api";
@@ -88,7 +89,7 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  {unfinished&&origin!=='own'&&<button className="unfinished-source" disabled={busy} onClick={()=>editText(unfinished)}>恢复未评原文（使当前评测失效）</button>}
  <div className="eval-summary"><span><b>{sourceLabel}</b>{result&&<> · 原始均分 {result.overall.toFixed(2)}/5</>}</span><span className="review-progress"><progress value={reviewed} max={5} aria-label="五维复核进度"/>已复核 {reviewed}/5 · 存疑 {disputed} · 待补上下文 {context}</span></div>
  {origin==='external'&&result&&<div className="material-context"><span>{library.data.records.find(r=>r.key===key)?.name||'当前材料尚未保存至资料库'}</span>{library.data.records.some(r=>r.key===key)?<Link href={'/compare/?record='+encodeURIComponent(key)}>用这份材料做版本对照 →</Link>:<span>此材料尚未入库，前往对照前请先导出JSON。</span>}{!library.data.records.some(r=>r.key===key)&&<button onClick={()=>{try{saveLibraryRecord({key,sourceText:text,originalResult:result,reviews:mine,fileName,conditions},text.slice(0,28));}catch(e){noticeSet((e as Error).message);}}}>保存到资料库</button>}</div>}
- {result&&<CalibrationSummary recordKey={key}/>}
+ {result&&<><ApplicableReference result={result} judgments={reviewContexts.items[key]?.judgments} source="当前模型记录的单篇复核声明"/><CalibrationSummary key={key} recordKey={key} sourceText={text} result={result}/></>}
  <p className="library-notice" role="status">{library.notice}</p>
  {notice&&<p className="replay-note" role="status">{notice}</p>}<ErrorBanner message={error}/>
  <div className="review-desk" data-has-result={!!result}>
