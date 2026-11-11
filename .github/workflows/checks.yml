@@ -30,6 +30,7 @@ jobs:
           npm run validate:build
           npm run lint
           npm run test:core
+          node --test scripts/test-task-loops.mjs
           npm run build
 
       # This workflow never deploys Pages or invokes a paid model.

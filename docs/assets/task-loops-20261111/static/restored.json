@@ -1,0 +1,249 @@
+{
+  "version": 2,
+  "kind": "manuscript-review",
+  "project": {
+    "id": "87f7eaf0-9155-4d76-9214-ca5595170ad8",
+    "name": "窗边车票 · 合成验收稿",
+    "createdAt": "2026-11-11T07:24:37.122Z",
+    "activeRevisionId": "3801d054-2222-4497-b996-ba3beb762752",
+    "revisions": [
+      {
+        "id": "87f7eaf0-9155-4d76-9214-ca5595170ad8:v1",
+        "name": "初稿",
+        "sourceText": "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。",
+        "purpose": "opening",
+        "createdAt": "2026-11-11T07:24:37.122Z",
+        "parentId": null,
+        "observations": [
+          {
+            "dimension": "structure",
+            "note": "保留沉默作为钩子；下一版让回应可见。",
+            "evidence": "门外的人没有回答。",
+            "applicability": "not_applicable",
+            "reason": "本版人工声明：这一段准备作为开场，结尾完整度不适用。",
+            "updatedAt": "2026-11-11T07:24:37.222Z"
+          }
+        ],
+        "addressedActions": [],
+        "assessmentKeys": [
+          "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c"
+        ]
+      },
+      {
+        "id": "3801d054-2222-4497-b996-ba3beb762752",
+        "name": "让回应可见",
+        "sourceText": "顾遥把新车票放在窗边。\n\n  她说：“灯已经亮了，现在告诉我。”\n门外的人轻轻敲了两下门。",
+        "purpose": "opening",
+        "createdAt": "2026-11-11T07:24:37.290Z",
+        "parentId": "87f7eaf0-9155-4d76-9214-ca5595170ad8:v1",
+        "observations": [],
+        "addressedActions": [],
+        "assessmentKeys": []
+      }
+    ],
+    "assessmentSnapshots": [
+      {
+        "sourceText": "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。",
+        "originalResult": {
+          "exampleOnly": true,
+          "dimensions": [
+            {
+              "id": "persona",
+              "score": 1,
+              "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+              "evidence": [
+                "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+              ]
+            },
+            {
+              "id": "coherence",
+              "score": 2,
+              "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+              "evidence": [
+                "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+              ]
+            },
+            {
+              "id": "pacing",
+              "score": 3,
+              "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+              "evidence": [
+                "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+              ]
+            },
+            {
+              "id": "dialogue",
+              "score": 4,
+              "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+              "evidence": [
+                "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+              ]
+            },
+            {
+              "id": "structure",
+              "score": 5,
+              "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+              "evidence": [
+                "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+              ]
+            }
+          ],
+          "safety": {
+            "category": "none",
+            "needs_review": false,
+            "comment": "合成格式示例，未进行安全评测。",
+            "evidence": []
+          },
+          "overall": 3,
+          "meta": {
+            "model": "合成示例 · 非模型运行",
+            "at": "2026-11-11T07:24:35.641Z",
+            "time_basis": "import-time",
+            "sample": true
+          }
+        },
+        "reviews": [],
+        "actions": [],
+        "conditions": {},
+        "name": "顾遥把旧车票放在窗边。 她说：“等灯亮了，我再告诉",
+        "reviewContext": {
+          "purpose": "opening",
+          "judgments": [
+            {
+              "dimension": "structure",
+              "applicability": "not_applicable",
+              "reason": "单篇声明：这里只是开场，不要求完整收束。"
+            },
+            {
+              "dimension": "coherence",
+              "applicability": "needs_context",
+              "reason": "需上一场背景，不能自动排除这一维。"
+            }
+          ],
+          "updatedAt": "2026-11-11T07:24:36.357Z"
+        },
+        "transport": {
+          "raw": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
+          "normalized": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
+          "wrapper": "plain"
+        },
+        "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
+        "fileName": "文稿报告中的原始评测"
+      }
+    ]
+  },
+  "manualActions": [],
+  "assessments": [
+    {
+      "sourceText": "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。",
+      "originalResult": {
+        "exampleOnly": true,
+        "dimensions": [
+          {
+            "id": "persona",
+            "score": 1,
+            "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+            "evidence": [
+              "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+            ]
+          },
+          {
+            "id": "coherence",
+            "score": 2,
+            "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+            "evidence": [
+              "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+            ]
+          },
+          {
+            "id": "pacing",
+            "score": 3,
+            "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+            "evidence": [
+              "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+            ]
+          },
+          {
+            "id": "dialogue",
+            "score": 4,
+            "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+            "evidence": [
+              "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+            ]
+          },
+          {
+            "id": "structure",
+            "score": 5,
+            "comment": "合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。",
+            "evidence": [
+              "顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。"
+            ]
+          }
+        ],
+        "safety": {
+          "category": "none",
+          "needs_review": false,
+          "comment": "合成格式示例，未进行安全评测。",
+          "evidence": []
+        },
+        "overall": 3,
+        "meta": {
+          "model": "合成示例 · 非模型运行",
+          "at": "2026-11-11T07:24:35.641Z",
+          "time_basis": "import-time",
+          "sample": true
+        }
+      },
+      "reviews": [
+        {
+          "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
+          "dimension": "structure",
+          "state": "unsupported",
+          "note": "引用确实存在；仅凭开场不能判断完整结局。",
+          "updatedAt": "2026-11-11T07:24:36.015Z"
+        },
+        {
+          "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
+          "dimension": "coherence",
+          "state": "needs_context",
+          "note": "",
+          "updatedAt": "2026-11-11T07:24:36.389Z"
+        }
+      ],
+      "actions": [],
+      "conditions": {},
+      "name": "顾遥把旧车票放在窗边。 她说：“等灯亮了，我再告诉",
+      "reviewContext": {
+        "purpose": "opening",
+        "judgments": [
+          {
+            "dimension": "structure",
+            "applicability": "not_applicable",
+            "reason": "单篇声明：这里只是开场，不要求完整收束。"
+          },
+          {
+            "dimension": "coherence",
+            "applicability": "needs_context",
+            "reason": "需上一场背景，不能自动排除这一维。"
+          }
+        ],
+        "updatedAt": "2026-11-11T07:24:36.357Z"
+      },
+      "transport": {
+        "raw": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
+        "normalized": "{\"exampleOnly\":true,\"dimensions\":[{\"id\":\"persona\",\"score\":1,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"coherence\",\"score\":2,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"pacing\",\"score\":3,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"dialogue\",\"score\":4,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]},{\"id\":\"structure\",\"score\":5,\"comment\":\"合成示例评语：这里的分数只演示返回结构，请核查所引文字是否足以支持本维度评价。\",\"evidence\":[\"顾遥把旧车票放在窗边。\\n\\n  她说：“等灯亮了，我再告诉你。”\\n门外的人没有回答。\"]}],\"safety\":{\"category\":\"none\",\"needs_review\":false,\"comment\":\"合成格式示例，未进行安全评测。\",\"evidence\":[]},\"overall\":3}",
+        "wrapper": "plain"
+      },
+      "key": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c",
+      "fileName": "文稿报告中的原始评测",
+      "savedAt": "2026-11-11T07:24:38.322Z",
+      "version": 1,
+      "recordKey": "external:sha256:ca03082924af39e80a3871f2a1209f09e55e38dae57222c99ab56ecdb5f7cb9c"
+    }
+  ],
+  "limits": [
+    "人工审阅不等于模型评测，没有模型结果不生成分数",
+    "版本正文独立保存，处理项关联不等于问题已解决或已重新评测",
+    "模型声明和复核结论保持独立；用途不同不直接宣布赢家"
+  ]
+}

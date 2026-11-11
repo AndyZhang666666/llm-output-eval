@@ -1,0 +1,5 @@
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('button', { name: '复制本版（V2）送评 Prompt', exact: true }) to be visible[22m
+
+    at /Users/mac/Documents/Codex/2026-09-20/ok/work/demo-task-loops-20261111/eval/scripts/test-task-loops-browser.mjs:28:286

@@ -1,0 +1,43 @@
+locator.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByLabel('外部任务原文')[22m
+[2m    - locator resolved to <textarea disabled rows="5" maxlength="20000" aria-label="外部任务原文" placeholder="粘贴你的故事或剧本，最多20000字符"></textarea>[22m
+[2m    - fill("顾遥把旧车票放在窗边。[22m
+
+[2m  她说：“等灯亮了，我再告诉你。”[22m
+[2m门外的人没有回答。")[22m
+[2m  - attempting fill action[22m
+[2m    2 × waiting for element to be visible, enabled and editable[22m
+[2m      - element is not enabled[22m
+[2m    - retrying fill action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and editable[22m
+[2m      - element is not enabled[22m
+[2m    - retrying fill action[22m
+[2m      - waiting 100ms[22m
+[2m    60 × waiting for element to be visible, enabled and editable[22m
+[2m       - element is not enabled[22m
+[2m     - retrying fill action[22m
+[2m       - waiting 500ms[22m
+
+    at /Users/mac/Documents/Codex/2026-09-20/ok/work/demo-task-loops-20261111/eval/scripts/test-task-loops-browser.mjs:17:100 {
+  log: [
+    "  - waiting for getByLabel('外部任务原文')",
+    '    - locator resolved to <textarea disabled rows="5" maxlength="20000" aria-label="外部任务原文" placeholder="粘贴你的故事或剧本，最多20000字符"></textarea>',
+    '    - fill("顾遥把旧车票放在窗边。\n\n  她说：“等灯亮了，我再告诉你。”\n门外的人没有回答。")',
+    '  - attempting fill action',
+    '    2 × waiting for element to be visible, enabled and editable',
+    '      - element is not enabled',
+    '    - retrying fill action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and editable',
+    '      - element is not enabled',
+    '    - retrying fill action',
+    '      - waiting 100ms',
+    '    60 × waiting for element to be visible, enabled and editable',
+    '       - element is not enabled',
+    '     - retrying fill action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
