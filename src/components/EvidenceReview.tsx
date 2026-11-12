@@ -15,6 +15,7 @@ import { currentActions } from '@/lib/action-store';
 import {currentContexts} from '@/lib/context-store';
 import type {ImportRecord} from '@/lib/import-report';
 import type { ComparisonConditions } from '@/lib/task-package';
+import {ConfirmReviewAction} from './WorkbenchDialog';
 export function EvidenceReview({
   recordKey,
   sourceText,
@@ -125,7 +126,8 @@ export function EvidenceReview({
           placeholder="例如：引用存在，但不能支撑‘没有可识别角色’这一判断。"
         />
       </label>
-      <div className="human-reference">
+      <details className="human-reference" open={current?.humanScore!==undefined||undefined}>
+        <summary>人工参考分与撤回 <span>{current?.humanScore===undefined?'选填 · 不改变模型原分':current.humanScore+' / 5'}</span></summary>
         <label className="review-field">人工参考分（选填，不是金标）<select aria-label="人工参考分" disabled={!ready} value={current?.humanScore ?? ''} onChange={e=>{
           const value=e.target.value===''?undefined:Number(e.target.value);
           // Passing undefined must clear this optional field rather than using the default.
@@ -134,13 +136,13 @@ export function EvidenceReview({
         }}><option value="">未填写</option>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n} / 5</option>)}</select></label>
         <p>模型原分 {selected.score}/5 · 人工参考 {current?.humanScore===undefined?'未填写':current.humanScore+'/5'} · 人工−模型 {current?.humanScore===undefined?'暂无':(current.humanScore-selected.score>0?'+':'')+(current.humanScore-selected.score)}</p>
         <small>状态与参考分分别记录；填分不等于证据已支持。撤回不改原分或独立处理项。</small>
-        <button disabled={!current} onClick={()=>store(currentReviews().filter(x=>!(x.key===recordKey&&x.dimension===dimension)))}>撤回本维度人工层</button>
-      </div>
-      <ActionList key={recordKey+dimension} recordKey={recordKey} dimension={dimension} evidence={quote} canAdd={state==='unsupported'||state==='needs_context'}/>
+        <ConfirmReviewAction disabled={!current} label="撤回本维度人工层" title="撤回当前维度的人工判断？" detail="将移除这一维的复核状态、备注与人工参考分。模型原分、独立处理事项和其他维度保持。" confirmLabel="确认撤回本维度" onConfirm={()=>store(currentReviews().filter(x=>!(x.key===recordKey&&x.dimension===dimension)))}/>
+      </details>
+      <ActionList key={recordKey+dimension} recordKey={recordKey} dimension={dimension} evidence={quote} canAdd={state==='unsupported'||state==='needs_context'} showAll/>
       <p className="replay-note" role="status">
         {notice}
       </p>
-      <div className="review-actions">
+      {!compact&&<div className="review-actions">
         <button
           className="primary"
           disabled={!ready}
@@ -159,7 +161,7 @@ export function EvidenceReview({
         >
           清除本篇复核
         </button>
-      </div>
+      </div>}
     </section>
   );
 }
