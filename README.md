@@ -6,7 +6,7 @@
 
 > 人工审阅无需模型密钥。历史模型输出单独回放，人工意见与模型原分分别保留。
 
-**2026-11-12 开发审阅版（尚未发布）：** 材料入口归一、原文与评语并置、手机引文返回、独立处理清单及统一报告出口。原分、量表、导入和保存边界保持。[具体改动与验收范围](docs/WORKBENCH-CRAFT-20261112.md)。
+**2026-11-13 已发布：** 材料入口归一、原文与评语并置、手机引文返回、独立处理清单及统一报告出口。原分、量表、导入和保存边界保持。[具体改动与验收范围](docs/WORKBENCH-CRAFT-20261112.md) · [正常合并、部署和真实线上核验](docs/RELEASE-20261113.md)。
 
 ![本轮证据复核工作台实际界面，合成审阅操作](docs/screenshots/workbench-20261112/desktop.jpg)
 
@@ -34,7 +34,7 @@
 
 五维标准、模型原分与历史校准结果保持独立。资料库满额时不会自动淘汰记录；重要内容可以导出备份。
 
-2026-11-11 任务闭环：明确标为“不适用”后另显适用维度参考均分；文稿可在原文处对照上一版增删、复制本版送评 Prompt；校准小结可展开或复制待人工审阅的 Rubric Patch 备忘。模型原分、原始均分、正式评分规则保持。[行为与本地验证](docs/TASK-LOOPS-20261111.md)。已合入本轮开发的 main 基线 `af60f5b`；2026-11-12 界面精修另待审阅。
+2026-11-11 任务闭环：明确标为“不适用”后另显适用维度参考均分；文稿可在原文处对照上一版增删、复制本版送评 Prompt；校准小结可展开或复制待人工审阅的 Rubric Patch 备忘。模型原分、原始均分、正式评分规则保持。[行为与本地验证](docs/TASK-LOOPS-20261111.md)。已合入此前 main 基线 `af60f5b`；本轮界面精修现已发布。
 
 ## 本地运行
 
@@ -59,7 +59,9 @@ npm run build
 
 ## 设计与验证资料
 
-[当前发布记录 · 2026-11-09](docs/RELEASE-20261109.md) · [本轮功能与数据约定](docs/PRODUCT-DEPTH-20261109.md) · [界面设计](docs/DESIGN.md) · [历史裁判校准](validation/judge-validation.md) · [验证说明](docs/VALIDATION.md) · [更新记录](CHANGELOG.md) · [PR 检查](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+新增依赖 React Aria Components 1.22.1 使用 Apache-2.0；[随静态站提供的许可与来源](public/licenses/README.md)。
+
+[当前发布记录 · 2026-11-13](docs/RELEASE-20261113.md) · [本轮功能与数据约定](docs/PRODUCT-DEPTH-20261109.md) · [界面设计](docs/DESIGN.md) · [历史裁判校准](validation/judge-validation.md) · [验证说明](docs/VALIDATION.md) · [更新记录](CHANGELOG.md) · [PR 检查](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
 
 [全部作品](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.md)
 
@@ -72,7 +74,7 @@ npm run build
 <details>
 <summary>展开各轮原始说明与实现记录</summary>
 
-以下保留各轮原始说明。“本地”“尚未发布”等措辞描述对应日期的阶段状态；当前功能和部署状态以 [2026-11-09 发布记录](docs/RELEASE-20261109.md) 为准。历史记录中的功能限制和验证数字沿用当时口径。
+以下保留各轮原始说明。“本地”“尚未发布”等措辞描述对应日期的阶段状态；当前功能和部署状态以 [2026-11-13 发布记录](docs/RELEASE-20261113.md) 为准。历史记录中的功能限制和验证数字沿用当时口径。
 
 2026-11-09 获批发布：个人文稿人工审阅、用途解释、处理项与修改稿、完整报告往返，以及大报告和20,000字符输入保护。原始评分与五维标准不变。源码基线 `66a13b4`；[本批发布与部署验证](docs/RELEASE-20261109.md)。下面的开发预览说明保留为阶段历史。
 

@@ -6,7 +6,7 @@ Review your own manuscript, keep the evidence behind your comments, and compare 
 
 > Manual review needs no model key. Historical model outputs are replayed separately; human comments never overwrite original scores.
 
-**2026-11-12 development review, not released:** one material chooser, facing source/comment panes, a mobile return-to-comment path, one action editor and a report-format menu. Scores, rubric, import formats and storage boundaries remain intact. [Decisions and test scope](docs/WORKBENCH-CRAFT-20261112.md).
+**Released 2026-11-13:** one material chooser, facing source/comment panes, a mobile return-to-comment path, one action editor and a report-format menu. Scores, rubric, import formats and storage boundaries remain intact. [Decisions and test scope](docs/WORKBENCH-CRAFT-20261112.md) · [Merge, deployment and actual HTTPS checks](docs/RELEASE-20261113.md).
 
 ![Actual evidence workspace in this development branch, with a synthetic review action](docs/screenshots/workbench-20261112/desktop.jpg)
 
@@ -34,7 +34,7 @@ A quotation can exist in the source while the judgement attached to it is wrong.
 
 The five-dimension rubric, original scores and historical calibration results remain distinct. A full library never silently evicts a record. Export important work as a backup.
 
-2026-11-11 task loop: explicit N/A judgments can show a separate applicable-dimension reference mean. The manuscript source offers an inline diff against the preceding saved version and a current-version evaluation prompt. Calibration offers a draft Rubric Patch memo for manual review. Original scores, the original mean and the canonical rubric stay unchanged. [Behavior and local evidence](docs/TASK-LOOPS-20261111.md). Those task-loop changes are included in the `af60f5b` main baseline. The 2026-11-12 workbench polish is a separate development preview.
+2026-11-11 task loop: explicit N/A judgments can show a separate applicable-dimension reference mean. The manuscript source offers an inline diff against the preceding saved version and a current-version evaluation prompt. Calibration offers a draft Rubric Patch memo for manual review. Original scores, the original mean and the canonical rubric stay unchanged. [Behavior and local evidence](docs/TASK-LOOPS-20261111.md). Those task-loop changes are included in the `af60f5b` main baseline. The workbench polish has now been released through PR #6.
 
 ## Run locally
 
@@ -59,7 +59,9 @@ These checks do not call a paid model. Historical judge calibration has its own 
 
 ## Design and verification
 
-[Current release · 2026-11-09](docs/RELEASE-20261109.md) · [Feature scope and data contracts](docs/PRODUCT-DEPTH-20261109.md) · [Interface design](docs/DESIGN.md) · [Historical judge calibration](validation/judge-validation.md) · [Validation records](docs/VALIDATION.md) · [Changelog](CHANGELOG.md) · [PR checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
+React Aria Components 1.22.1 is Apache-2.0 licensed. Its [license and source notice](public/licenses/README.md) accompany the static site.
+
+[Current release · 2026-11-13](docs/RELEASE-20261113.md) · [Feature scope and data contracts](docs/PRODUCT-DEPTH-20261109.md) · [Interface design](docs/DESIGN.md) · [Historical judge calibration](validation/judge-validation.md) · [Validation records](docs/VALIDATION.md) · [Changelog](CHANGELOG.md) · [PR checks](https://github.com/AndyZhang666666/llm-output-eval/actions/workflows/checks.yml)
 
 [All projects](https://github.com/AndyZhang666666/AndyZhang666666/blob/main/PROJECTS.en.md)
 
