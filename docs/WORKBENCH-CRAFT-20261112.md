@@ -19,3 +19,48 @@
 检查：TypeScript 无错误；现有快速核心/导入/工作流/报告测试 45 项通过。完整浏览器交互和截图将在后续阶段补充，不以编译替代实际使用验收。
 
 依赖：`react-aria-components` 固定 `1.22.1`，Apache-2.0；仅提供无样式交互原语。继续使用现有 React、Next、Recharts 和本地/系统字体。
+
+## 第二阶段：任务恢复与视觉核对
+
+- 材料来源切换共用一组表单；关闭再打开保留上次来源、粘贴原文、任务声明和返回内容。沿用标签页草稿的本机／内存降级，没有另建业务记录。
+- 手机点击引用后切到原文；“返回这条评语”恢复原维度、引用、备注、滚动和焦点。关闭材料弹层后焦点回到原按钮；键盘和减少动态效果下可完成同一任务。
+- 初轮视觉检查发现三档量表挤占主要判断的位置，因此把量表移至“下一项”之后，提供往返锚点。评分标准仍原样显示当前档与相邻档，全量五档可展开。
+- 一个编辑区负责本篇处理清单；各维度未提交的事项单独暂存。勾选完成、人工复核和模型原分继续分开。
+- 手机保留全部七项原导航；辅助帮助入口排成一行，材料名与普通保存提示不重复占位。保存失败或不可读的警告继续显示。
+
+### 实际截图
+
+- [改前线上入口，1265px宽](screenshots/workbench-20261112/before-desktop.jpg)
+- [改后桌面工作区，1440px宽](screenshots/workbench-20261112/desktop.jpg)
+- [材料选择与坏文件提示](screenshots/workbench-20261112/material-chooser.jpg)
+- [改后手机，390px宽](screenshots/workbench-20261112/mobile.jpg)
+
+改前截图来自2026-11-12公开页面检查；改后来自独立浏览器中的本地构建。窗口尺寸不同，作为信息层级与入口组织对照，不冒充逐像素性能比较。截图中只使用历史回放或合成验收材料。
+
+### 已完成的轻量验证
+
+1. 原45项核心、导入、工作流和报告断言，以及8项任务闭环断言，共53项通过，原评分／原始均分／权限边界断言未改。
+2. 全仓ESLint、TypeScript、`validate:build`和生产静态导出通过。当前机器默认Turbopack构建等待未返回；改用同一Next版本的`next build --webpack`完成。没有改应用运行时或CI默认构建方式。
+3. [本轮界面实际操作](screenshots/workbench-20261112/interaction-results.json)：自己的JSON导入、坏文件不覆盖、跨维度未提交处理项、关闭／重开草稿、真实Markdown／JSON下载与再导入、原英文和随记录中文释义保留、手机引用往返、焦点恢复、清除确认取消、1440／1024／390、键盘与减少动效。最终量表后置后重跑通过。
+4. [原任务闭环浏览器检查](screenshots/workbench-20261112/task-loop-results.json)：适用参考均分与原分独立、单篇声明与版本观察独立、Rubric Patch／复制失败回退、V1→V2真实增删、当版Prompt、实际报告下载、干净浏览器恢复、1280／768／390和全部七项导航。仅适配材料入口、检查器和报告菜单的导航步骤，原验证断言保持。
+
+浏览器均为本地静态导出、独立合成资料，没有调用模型或付费接口。完整生成文件和失败排查截图保留在本机`output/playwright/`，不随仓库加入大包。原单独Python预览出现初始化等待，换统一Node审阅服务后通过；没有修改业务就绪逻辑掩盖该环境问题。
+
+### 复现与边界
+
+```sh
+npm ci
+npm run test:core
+node --test scripts/test-task-loops.mjs
+npm run validate:build
+npm run lint
+npx next build --webpack
+node scripts/postbuild.mjs
+# 用本地静态服务把 out 挂到 /llm-output-eval/，然后执行：
+TEST_URL=http://127.0.0.1:8868/llm-output-eval/ node scripts/test-craft-browser.mjs
+TEST_URL=http://127.0.0.1:8868/llm-output-eval/ node scripts/test-task-loops-browser.mjs
+```
+
+若Playwright不是当前项目依赖，使用已有工具环境的`PLAYWRIGHT_MODULE`，无需向生产依赖加入浏览器工具。此次未逐个重跑所有历史浏览器脚本，也未做真人可用性研究或真实模型效果评估。桌面／手机为Chrome模拟窗口，不等于实体手机验收。
+
+当前交付仅开发分支与本地审阅；未合并、未发布。后续发布需另行核对线上资源与核心操作，构建和GitHub提交不等同上线。

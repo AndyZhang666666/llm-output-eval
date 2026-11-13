@@ -6,6 +6,10 @@ Review your own manuscript, keep the evidence behind your comments, and compare 
 
 > Manual review needs no model key. Historical model outputs are replayed separately; human comments never overwrite original scores.
 
+**2026-11-12 development review, not released:** one material chooser, facing source/comment panes, a mobile return-to-comment path, one action editor and a report-format menu. Scores, rubric, import formats and storage boundaries remain intact. [Decisions and test scope](docs/WORKBENCH-CRAFT-20261112.md).
+
+![Actual evidence workspace in this development branch, with a synthetic review action](docs/screenshots/workbench-20261112/desktop.jpg)
+
 ![Actual Eval Lab workspace: source text, human evidence and manuscript revisions](docs/assets/product-depth-20261109/manual-desktop.png)
 
 ## Try a review
@@ -30,7 +34,7 @@ A quotation can exist in the source while the judgement attached to it is wrong.
 
 The five-dimension rubric, original scores and historical calibration results remain distinct. A full library never silently evicts a record. Export important work as a backup.
 
-2026-11-11 development preview: explicit N/A judgments can show a separate applicable-dimension reference mean. The manuscript source offers an inline diff against the preceding saved version and a current-version evaluation prompt. Calibration offers a draft Rubric Patch memo for manual review. Original scores, the original mean and the canonical rubric stay unchanged. [Behavior and local evidence](docs/TASK-LOOPS-20261111.md). This branch has not been merged or deployed.
+2026-11-11 task loop: explicit N/A judgments can show a separate applicable-dimension reference mean. The manuscript source offers an inline diff against the preceding saved version and a current-version evaluation prompt. Calibration offers a draft Rubric Patch memo for manual review. Original scores, the original mean and the canonical rubric stay unchanged. [Behavior and local evidence](docs/TASK-LOOPS-20261111.md). Those task-loop changes are included in the `af60f5b` main baseline. The 2026-11-12 workbench polish is a separate development preview.
 
 ## Run locally
 

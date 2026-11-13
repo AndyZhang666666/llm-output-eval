@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "url": "http://127.0.0.1:8868/llm-output-eval/",
+  "widths": [
+    1440,
+    1024,
+    390
+  ],
+  "checks": [
+    "current material and evidence first",
+    "original score unchanged",
+    "one action editor; dimension drafts restored",
+    "RAC dialog focus trap/escape/focus restore",
+    "invalid import leaves current material",
+    "external draft survives close/reopen",
+    "own JSON import and actual Markdown/JSON download",
+    "Chinese gloss and original comment retained",
+    "downloaded report reimport restores own judgment",
+    "mobile quote return restores dimension/draft/focus",
+    "reduced motion, keyboard and no horizontal overflow",
+    "clear confirmation cancel preserves human state",
+    "zero model or external requests"
+  ],
+  "errors": [],
+  "external": []
+}
