@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "environment": "local static webpack export + Chrome",
+  "url": "http://127.0.0.1:8868/llm-output-eval/",
+  "widths": [
+    1280,
+    768,
+    390
+  ],
+  "checks": [
+    "original synthetic material imported with unchanged 1–5 model scores",
+    "explicit N/A 4-dimension average; pending still included; history scope isolated",
+    "exact quoted memo + actual clipboard copy",
+    "manual-only manuscript has no fabricated average",
+    "record and revision applicability sources labeled separately",
+    "V1→V2 inline additions/deletions reconstruct whitespace/CJK originals",
+    "keyboard toggle and disclosure; first revision unavailable",
+    "actual V2 prompt copy and full fallback",
+    "real Markdown/JSON downloads and fresh reduced-motion restore/re-export",
+    "original seven mobile navigation entries and source spacing retained",
+    "zero model/external requests"
+  ],
+  "spacing": {
+    "sourceHeight": 153.5625,
+    "gap": 12
+  },
+  "errors": [],
+  "external": []
+}

@@ -48,3 +48,6 @@ validation/.lib/
 !.env.example
 .taste-skill/
 scripts/.core-test/
+
+# Full browser artifacts are local; selected review screenshots live in docs.
+/output/playwright/

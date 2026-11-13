@@ -9,6 +9,7 @@ import "./demo-help.css";
 import "./task-clarity.css";
 import "./manuscripts.css";
 import "./navigation.css";
+import "./proof-workbench.css";
 
 export const metadata: Metadata = {
   title: "文本评测台 · llm-output-eval",
