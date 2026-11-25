@@ -18,11 +18,9 @@ A reviewer can find the quoted sentence and still disagree with the verdict. To 
 
 ## Three product decisions
 
-| Decision | Alternative considered | Consequence |
-| --- | --- | --- |
-| Store the reviewer’s finding separately | Edit the model score in place | The next reader can reconstruct a disagreement. |
-| Open with an archived verdict | Require a fresh inference on arrival | Anyone can inspect the same output without a key. Rerunning the model is a separate task. |
-| Attach an observation to a version and source passage | Carry findings into every revision | A later edit can address the observation. A reviewer still has to check the new version. |
+1. **Keep the original score.** Editing it in place would erase disagreement. A reviewer adds a separate finding that the next reader can challenge.
+2. **Start with a saved verdict.** Requiring a fresh call would make a key and a changing output part of every visit. Anyone can replay the same assessment.
+3. **Tie findings to the draft version.** Carrying a finding into every revision would make it look current. A reviewer checks the passage again after each edit.
 
 ## Architecture
 
