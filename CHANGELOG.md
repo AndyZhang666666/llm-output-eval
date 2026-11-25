@@ -1,5 +1,9 @@
 # 更新记录
 
+## 2026-11-25
+
+Documented the e06 quote review, separate human verdicts and the scope of historical judge validation. The original guides remain available at their release commit.
+
 ## 2026-11-13 · 证据复核工作台正式发布
 
 - 经用户明确授权，PR #6 使用普通 merge 合入，保留三次真实开发／截图补充提交，功能合并提交 `e037b9d`。
