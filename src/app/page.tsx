@@ -84,9 +84,29 @@ function EvaluateWorkspace({initialQuery}:{initialQuery:string}){
  const next=SCORED_DIMENSIONS.slice(SCORED_DIMENSIONS.indexOf(dimension)+1).concat(SCORED_DIMENSIONS.slice(0,SCORED_DIMENSIONS.indexOf(dimension)+1)).find(id=>!mine.some(r=>r.dimension===id&&r.state!=='unreviewed'));
  useEffect(()=>{const node=resultPanel.current;if(node&&key&&dimensionMotion.current&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const a=node.animate([{opacity:.7,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:180});return()=>a.cancel();}},[key,dimension]);
  function editText(value:string){const saved=writeTabDraft('unfinished-source',{text:value,active:true});setUnfinished(value);setTransientSource(!saved.saved);mobileSet('source');textSet(value);resultSet(null);quoteSet('');externalSet('');conditionsSet(undefined);originSet('own');errorSet(null);noticeSet('原文已改变，旧评测已失效。'+saved.notice);}
+ const pool=[
+  ...REPLAY_ITEMS.flatMap(item=>item.runs.map((r,i)=>({key:recordKey(item.id,i,item.text,r),result:r,open:()=>showSample(item.id,i)}))),
+  ...library.data.records.map(record=>({key:record.key,result:record.originalResult,open:()=>importRecord(record,true,false)}))
+ ];
+ const entries=[...new Map(pool.map(record=>[record.key,record])).values()].flatMap(record=>
+  record.result.dimensions.map(d=>({record,d,state:reviews.items.find(v=>v.key===record.key&&v.dimension===d.id)?.state})));
+ const sampleForAudit=entries.find(e=>e.d.score<=2 && e.d.evidence.length)??entries.find(e=>e.d.evidence.length);
+ const groups=[
+  {label:'人工同意',rows:entries.filter(e=>e.state==='supported')},
+  {label:'评语存疑',rows:entries.filter(e=>e.state==='unsupported')},
+  {label:'缺少引文',rows:entries.filter(e=>!e.d.evidence.length)}
+ ];
+ function inspect(entry:typeof entries[number]){
+  entry.record.open();dimSet(entry.d.id);quoteSet(entry.d.evidence[0]||'');mobileSet('review');
+  requestAnimationFrame(()=>resultPanel.current?.scrollIntoView({block:'start'}));
+ }
  return <>
- <div className="eval-intro proof-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><Link href="/workspace/">自己的文本，从人工审阅开始 ↗</Link></div>
- <section className="current-material" aria-label="当前材料">
+ <div className="eval-intro proof-intro"><div><p className="workspace-kicker">创意文本 · 五维证据复核</p><h1>把评分，放回原文里。</h1></div><details className="runtime-badge"><summary>{origin==='history'?'历史记录回放':origin==='run'?'模型运行':'本机材料'}</summary><p>原始评测与人工意见分别保存。新模型调用需要在设置中配置并手动运行。 <Link href="/workspace/">进入人工审阅</Link></p></details></div>
+ <section className="calibration-strip" aria-label="裁判校准总览"><strong>裁判校准</strong>
+ {groups.map(g=>g.rows.length?<button key={g.label} disabled={busy} onClick={()=>inspect(g.rows[0])}>{g.label} <b>{g.rows.length}</b> ↗</button>:<span key={g.label}>{g.label} <b>0</b></span>)}
+ {groups[1].rows.length===0&&sampleForAudit&&<button disabled={busy} onClick={()=>inspect(sampleForAudit)}>抽查一条历史评语 →</button>}
+ <details><summary>统计口径</summary>历史材料与本机资料库按记录去重。前两项来自人工判断，缺少引文单独计数，可重叠。</details>
+ </section><section className="current-material" aria-label="当前材料">
   <div className="material-index" aria-hidden="true">文<br/>稿</div><div className="current-material-copy"><p>{sourceLabel}</p><h2>{origin==='history'?replayItem(sampleId).label:library.data.records.find(r=>r.key===key)?.name||fileName||'未评原文'}</h2><span>{text.length} 字 · {PURPOSES[reviewContexts.items[key]?.purpose||'undeclared']}{result&&<> · 原始均分 <b>{result.overall.toFixed(2)} / 5</b></>}</span></div>
   <button className="choose-material" disabled={busy} onClick={()=>setMaterialOpen(true)}>切换 / 带入材料 <span aria-hidden="true">↗</span></button>
  </section>
