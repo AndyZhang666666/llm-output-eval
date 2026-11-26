@@ -59,7 +59,7 @@ export default function DemoUtilities({project,name,steps,about}:Props){
  return <>
    <nav className="demo-tools" aria-label="作品与使用帮助">
      {/* Root belongs to the portfolio, outside this app's Next basePath. */}
-     <a href="/#selected" target="_blank" rel="noopener noreferrer" aria-label="返回作品集（新标签）">← 返回作品集 ↗</a><span className="demo-tools-spacer"/>
+     <a href="/works/#project-eval" target="_blank" rel="noopener noreferrer" aria-label="返回作品集（新标签）">← 返回作品集 ↗</a><span className="demo-tools-spacer"/>
      <button type="button" onClick={()=>open('nav')}>其他 Demo</button>
      <button type="button" onClick={()=>open('guide')}>三步体验</button>
      <button type="button" onClick={()=>open('about')}>为什么这样做</button>
